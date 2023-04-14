@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/14 21:25:10 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/14 21:29:02 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include <string>
 # include <iostream>
 # include <map>
+# include <list>
 # include "User.hpp"
 # include "Channel.hpp"
 
@@ -28,10 +29,13 @@ class Server
 		std::map<int, User*>			_users;
 		std::map<std::string, Channel*>	_channels;
 		std::map<t_err, std::string>	_errors;
-		
+		std::list<std::string>			_operators;
+		unsigned int					_port;
+		const std::string				_password;
+		Server();
 
 	public:
-		Server(/* args */);
+		Server(const unsigned int )
 		~Server();
 };
 
