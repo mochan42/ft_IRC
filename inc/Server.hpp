@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 11:39:39 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/15 11:53:28 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define SERVER_HPP
 # include <string>
 # include <iostream>
+# include <fstream>
 # include <exception>
 # include <map>
 # include <list>
