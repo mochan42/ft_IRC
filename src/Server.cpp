@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
-# include <exception>
+#include "Server.h"
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
@@ -24,7 +23,7 @@ Server::Server(unsigned int port, const std::string& password) :
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << "Error: server listening socket failed\n";
+		std::cerr << e.what() << RED << "Error: server listening socket failed" << D "\n";
 	}
 }
 
@@ -71,7 +70,7 @@ void	Server::createSocket()
 	if (this->_listeningSocket == -1)
 		throw ErrorInternal();
 	else
-		std::cout << "Listening Socket successfully opened : "  << this->getListeningSocket() << ".\n";
+		std::cout << GREEN << "Listening Socket successfully opened : "  << this->getListeningSocket() << D <<"\n";
 }
 
 /* Allow listening socket file description to be reuseable */
@@ -83,7 +82,7 @@ void	Server::makeListeningSocketReusable()
 	if (reuse < 0)
 		throw ErrorInternal();
 	else
-		std::cout << "Listening Socket successfully set to reusable.\n";
+		std::cout << GREEN << "Listening Socket successfully set to reusable." << D << "\n";
 }
 
 /* Set listening socket to be non blocking. All of the sockets for the incoming 
@@ -97,7 +96,7 @@ void	Server::setSocketToNonBlocking()
 	if (nonblock == -1)
 		throw ErrorInternal();
 	else
-		std::cout << "Listening Socket successfully set to non blocking.\n";
+		std::cout << GREEN << "Listening Socket successfully set to non blocking." << D << "\n";
 }
 
 /* Bind the listening socket to the server port*/
@@ -108,7 +107,7 @@ void	Server::bindListeningSocketToServerPort(sockaddr_in addr)
 	if (rbind == -1)
 		throw ErrorInternal();
 	else
-		std::cout << "Listening Socket sucessfully bound to server port.\n";
+		std::cout << GREEN << "Listening Socket sucessfully bound to server port." << D << "\n";
 }
 
 
@@ -121,21 +120,66 @@ void	Server::listenToClients()
 	if (rlisten < 0)
 		throw ErrorInternal();
 	else
-		std::cout << "Listening Socket started listening to IRC clients.\n";
+		std::cout << GREEN << "Listening Socket started listening to IRC clients." << D << "\n";
+}
+
+
+/* setup IRC server */
+void	Server::setupServer()
+{
+	struct sockaddr_in	addr = {};
+
+	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
+	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
+	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
+	try
+	{
+		this->makeListeningSocketReusable();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: could not make listening socket re-usable." << D << "\n";
+	}
+	try
+	{
+		this->setSocketToNonBlocking();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: could not make the listening socket non blocking." << D << "\n";
+	}
+	/* Initialize the environment for sockaddr structure */
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(this->getPort());
+	addr.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
+	try
+	{
+		this->bindListeningSocketToServerPort(addr);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: Listening Socket could not bind to Server port." << D << "\n";
+	}
+	try
+	{
+		this->listenToClients();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: Listening Socket could not listen to clients." << D << "\n";
+	}
 }
 
 //======== FUNCTIONS ============================================================================
 int	checkIsDigit(char *s)
 {
-    for (int i = 0; s[i]; i++)
-    {
-        if (std::isdigit(s[i]) == 0)
-        {
-            std::cout << "Error!\n";
-            return (1);
-        }
-    }
-    return (0); 
+	for (int i = 0; s[i]; i++)
+	{
+		if (std::isdigit(s[i]) == 0)
+			return (1);
+	}
+	return (0); 
 }
 
 int	checkOutOfRange(char *s)

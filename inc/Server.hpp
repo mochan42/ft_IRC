@@ -85,6 +85,7 @@ class Server
 		void					setSocketToNonBlocking();
 		void					bindListeningSocketToServerPort(sockaddr_in addr);
 		void					listenToClients();
+		void					setupServer();
 
 		// exception class
 		class ErrorInternal : public std::exception

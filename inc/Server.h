@@ -10,35 +10,27 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-#include "Server.h"
+#ifndef SERVER_H
+#define SERVER_H
+
+#include "Server.hpp"
+
+// *** COLORS ***//
+# define BLANK "\e[0m"
+# define BLA "\033[0;30m"
+# define RED "\033[0;31m"
+# define BDRED "\033[1;31m"
+# define GREEN "\033[0;32m"
+# define BDGRN "\033[1;32m"
+# define LIGRN "\033[38;5;82m"
+# define BKLIGRN "\033[30;48;5;82m"
+# define DKGRN "\033[38;5;22m"
+# define YELL "\033[0;33m"
+# define BLU "\033[0;34m"
+# define PU "\033[0;35m"
+# define CY "\033[0;36m"
+# define WH "\033[0;37m"
+# define D "\033[0m"
 
 
-int main(int argc, char **argv)
-{
-	if (argc != 3)
-	{
-		std::cout << RED << "Error: expected number of arguments is 2 : <server port number> <server password>" << D << "\n";
-		return (0);
-	}
-	if (!argv[1])
-	{
-		std::cout << RED << "Error: port server missing\n" << D << "\n";
-		return (0);
-	}
-	if (argv[1])
-	{
-		int                 errPortNumber = 0;
-		const std::string   portStr(argv[1]);
-
-		errPortNumber = checkPort(argv[1]);
-		if (errPortNumber > 0)
-		{
-			std::cout << RED << "Error: port server number invalid, should be between 1025 and 65535" << D << "\n";
-			return (0);
-		}
-		Server IrcServer(atoi(argv[1]), argv[2]);
-		IrcServer.setupServer();
-	}
-	return (0);
-}
+#endif
