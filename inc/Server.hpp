@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 10:51:15 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/15 11:53:28 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <cstring> // for strlen
 # include <limits.h> // for INT_MAX and INT_MIN
 # include <iostream>
+# include <fstream>
 # include <exception>
 # include <map>
 # include <list>
@@ -45,7 +46,6 @@ class Server
 		unsigned int					_port;
 		const std::string				_password;
 		const std::string				_errorFile;
-
 		void			checkPort(const std::string& port) const;
 		void			checkPassword(const std::string& password) const;
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
@@ -69,7 +69,7 @@ class Server
 		void					setPort(int inputPortNumber);
 
 		// exception class
-		class Exception : public std::exception
+		class ErrorInternal : public std::exception
 		{
 			virtual const char *what() const throw()
 			{
