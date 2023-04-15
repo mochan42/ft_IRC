@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 10:51:15 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/15 11:37:14 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # include <exception>
 # include <map>
 # include <list>
-# include "User.hpp"
-# include "Channel.hpp"
+# include "inc/User.hpp"
+# include "inc/Channel.hpp"
 
 class User;
 
@@ -56,7 +56,7 @@ class Server
 		User*					getUser(void) const;
 
 		// exception class
-		class Exception : public std::exception
+		class ErrorInternal : public std::exception
 		{
 			virtual const char *what() const throw()
 			{
