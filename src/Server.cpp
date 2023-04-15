@@ -10,53 +10,68 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Server.hpp"
+
+#include "Server.hpp"
+
+//======== CONSTRUCTORS =========================================================================
 
 Server::Server()
 {
 }
 
+
+//======== OVERLOAD OPERATORS ===================================================================
+
+
+//======== DESTRUCTOR ===========================================================================
 Server::~Server()
 {
-	// Need to delete all allocated memory here.
 }
 
-
-// ########################################### MEMBERFUNCTIONS ########################################
-void	Server::readErrorCodes(std::map<t_err, std::string>& errors)
+//======== GETTERS / SETTERS ====================================================================
+unsigned int    Server::getPort(void) const
 {
-	std::ifstream	input;
+    return (this->_port);
+}
 
-	try
+void    Server::setPort(int inputPortNumber)
+{
+    this->_port = inputPortNumber;
+}
+
+//======== MEMBER FUNCTIONS =====================================================================
+
+
+//======== FUNCTIONS ============================================================================
+int	checkIsDigit(char *s)
+{
+	int i = 0;
+
+	if (s[i] && (s[i] == '-' || s[i] == '+'))
+		i++;
+	while (s[i])
 	{
-		input.open(this->_errorFile);
-		if (input.fail())
-			throw ErrorInternal();
-		else
-		{
-			/*std::ifstream	infile(infilePath);
-			checkFileCanBeOpened(infile);
-			std::string	line;
-			std::getline(infile, line);
-			while(getline(infile, line))
-			{
-				size_t	pos = line.find(",");
-				if (pos == std::string::npos)
-				{
-					std::cout << "Error: delimiter not found in line \"" << line << "\"" << std::endl;
-					continue;
-				}
-				std::string	date = line.substr(0, pos);
-				std::string	numericValue = line.substr(pos + 1);
-				float btcNumericValueInt = static_cast<float>(atof(numericValue.c_str()));
-				this->_btcExchangeRate.insert(std::pair<std::string, float > (date, btcNumericValueInt));
-			}
-			infile.close(); */
-		}
+		if (isdigit(s[i]) != 1)
+			return (1);
+		i++;
 	}
-	catch(const std::exception& e)
-		std::cerr << "Internal error:" << e.what() << this->_errorFile << " coudln't be opened.\n";
-	
-	
-		
+	return (0);
+}
+
+int	checkOutOfRange(char *s)
+{
+	long	c;
+
+	c = strtol(s, NULL, 10);
+	if (c < MIN_PORT_NUMBER || c > MAX_PORT_NUMBER || strlen(s) > 11)
+		return (1);
+	return (0);
+}
+
+int	checkPortNumber(char *str)
+{
+	int	err = 0;
+
+	err = checkIsDigit(str) + checkOutOfRange(str);
+	return (err);
 }

@@ -13,37 +13,45 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 # include <string>
+# include <cstdlib> // for strtol
+# include <cctype> // for isdigit
+# include <cstring> // for strlen
+# include <limits.h> // for INT_MAX and INT_MIN
 # include <iostream>
 # include <fstream>
 # include <exception>
 # include <map>
 # include <list>
-# include "inc/User.hpp"
-# include "inc/Channel.hpp"
+//# include "User.hpp"
+//# include "Channel.hpp"
 
-class User;
+#define MIN_PORT_NUMBER 1025
+#define MAX_PORT_NUMBER 65535
 
-class Channel;
+
+//class User;
+
+//class Channel;
 
 class Server
 {
 	private:
-		std::map<int, User*>			_users;
-		std::map<std::string, Channel*>	_channels;
-		std::map<t_err, std::string>	_errors;
+		//std::map<int, User*>			_users;
+		//std::map<std::string, Channel*>	_channels;
+		//std::map<t_err, std::string>	_errors;
+		Server(const Server& obj);
+		Server&	operator=(const Server& rhs);
+		Server(const std::string& port, const std::string& password);
 		std::list<std::string>			_operators;
 		unsigned int					_port;
 		const std::string				_password;
 		const std::string				_errorFile;
-		Server();
-		Server(const Server& obj);
-		Server&			operator=(const Server& rhs);
 		void			checkPort(const std::string& port) const;
 		void			checkPassword(const std::string& password) const;
-		void			readErrorCodes(std::map<t_err, std::string>& errors);
+		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
 	public:
-		Server(const std::string& port, const std::string& password);
+		Server();
 		~Server();
 		// void			startServer(void);
 		// void			closeServer(void);
@@ -52,9 +60,13 @@ class Server
 		void					pingClient(void) const;
 		
 		// getters
-		Channel*				getChannel(const std::string& channel) const;
+		//Channel*				getChannel(const std::string& channel) const;
 		unsigned int			getPort(void) const;
-		User*					getUser(void) const;
+		//User*					getUser(void) const;
+
+
+		// setters
+		void					setPort(int inputPortNumber);
 
 		// exception class
 		class ErrorInternal : public std::exception
@@ -67,6 +79,8 @@ class Server
 
 };
 
-
+int	checkIsDigit(char *s);
+int	checkOutOfRange(char *s);
+int	checkPortNumber(char *str);
 
 #endif
