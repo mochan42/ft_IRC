@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 11:37:14 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/15 11:39:39 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class Server
 		const std::string				_errorFile;
 		Server();
 		Server(const Server& obj);
-		Server&	operator=(const Server& rhs);
+		Server&			operator=(const Server& rhs);
 		void			checkPort(const std::string& port) const;
 		void			checkPassword(const std::string& password) const;
 		void			readErrorCodes(std::map<t_err, std::string>& errors);
