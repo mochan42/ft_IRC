@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/15 14:50:25 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/15 19:01:30 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,9 @@ void   Channel::setTopic(std::string topic)
 void Channel::broadcastMsg(std::string msg)
 {
 	int msgLen = msg.size();
+	int fd = 0;
 	std::list<User *>::iterator it;
+	
 
 	try
 	{
@@ -117,7 +119,8 @@ void Channel::broadcastMsg(std::string msg)
 			throw NullPointerException();
 		for (it = _allUsers.begin(); it != _allUsers.end(); ++it)
 		{
-			write((*it)->fd, msg.c_str(); msgLen);
+			fd = (*it)->getFd();
+			write(fd, msg.c_str(); msgLen);
 		}
 	}	
 	catch(const std::exception & e)
