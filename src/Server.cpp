@@ -6,15 +6,17 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/14 21:10:06 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/15 12:14:29 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "Server.hpp"
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
     _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators() 
+
 {
 	try
 	{
@@ -25,6 +27,7 @@ Server::Server(unsigned int port, const std::string& password) :
 		std::cerr << e.what() << "Error: server listening socket failed\n";
 	}
 }
+
 
 //======== OVERLOAD OPERATORS ===================================================================
 
