@@ -14,9 +14,18 @@
 #include "Server.hpp"
 
 //======== CONSTRUCTORS =========================================================================
+Server::Server(unsigned int port, const std::string& password) :
+    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators() 
 
-Server::Server()
 {
+	try
+	{
+		this->createSocket();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << "Error: server listening socket failed\n";
+	}
 }
 
 
@@ -39,23 +48,41 @@ void    Server::setPort(int inputPortNumber)
     this->_port = inputPortNumber;
 }
 
+const std::string	Server::getPassword(void) const
+{
+    return (this->_password);
+}
+
+int Server::getListeningSocket() const
+{
+	return (this->_listeningSocket);
+}
+
+
 //======== MEMBER FUNCTIONS =====================================================================
 
+/* AF_INET : for IPv4 protocol*/
+/* We use TCP Protocol, hence SOCK_STREAM */
+/* protocol = 0 beacuase there is only one protocol available for UNIX domain sockets */
+void	Server::createSocket()
+{
+    this->_listeningSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->_listeningSocket == -1)
+		throw Exception();
+}
 
 //======== FUNCTIONS ============================================================================
 int	checkIsDigit(char *s)
 {
-	int i = 0;
-
-	if (s[i] && (s[i] == '-' || s[i] == '+'))
-		i++;
-	while (s[i])
-	{
-		if (isdigit(s[i]) != 1)
-			return (1);
-		i++;
-	}
-	return (0);
+    for (int i = 0; s[i]; i++)
+    {
+        if (std::isdigit(s[i]) == 0)
+        {
+            std::cout << "Error!\n";
+            return (1);
+        }
+    }
+    return (0); 
 }
 
 int	checkOutOfRange(char *s)
@@ -68,10 +95,10 @@ int	checkOutOfRange(char *s)
 	return (0);
 }
 
-int	checkPortNumber(char *str)
+int	checkPort(char *port)
 {
 	int	err = 0;
 
-	err = checkIsDigit(str) + checkOutOfRange(str);
+	err = checkIsDigit(port) + checkOutOfRange(port);
 	return (err);
 }
