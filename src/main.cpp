@@ -61,10 +61,18 @@ int main(int argc, char **argv)
 		/* Initialize the environment for sockaddr structure */
 		memset(&addr, 0, sizeof(addr));
 		addr.sin_family = AF_INET;
-		addr.sin_port = htons(IrcServer.getListeningSocket());
+		addr.sin_port = htons(IrcServer.getPort());
 		addr.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
-		
 
+		/* Bind the listening socket to the server port*/
+		int	rbind = 0;
+		rbind = bind(IrcServer.getListeningSocket(), (sockaddr *)&addr, sizeof(sockaddr));
+		if (rbind == -1)
+		{
+			std::cout << "Error: binding socket failed\n";
+			return (0);
+		}
+		std::cout << "rbind = " << rbind <<"\n";
 	}
 	return (0);
 }

@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "Server.hpp"
+# include <exception>
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
@@ -69,7 +69,7 @@ void	Server::createSocket()
 {
     this->_listeningSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_listeningSocket == -1)
-		throw Exception();
+		throw ErrorInternal();
 }
 
 
@@ -80,7 +80,7 @@ void	Server::makeListeningSocketReusable()
 
 	reuse = setsockopt(this->_listeningSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
 	if (reuse < 0)
-		throw Exception();
+		throw ErrorInternal();
 }
 
 /* Set listening socket to be non blocking. All of the sockets for the incoming 
@@ -92,10 +92,9 @@ void	Server::setSocketToNonBlocking()
 
 	nonblock = fcntl(this->_listeningSocket, F_SETFL, O_NONBLOCK);
 	if (nonblock == -1)
-		throw Exception();
+		throw ErrorInternal();
 }
 
-/* Bind the listening socket to the server port*/
 
 
 

@@ -12,6 +12,7 @@
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
+# include <exception>
 # include <string>
 # include <cstdlib> // for strtol
 # include <cctype> // for isdigit
@@ -19,7 +20,6 @@
 # include <limits.h> // for INT_MAX and INT_MIN
 # include <iostream>
 # include <fstream>
-# include <exception>
 # include <map>
 # include <list>
 # include <sys/socket.h>  // to create socket
