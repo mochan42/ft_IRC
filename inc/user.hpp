@@ -6,6 +6,7 @@
 # include <string.h>
 # include <iostream>
 # include <list>
+# include <poll.h>
 
 
 class User
@@ -20,15 +21,17 @@ class User
 		std::list<std::string>	_inputTokens
 
 	public:
-					User();
+					User(pollfd &client);
 		User&		operator=(const User &src);
 					~User();
 
 		void		getFd(void);
 		void		setNickName(std::string nickName);
 		void		getNickName(void);
-		void		setUserName(std::string nickName);
+		void		setUserName(std::string userName);
 		void		getUserName(void);
+		void		setRealName(std::string realName);
+		void		getRealName(void);
 
 		User&		newUser(void);
 		void		changeTopic(channel& currentChannel, std::string newTopic);

@@ -1,21 +1,33 @@
-include "../inc/user.hpp"
+#include "../inc/user.hpp"
 
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------
 
-User::User()
+User::User(pollfd &client)
 {
-
+	this->_userFd = client.fd;
+	this->_userName = "";
+	this->_nickName = "";
+	// this->_realName = "";
+	this->_channelList = std::list<Channel>();
+	this->_isRegistered = false;
+	this->_inputTokens = std::list<std::string>();
 }
 
 User::User&		operator=(const User &src)
 {
-
+	this->_userFd = src.getFd();
+	this->_userName = src.getUserName();
+	this->_nickName = src.getNickName();
+	// this->_realName = src.getRealName();
+	this->_channelList = src._channelList;
+	this->_isRegistered = src._isRegistered;
+	this->_inputTokens = src._inputTokens;
 }
 
 User::~User()
 {
-
+	std::cout << "User " << this->getUserName() << " removed from server." << std::endl;
 }
 
 //		*!* NAME and ID Handling  *!*
@@ -23,27 +35,37 @@ User::~User()
 
 void		User::getFd(void)
 {
-
+	return (this->_userFd);
 }
 
 void		User::setNickName(std::string nickName)
 {
-
+	_nickName = nickName;
 }
 
 void		User::getNickName(void)
 {
-
+	return (this->_nickName);
 }
 
-void		User::setUserName(std::string nickName)
+void		User::setUserName(std::string userName)
 {
-
+	_userName = userName;
 }
 
 void		User::getUserName(void)
 {
+	return (this->_userName);
+}
 
+void		User::setRealName(std::string realName)
+{
+	_realName = realName;
+}
+
+void		User::getRealName(void)
+{
+	return (this->_realName);
 }
 
 //		*!* CHANNEL interacting  *!*
