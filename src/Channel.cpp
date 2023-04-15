@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/15 19:01:30 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/15 19:34:38 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@ Channel::Channel( std::string name, std::string topic )
 		{
 			_channelName = name;
 			_topic = topic;
-    		_invitedUsers = new std::list<user *>;
-    		_operators = new std::list<user *>;
-    		_bannedUsers = new std::list<user *>;
-    		_allUsers = new std::list<user *>;
+    		_invitedUsers = new std::list<User *>;
+    		_operators = new std::list<User *>;
+    		_bannedUsers = new std::list<User *>;
+    		_allUsers = new std::list<User *>;
 		}
 
 	}
@@ -115,7 +115,7 @@ void Channel::broadcastMsg(std::string msg)
 	{
 		if (msgLen == 0)
 			throw EmptyContentException;
-		if (list_users == NULL)
+		if (_allUsers == NULL)
 			throw NullPointerException();
 		for (it = _allUsers.begin(); it != _allUsers.end(); ++it)
 		{
@@ -203,6 +203,7 @@ void	Channel::removeUserFromList(std::list<User *> *list_users, User *user)
 		throw UsrNotFoundException;
 	}
 }
+
 
 void    Channel::updateUserList(std::list<User *> *list_users, User *user,
                                                       t_chn_action action)
