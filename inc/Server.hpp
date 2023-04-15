@@ -22,6 +22,8 @@
 # include <map>
 # include <list>
 # include <sys/socket.h>  // to create socket
+# include <netinet/in.h> // to use struct addr_in which is used to represnt an IP address and port number.
+# include <fcntl.h>
 //# include "User.hpp"
 //# include "Channel.hpp"
 
@@ -77,6 +79,8 @@ class Server
 
 		// member functions
 		void					createSocket();
+		void					makeListeningSocketReusable();
+		void					setSocketToNonBlocking();
 
 		// exception class
 		class Exception : public std::exception

@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 	{
 		int                 errPortNumber = 0;
 		const std::string   portStr(argv[1]);
-
+		struct sockaddr_in	addr = {};
 
 		errPortNumber = checkPort(argv[1]);
 		if (errPortNumber > 0)
@@ -39,13 +39,32 @@ int main(int argc, char **argv)
 			return (0);
 		}
 		Server IrcServer(atoi(argv[1]), argv[2]);
-
 		std::cout << "Server Port Number is : " << IrcServer.getPort() << "\n";
 		std::cout << "Server Password is : " << IrcServer.getPassword() << "\n";
-
 		std::cout << "listening socket : " <<  IrcServer.getListeningSocket()<< "\n";
-		//if (remove(SV_SOCK_PATH) == -1 && errno != ENOENT)
- 		//	errExit("remove-%s", SV_SOCK_PATH);
+		try
+		{
+			IrcServer.makeListeningSocketReusable();
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << "Error: could not make listening socket re-usable\n";
+		}
+		try
+		{
+			IrcServer.setSocketToNonBlocking();
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << "Error: could not make the listening socket non blocking\n";
+		}
+		/* Initialize the environment for sockaddr structure */
+		memset(&addr, 0, sizeof(addr));
+		addr.sin_family = AF_INET;
+		addr.sin_port = htons(IrcServer.getListeningSocket());
+		addr.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
+		
+
 	}
 	return (0);
 }

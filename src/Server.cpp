@@ -58,6 +58,7 @@ int Server::getListeningSocket() const
 
 //======== MEMBER FUNCTIONS =====================================================================
 
+/* Creates a stream socket to receive incoming connections on */
 /* AF_INET : for IPv4 protocol*/
 /* We use TCP Protocol, hence SOCK_STREAM */
 /* protocol = 0 beacuase there is only one protocol available for UNIX domain sockets */
@@ -67,6 +68,33 @@ void	Server::createSocket()
 	if (this->_listeningSocket == -1)
 		throw Exception();
 }
+
+
+/* Allow listening socket file description to be reuseable */
+void	Server::makeListeningSocketReusable()
+{
+	int	reuse, on = 1;
+
+	reuse = setsockopt(this->_listeningSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
+	if (reuse < 0)
+		throw Exception();
+}
+
+/* Set listening socket to be non blocking. All of the sockets for the incoming 
+connections will also be non blocking since they will inherit that state
+from the listening socket */
+void	Server::setSocketToNonBlocking()
+{
+	int nonblock = 0;
+
+	nonblock = fcntl(this->_listeningSocket, F_SETFL, O_NONBLOCK);
+	if (nonblock == -1)
+		throw Exception();
+}
+
+/* Bind the listening socket to the server port*/
+
+
 
 //======== FUNCTIONS ============================================================================
 int	checkIsDigit(char *s)
