@@ -39,9 +39,9 @@ int main(int argc, char **argv)
 			return (0);
 		}
 		Server IrcServer(atoi(argv[1]), argv[2]);
-		std::cout << "Server Port Number is : " << IrcServer.getPort() << "\n";
-		std::cout << "Server Password is : " << IrcServer.getPassword() << "\n";
-		std::cout << "listening socket : " <<  IrcServer.getListeningSocket()<< "\n";
+		std::cout << "Server Port Number is\t: " << IrcServer.getPort() << "\n";
+		std::cout << "Server Password is\t: " << IrcServer.getPassword() << "\n";
+		std::cout << "listening socket\t: " <<  IrcServer.getListeningSocket()<< "\n";
 		try
 		{
 			IrcServer.makeListeningSocketReusable();
@@ -63,16 +63,23 @@ int main(int argc, char **argv)
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(IrcServer.getPort());
 		addr.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
-
-		/* Bind the listening socket to the server port*/
-		int	rbind = 0;
-		rbind = bind(IrcServer.getListeningSocket(), (sockaddr *)&addr, sizeof(sockaddr));
-		if (rbind == -1)
+		try
 		{
-			std::cout << "Error: binding socket failed\n";
-			return (0);
+			IrcServer.bindListeningSocketToServerPort(addr);
 		}
-		std::cout << "rbind = " << rbind <<"\n";
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << "Error: Listening Socket could not bind to Server port\n";
+		}
+		try
+		{
+			IrcServer.listenToClients();
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << "Error: Listening Socket could not listen to clients.\n";
+		}
+
 	}
 	return (0);
 }

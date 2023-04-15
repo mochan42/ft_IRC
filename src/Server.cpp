@@ -70,8 +70,9 @@ void	Server::createSocket()
     this->_listeningSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_listeningSocket == -1)
 		throw ErrorInternal();
+	else
+		std::cout << "Listening Socket successfully opened : "  << this->getListeningSocket() << ".\n";
 }
-
 
 /* Allow listening socket file description to be reuseable */
 void	Server::makeListeningSocketReusable()
@@ -81,6 +82,8 @@ void	Server::makeListeningSocketReusable()
 	reuse = setsockopt(this->_listeningSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
 	if (reuse < 0)
 		throw ErrorInternal();
+	else
+		std::cout << "Listening Socket successfully set to reusable.\n";
 }
 
 /* Set listening socket to be non blocking. All of the sockets for the incoming 
@@ -93,10 +96,33 @@ void	Server::setSocketToNonBlocking()
 	nonblock = fcntl(this->_listeningSocket, F_SETFL, O_NONBLOCK);
 	if (nonblock == -1)
 		throw ErrorInternal();
+	else
+		std::cout << "Listening Socket successfully set to non blocking.\n";
+}
+
+/* Bind the listening socket to the server port*/
+void	Server::bindListeningSocketToServerPort(sockaddr_in addr)
+{
+	int	rbind;
+	rbind = bind(this->getListeningSocket(), (sockaddr *)&addr, sizeof(sockaddr));
+	if (rbind == -1)
+		throw ErrorInternal();
+	else
+		std::cout << "Listening Socket sucessfully bound to server port.\n";
 }
 
 
-
+/* Listen the request from client (queues the requests). 
+Backlog = 32 : how many request can be in the active queue */
+void	Server::listenToClients()
+{
+	int rlisten;
+	rlisten = listen(this->getListeningSocket(), 32);
+	if (rlisten < 0)
+		throw ErrorInternal();
+	else
+		std::cout << "Listening Socket started listening to IRC clients.\n";
+}
 
 //======== FUNCTIONS ============================================================================
 int	checkIsDigit(char *s)

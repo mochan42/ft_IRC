@@ -83,6 +83,8 @@ class Server
 		void					createSocket();
 		void					makeListeningSocketReusable();
 		void					setSocketToNonBlocking();
+		void					bindListeningSocketToServerPort(sockaddr_in addr);
+		void					listenToClients();
 
 		// exception class
 		class ErrorInternal : public std::exception
