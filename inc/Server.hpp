@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 10:51:15 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/15 11:53:28 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <cstring> // for strlen
 # include <limits.h> // for INT_MAX and INT_MIN
 # include <iostream>
+# include <fstream>
 # include <exception>
 # include <map>
 # include <list>
@@ -52,6 +53,7 @@ class Server
 		std::list<std::string>			_operators;
 
 
+
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
 	public:
@@ -79,7 +81,7 @@ class Server
 		void					createSocket();
 
 		// exception class
-		class Exception : public std::exception
+		class ErrorInternal : public std::exception
 		{
 			virtual const char *what() const throw()
 			{
