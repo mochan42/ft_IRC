@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 10:27:00 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/15 10:51:15 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define SERVER_HPP
 # include <string>
 # include <iostream>
+# include <exception>
 # include <map>
 # include <list>
 # include "User.hpp"
@@ -32,11 +33,13 @@ class Server
 		std::list<std::string>			_operators;
 		unsigned int					_port;
 		const std::string				_password;
+		const std::string				_errorFile;
 		Server();
 		Server(const Server& obj);
 		Server&	operator=(const Server& rhs);
 		void			checkPort(const std::string& port) const;
 		void			checkPassword(const std::string& password) const;
+		void			readErrorCodes(std::map<t_err, std::string>& errors);
 
 	public:
 		Server(const std::string& port, const std::string& password);
@@ -45,12 +48,22 @@ class Server
 		// void			closeServer(void);
 		
 		void					createChannel(const std::string& channel) const;
+		void					pingClient(void) const;
 		
 		// getters
+		Channel*				getChannel(const std::string& channel) const;
 		unsigned int			getPort(void) const;
-		std::map<int, User*>&	getUsers(void) const;
+		User*					getUser(void) const;
 
-		
+		// exception class
+		class Exception : public std::exception
+		{
+			virtual const char *what() const throw()
+			{
+				return exception::what();
+			}
+		};
+
 };
 
 
