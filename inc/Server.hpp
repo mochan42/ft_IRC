@@ -21,12 +21,14 @@
 # include <exception>
 # include <map>
 # include <list>
+# include <sys/socket.h>  // to create socket
 //# include "User.hpp"
 //# include "Channel.hpp"
 
 #define MIN_PORT_NUMBER 1025
 #define MAX_PORT_NUMBER 65535
-
+#define BACKLOG         5
+#define BUF_SIZE		30
 
 //class User;
 
@@ -35,23 +37,25 @@
 class Server
 {
 	private:
+		Server();
 		//std::map<int, User*>			_users;
 		//std::map<std::string, Channel*>	_channels;
 		//std::map<t_err, std::string>	_errors;
 		Server(const Server& obj);
 		Server&	operator=(const Server& rhs);
-		Server(const std::string& port, const std::string& password);
-		std::list<std::string>			_operators;
+
+		
 		unsigned int					_port;
+		int								_listeningSocket;
 		const std::string				_password;
 		const std::string				_errorFile;
+		std::list<std::string>			_operators;
 
-		void			checkPort(const std::string& port) const;
-		void			checkPassword(const std::string& password) const;
+
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
 	public:
-		Server();
+		Server(unsigned int port, const std::string& password);
 		~Server();
 		// void			startServer(void);
 		// void			closeServer(void);
@@ -62,11 +66,17 @@ class Server
 		// getters
 		//Channel*				getChannel(const std::string& channel) const;
 		unsigned int			getPort(void) const;
+		const std::string		getPassword(void) const;
+		int						getListeningSocket(void) const;
 		//User*					getUser(void) const;
 
 
 		// setters
 		void					setPort(int inputPortNumber);
+		void					checkPassword(const std::string& password) const;
+
+		// member functions
+		void					createSocket();
 
 		// exception class
 		class Exception : public std::exception
@@ -81,6 +91,6 @@ class Server
 
 int	checkIsDigit(char *s);
 int	checkOutOfRange(char *s);
-int	checkPortNumber(char *str);
+int	checkPort(char *port);
 
 #endif
