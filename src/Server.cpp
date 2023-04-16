@@ -14,7 +14,7 @@
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators() 
+    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), clients() 
 
 {
 	try
@@ -24,6 +24,7 @@ Server::Server(unsigned int port, const std::string& password) :
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << RED << "Error: server listening socket failed" << D "\n";
+		return ;
 	}
 }
 
@@ -112,22 +113,22 @@ void	Server::bindListeningSocketToServerPort(sockaddr_in addr)
 
 
 /* Listen the request from client (queues the requests). 
-Backlog = 32 : how many request can be in the active queue */
+BACKLOG : how many requests can be in the active queue */
 void	Server::listenToClients()
 {
 	int rlisten;
-	rlisten = listen(this->getListeningSocket(), 32);
+	rlisten = listen(this->getListeningSocket(), BACKLOG);
 	if (rlisten < 0)
 		throw ErrorInternal();
 	else
 		std::cout << GREEN << "Listening Socket started listening to IRC clients." << D << "\n";
 }
 
-
 /* setup IRC server */
 void	Server::setupServer()
 {
 	struct sockaddr_in	addr = {};
+
 
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
 	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
@@ -139,6 +140,7 @@ void	Server::setupServer()
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << RED << "Error: could not make listening socket re-usable." << D << "\n";
+		return ;
 	}
 	try
 	{
@@ -147,12 +149,14 @@ void	Server::setupServer()
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << RED << "Error: could not make the listening socket non blocking." << D << "\n";
+		return ;
 	}
 	/* Initialize the environment for sockaddr structure */
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(this->getPort());
-	addr.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
+	inet_pton(AF_INET, "0.0.0.0", &addr.sin_addr);
+	//addr.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
 	try
 	{
 		this->bindListeningSocketToServerPort(addr);
@@ -160,6 +164,7 @@ void	Server::setupServer()
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << RED << "Error: Listening Socket could not bind to Server port." << D << "\n";
+		return ;
 	}
 	try
 	{
@@ -168,7 +173,9 @@ void	Server::setupServer()
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << RED << "Error: Listening Socket could not listen to clients." << D << "\n";
+		return ;
 	}
+
 }
 
 //======== FUNCTIONS ============================================================================

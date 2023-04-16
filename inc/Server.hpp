@@ -12,6 +12,7 @@
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
+# include <unistd.h> 
 # include <exception>
 # include <string>
 # include <cstdlib> // for strtol
@@ -23,15 +24,21 @@
 # include <map>
 # include <list>
 # include <sys/socket.h>  // to create socket
+#include <netdb.h> // for getnameinfo()
 # include <netinet/in.h> // to use struct addr_in which is used to represnt an IP address and port number.
 # include <fcntl.h>
+# include <poll.h>
+# include <arpa/inet.h> // for inet_ntop()
 //# include "User.hpp"
 //# include "Channel.hpp"
 
-#define MIN_PORT_NUMBER 1025
-#define MAX_PORT_NUMBER 65535
-#define BACKLOG         5
-#define BUF_SIZE		30
+
+#define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
+#define MAX_PORT_NUMBER	65535
+#define BACKLOG			5
+#define BUF_SIZE		100
+#define NI_MAXHOST		1025
+#define NI_MAXSERV		32
 
 //class User;
 
@@ -96,6 +103,7 @@ class Server
 			}
 		};
 
+		struct pollfd			clients[1024];
 };
 
 int	checkIsDigit(char *s);
