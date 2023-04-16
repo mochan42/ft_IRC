@@ -15,17 +15,8 @@
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
     _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), clients() 
-
 {
-	try
-	{
-		this->createSocket();
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << RED << "Error: server listening socket failed" << D "\n";
-		return ;
-	}
+
 }
 
 
@@ -72,11 +63,14 @@ void	Server::setListeningSocket (int n)
 /* protocol = 0 beacuase there is only one protocol available for UNIX domain sockets */
 void	Server::createSocket()
 {
-    this->_listeningSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->_listeningSocket == -1)
+    int listening;
+	
+	listening = socket(AF_INET, SOCK_STREAM, 0);
+	this->setListeningSocket(listening);
+	if (this->getListeningSocket() == -1)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket successfully opened : "  << this->getListeningSocket() << D <<"\n";
+		std::cout << GREEN << "Listening Socket successfully created : "  << this->getListeningSocket() << D <<"\n";
 }
 
 /* Allow listening socket file description to be reuseable */
@@ -98,7 +92,7 @@ void	Server::setSocketToNonBlocking()
 {
 	int nonblock = 0;
 
-	nonblock = fcntl(this->_listeningSocket, F_SETFL, O_NONBLOCK);
+	nonblock = fcntl(this->getListeningSocket(), F_SETFL, O_NONBLOCK);
 	if (nonblock == -1)
 		throw ErrorInternal();
 	else
@@ -132,84 +126,112 @@ void	Server::listenToClients()
 /* setup IRC server */
 void	Server::setupServer()
 {
-
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
 	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
 	
- 	std::cout << "Creating server socket..." << std::endl;
-    int listening = socket(AF_INET, SOCK_STREAM, 0);
-	this->setListeningSocket(listening);
-    if (this->getListeningSocket() == -1)
-    {
-        std::cerr << "Can't create a socket!";
-        return ;
-    }
+	/* Creating server socket... */
+	try
+	{
+		this->createSocket();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: server listening socket failed" << D "\n";
+		return ;
+	}
 
-    struct sockaddr_in hint;
-    hint.sin_family = AF_INET;
-    hint.sin_port = htons(this->getPort());
-    inet_pton(AF_INET, "0.0.0.0", &hint.sin_addr);
-    std::cout << "hint.sin_addr.s_addr " << hint.sin_addr.s_addr << "\n";
-    std::cout << "Binding socket to sockaddr..." << std::endl;
-    if (bind(listening, (struct sockaddr *)&hint, sizeof(hint)) == -1) 
-    {
-        std::cerr << "Can't bind to IP/port";
-        return ;
-    }
+	struct sockaddr_in hint;
+	hint.sin_family = AF_INET;
+	hint.sin_port = htons(this->getPort());
+	hint.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
 
-    std::cout << "Mark the socket for listening..." << std::endl;
-    if (listen(listening, SOMAXCONN) == -1)
-    {
-        std::cerr << "Can't listen !";
-        return ;
-    }
+	/* Making socket reusable... */
+	try
+	{
+		this->makeListeningSocketReusable();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: could not make listening socket re-usable." << D << "\n";
+		return ;
+	}
 
-    sockaddr_in client;
-    socklen_t clientSize = sizeof(client);
+	/* We cannot use non blocking unless we use poll simultaneously, otherwise, accept() will not block and always return an error and the serer will exit without accepting any clients */
+	//try
+	//{
+	//	this->setSocketToNonBlocking();
+	//}
+	//catch(const std::exception& e)
+	//{
+	//	std::cerr << e.what() << RED << "Error: could not make the listening socket non blocking." << D << "\n";
+	//	return ;
+	//}
 
-    std::cout << "Accept client call..." << std::endl;
-    int clientSocket = accept(listening, (struct sockaddr *)&client, &clientSize);
+	/* Binding socket to sockaddr... */
+	try
+	{
+		this->bindListeningSocketToServerPort(hint);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: Listening Socket could not bind to Server port." << D << "\n";
+		return ;
+	}
 
-    std::cout << "Received call..." << std::endl;
-    if (clientSocket == -1)
-    {
-        std::cerr << "Problem with client connecting!";
-        return ;
-    }
+	/* Mark the socket for listening... */
+	try
+	{
+		this->listenToClients();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: Listening Socket could not listen to clients." << D << "\n";
+		return ;
+	}
 
-    std::cout << "Client address: " << inet_ntoa(client.sin_addr) << " and port: " << client.sin_port << std::endl;
+	sockaddr_in client;
+	socklen_t clientSize = sizeof(client);
 
-    close(listening);
+	std::cout << "Accept client call..." << std::endl;
+	int clientSocket = accept(this->getListeningSocket(), (struct sockaddr *)&client, &clientSize);
 
-    char buf[4096];
-    while (true) {
-        // clear buffer
-        memset(buf, 0, 4096);
+	std::cout << "Received call..." << std::endl;
+	if (clientSocket == -1)
+	{
+		std::cerr << "Problem with client connecting!";
+		return ;
+	}
 
-        // wait for a message
-        int bytesRecv = recv(clientSocket, buf, 4096, 0);
-        if (bytesRecv == -1)
-        {
-            std::cerr << "There was a connection issue." << std::endl;
-        }
-        if (bytesRecv == 0)
-        {
-            std::cout << "The client disconnected" << std::endl;
-        }
-        
-        // display message
-        std::cout << "Received: " << std::string(buf, 0, bytesRecv);
+	std::cout << "Client address: " << inet_ntoa(client.sin_addr) << " and port: " << client.sin_port << std::endl;
 
-        // return message
-        send(clientSocket, buf, bytesRecv+1, 0);
-    }
-    // close socket
-    close(clientSocket);
+	close(this->getListeningSocket());
 
+	char buf[4096];
+	while (true)
+	{
+		// clear buffer
+		memset(buf, 0, 4096);
 
+		// wait for a message
+		int bytesRecv = recv(clientSocket, buf, 4096, 0);
+		if (bytesRecv == -1)
+		{
+			std::cerr << "There was a connection issue." << std::endl;
+		}
+		if (bytesRecv == 0)
+		{
+			std::cout << "The client disconnected" << std::endl;
+		}
+		
+		// display message
+		std::cout << "Received: " << std::string(buf, 0, bytesRecv);
 
-
+		// return message
+		send(clientSocket, buf, bytesRecv+1, 0);
+	}
+	// close socket
+	close(clientSocket);
 }
 
 //======== FUNCTIONS ============================================================================
