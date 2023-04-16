@@ -58,6 +58,11 @@ int Server::getListeningSocket() const
 	return (this->_listeningSocket);
 }
 
+void	Server::setListeningSocket (int n)
+{
+	this->_listeningSocket = n;
+}
+
 
 //======== MEMBER FUNCTIONS =====================================================================
 
@@ -118,7 +123,7 @@ void	Server::listenToClients()
 {
 	int rlisten;
 	rlisten = listen(this->getListeningSocket(), BACKLOG);
-	if (rlisten < 0)
+	if (rlisten == -1)
 		throw ErrorInternal();
 	else
 		std::cout << GREEN << "Listening Socket started listening to IRC clients." << D << "\n";
@@ -127,54 +132,83 @@ void	Server::listenToClients()
 /* setup IRC server */
 void	Server::setupServer()
 {
-	struct sockaddr_in	addr = {};
-
 
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
 	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
-	try
-	{
-		this->makeListeningSocketReusable();
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << RED << "Error: could not make listening socket re-usable." << D << "\n";
-		return ;
-	}
-	try
-	{
-		this->setSocketToNonBlocking();
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << RED << "Error: could not make the listening socket non blocking." << D << "\n";
-		return ;
-	}
-	/* Initialize the environment for sockaddr structure */
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(this->getPort());
-	inet_pton(AF_INET, "0.0.0.0", &addr.sin_addr);
-	//addr.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
-	try
-	{
-		this->bindListeningSocketToServerPort(addr);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << RED << "Error: Listening Socket could not bind to Server port." << D << "\n";
-		return ;
-	}
-	try
-	{
-		this->listenToClients();
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << RED << "Error: Listening Socket could not listen to clients." << D << "\n";
-		return ;
-	}
+	
+ 	std::cout << "Creating server socket..." << std::endl;
+    int listening = socket(AF_INET, SOCK_STREAM, 0);
+	this->setListeningSocket(listening);
+    if (this->getListeningSocket() == -1)
+    {
+        std::cerr << "Can't create a socket!";
+        return ;
+    }
+
+    struct sockaddr_in hint;
+    hint.sin_family = AF_INET;
+    hint.sin_port = htons(this->getPort());
+    inet_pton(AF_INET, "0.0.0.0", &hint.sin_addr);
+    std::cout << "hint.sin_addr.s_addr " << hint.sin_addr.s_addr << "\n";
+    std::cout << "Binding socket to sockaddr..." << std::endl;
+    if (bind(listening, (struct sockaddr *)&hint, sizeof(hint)) == -1) 
+    {
+        std::cerr << "Can't bind to IP/port";
+        return ;
+    }
+
+    std::cout << "Mark the socket for listening..." << std::endl;
+    if (listen(listening, SOMAXCONN) == -1)
+    {
+        std::cerr << "Can't listen !";
+        return ;
+    }
+
+    sockaddr_in client;
+    socklen_t clientSize = sizeof(client);
+
+    std::cout << "Accept client call..." << std::endl;
+    int clientSocket = accept(listening, (struct sockaddr *)&client, &clientSize);
+
+    std::cout << "Received call..." << std::endl;
+    if (clientSocket == -1)
+    {
+        std::cerr << "Problem with client connecting!";
+        return ;
+    }
+
+    std::cout << "Client address: " << inet_ntoa(client.sin_addr) << " and port: " << client.sin_port << std::endl;
+
+    close(listening);
+
+    char buf[4096];
+    while (true) {
+        // clear buffer
+        memset(buf, 0, 4096);
+
+        // wait for a message
+        int bytesRecv = recv(clientSocket, buf, 4096, 0);
+        if (bytesRecv == -1)
+        {
+            std::cerr << "There was a connection issue." << std::endl;
+        }
+        if (bytesRecv == 0)
+        {
+            std::cout << "The client disconnected" << std::endl;
+        }
+        
+        // display message
+        std::cout << "Received: " << std::string(buf, 0, bytesRecv);
+
+        // return message
+        send(clientSocket, buf, bytesRecv+1, 0);
+    }
+    // close socket
+    close(clientSocket);
+
+
+
 
 }
 

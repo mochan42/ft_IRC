@@ -79,6 +79,7 @@ class Server
 		unsigned int			getPort(void) const;
 		const std::string		getPassword(void) const;
 		int						getListeningSocket(void) const;
+		void					setListeningSocket (int n);
 		//User*					getUser(void) const;
 
 
