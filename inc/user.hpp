@@ -2,7 +2,7 @@
 # define USER_HPP
 
 # include "server.hpp"
-// # include "channel.hpp"
+// # include "Channel.hpp"
 # include <string.h>
 # include <iostream>
 # include <list>
@@ -18,7 +18,8 @@ class User
 		std::string					_nickName;
 		std::string					_realName;
 		bool						_isRegistered;
-		// std::list<Channel*>			_channelList;
+		//Server						*server;
+		//std::list<Channel*>			_channelList;
 
 	public:
 					User();
@@ -38,7 +39,7 @@ class User
 		// void		changeTopic(channel& currentChannel, std::string newTopic);
 		// channel&	createChannel(std::string channelName);
 		// void 		inviteUser(channel& currentChannel, std::string nickName);
-		// void		joinChannel(std::string channelName);
+		void		joinChannel(std::string channelName);
 		// void		kickUser(channel& channelToBeKickedOutOf, std::string nickName);
 		// void		leaveChannel(channel& currentChannel);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
@@ -47,6 +48,15 @@ class User
 		int			sendPrivateMsg(const std::vector<std::string> args);
 		// std::string	sendPW(Server& ircServer);
 		// bool		isOperator(channel& channel);
+
+
+		//Exceptions
+		class channelNotFoundException : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return ("Channel doesn't exist");
+				}
+		};
 };
 
 #endif

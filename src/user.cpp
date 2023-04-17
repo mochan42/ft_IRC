@@ -112,10 +112,18 @@ void		User::executeCommand(std::string command, std::vector<std::string> args)
 
 // }
 
-// void		User::joinChannel(std::string channelName)
-// {
-
-// }
+/* void		User::joinChannel(std::string channelName)
+{
+	channel *chptr = server->searchChannel(channelName);
+	if (chptr == NULL) //Create channel
+	{
+		
+	}
+	else { //join channel
+		//check if we are allowed to join (invite only)
+		chptr->addUserToList(*this);
+	}
+} */
 
 // void		User::kickUser(channel& channelToBeKickedOutOf, std::string nickName)
 // {
