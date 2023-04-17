@@ -131,8 +131,9 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     socklen_t addr_len = sizeof(client_addr);
     int client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
     
-    if (client_socket < 0) {
-        std::cerr << "Error accepting new connection" << std::endl;
+    if (client_socket < 0)
+	{
+        std::cout << RED << "Error accepting new connection" << D << "\n";
         return;
     }
     
@@ -141,7 +142,7 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     fds[*num_fds].events = POLLIN;
     (*num_fds)++;
     
-    std::cout << "New client connected from " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl;
+    std::cout << "New client connected from " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
 }
 
 /* Function to handle data from a client socket */
@@ -150,16 +151,16 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
     int num_bytes = recv(client_socket, buffer, buffer_size, 0);
     
     if (num_bytes < 0) {
-        std::cerr << "Error receiving data from client" << std::endl;
+        std::cerr << "Error receiving data from client" << D  << "\n";
         return;
     } else if (num_bytes == 0) {
         /* Client has disconnected */
-        std::cout << "Client disconnected" << std::endl;
+        std::cout << "Client disconnected\n";
         close(client_socket);
     } else {
         /* Output the received message */
         buffer[num_bytes] = '\0';
-        std::cout << "Received message from client: " << buffer << std::endl;
+        std::cout << "Received message from client: " << buffer << "\n";
     }
 }
 
@@ -182,6 +183,7 @@ void	Server::setupServer()
 		return ;
 	}
 
+	/* setup a server that listens to the host IP address 's_addr' with port 'sin_port' */
 	struct sockaddr_in hint;
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(this->getPort());
@@ -198,7 +200,7 @@ void	Server::setupServer()
 		return ;
 	}
 
-	/* We cannot use non blocking unless we use poll simultaneously, otherwise, accept() will not block and always return an error and the serer will exit without accepting any clients */
+	/* Setting the listening socket to none blocking */
 	try
 	{
 		this->setSocketToNonBlocking();
@@ -231,7 +233,7 @@ void	Server::setupServer()
 		return ;
 	}
 
-	struct pollfd fds[MAX_CONNECTIONS + 1];
+	struct pollfd fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listenign socket for the server.
     int num_fds = 1;
     fds[0].fd = this->getListeningSocket();
     fds[0].events = POLLIN;
