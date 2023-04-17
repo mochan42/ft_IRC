@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 12:14:29 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/17 22:39:35 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void	Server::setListeningSocket (int n)
 
 /* Creates a stream socket to receive incoming connections on */
 /* AF_INET : for IPv4 protocol*/
-/* We use TCP Protocol, hence SOCK_STREAM */
+/* We use TCP Protocol, hence SOCK_STREAM being a stream socket*/
 /* protocol = 0 beacuase there is only one protocol available for UNIX domain sockets */
 void	Server::createSocket()
 {
@@ -82,7 +82,10 @@ void	Server::createSocket()
 		std::cout << GREEN << "Listening Socket successfully created : "  << this->getListeningSocket() << D <<"\n";
 }
 
-/* Allow listening socket file description to be reuseable */
+/* Allow listening socket file description to be reuseable
+	https://beej.us/guide/bgnet/html/#getaddrinfoprepare-to-launch 5.3 bind()
+	Intends to prevent the socket from blocking the port for longer than neccessary.
+*/
 void	Server::makeListeningSocketReusable()
 {
 	int	reuse, on = 1;
