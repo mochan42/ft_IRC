@@ -123,13 +123,55 @@ void	Server::listenToClients()
 		std::cout << GREEN << "Listening Socket started listening to IRC clients." << D << "\n";
 }
 
+
+/* Function to handle new client connections */
+void handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
+{
+    struct sockaddr_in client_addr;
+    socklen_t addr_len = sizeof(client_addr);
+    int client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
+    
+    if (client_socket < 0) {
+        std::cerr << "Error accepting new connection" << std::endl;
+        return;
+    }
+    
+    /* Add the new client socket to the list of fds to poll */
+    fds[*num_fds].fd = client_socket;
+    fds[*num_fds].events = POLLIN;
+    (*num_fds)++;
+    
+    std::cout << "New client connected from " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl;
+}
+
+/* Function to handle data from a client socket */
+void handle_client_data(int client_socket, char *buffer, int buffer_size)
+{
+    int num_bytes = recv(client_socket, buffer, buffer_size, 0);
+    
+    if (num_bytes < 0) {
+        std::cerr << "Error receiving data from client" << std::endl;
+        return;
+    } else if (num_bytes == 0) {
+        /* Client has disconnected */
+        std::cout << "Client disconnected" << std::endl;
+        close(client_socket);
+    } else {
+        /* Output the received message */
+        buffer[num_bytes] = '\0';
+        std::cout << "Received message from client: " << buffer << std::endl;
+    }
+}
+
+
 /* setup IRC server */
 void	Server::setupServer()
 {
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
 	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
-	
+	char buffer[BUFFER_SIZE];
+
 	/* Creating server socket... */
 	try
 	{
@@ -190,48 +232,42 @@ void	Server::setupServer()
 		return ;
 	}
 
-	sockaddr_in client;
-	socklen_t clientSize = sizeof(client);
-
-	std::cout << "Accept client call..." << std::endl;
-	int clientSocket = accept(this->getListeningSocket(), (struct sockaddr *)&client, &clientSize);
-
-	std::cout << "Received call..." << std::endl;
-	if (clientSocket == -1)
+	struct pollfd fds[MAX_CONNECTIONS + 1];
+    int num_fds = 1;
+    fds[0].fd = this->getListeningSocket();
+    fds[0].events = POLLIN;
+    
+    while (true)
 	{
-		std::cerr << "Problem with client connecting!";
-		return ;
-	}
-
-	std::cout << "Client address: " << inet_ntoa(client.sin_addr) << " and port: " << client.sin_port << std::endl;
-
-	close(this->getListeningSocket());
-
-	char buf[4096];
-	while (true)
-	{
-		// clear buffer
-		memset(buf, 0, 4096);
-
-		// wait for a message
-		int bytesRecv = recv(clientSocket, buf, 4096, 0);
-		if (bytesRecv == -1)
+        // Use poll to wait for activity on any of the sockets
+        int num_ready_fds = poll(fds, num_fds, -1);
+        if (num_ready_fds < 0)
 		{
-			std::cerr << "There was a connection issue." << std::endl;
-		}
-		if (bytesRecv == 0)
+            std::cout << RED << "Error polling for events" << D << "\n";
+            return ;
+        }
+		else if (num_ready_fds == 0)
 		{
-			std::cout << "The client disconnected" << std::endl;
-		}
-		
-		// display message
-		std::cout << "Received: " << std::string(buf, 0, bytesRecv);
-
-		// return message
-		send(clientSocket, buf, bytesRecv+1, 0);
-	}
-	// close socket
-	close(clientSocket);
+            continue;
+        }
+        
+        // Check for new connections on the server socket
+        if (fds[0].revents & POLLIN)
+		{
+            handle_new_connection(this->getListeningSocket(), fds, &num_fds);
+            num_ready_fds--;
+        }
+        
+        // Check for activity on any of the client sockets
+        for (int i = 1; i < num_fds && num_ready_fds > 0; i++) {
+            if (fds[i].revents & POLLIN) {
+                handle_client_data(fds[i].fd, buffer, BUFFER_SIZE);
+                num_ready_fds--;
+            }
+        }
+    }
+    
+    close(this->getListeningSocket());
 }
 
 //======== FUNCTIONS ============================================================================

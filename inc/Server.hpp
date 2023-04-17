@@ -36,9 +36,8 @@
 #define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
 #define MAX_PORT_NUMBER	65535
 #define BACKLOG			5
-#define BUF_SIZE		100
-#define NI_MAXHOST		1025
-#define NI_MAXSERV		32
+#define BUFFER_SIZE		1024
+#define MAX_CONNECTIONS	10
 
 //class User;
 
@@ -110,5 +109,8 @@ class Server
 int	checkIsDigit(char *s);
 int	checkOutOfRange(char *s);
 int	checkPort(char *port);
+void handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
+void handle_client_data(int client_socket, char *buffer, int buffer_size);
+
 
 #endif
