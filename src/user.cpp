@@ -3,24 +3,15 @@
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------
 
-User::User()
-{
-	this->_userFd = 4;
-	this->_userName = "";
-	this->_nickName = "";
-	this->_realName = "";
-	// this->_channelList = std::list<Channel*>();
-	this->_isRegistered = false;
-	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
-}
 
-User::User(pollfd &client)
+User::User(int fd/*, Server ircserver*/)
 {
-	this->_userFd = client.fd;
+	// this->_server = ircserver;
+	this->_userFd = fd;
 	this->_userName = "";
 	this->_nickName = "";
 	this->_realName = "";
-	// this->_channelList = std::list<Channel*>();
+	this->_channelList = std::list<Channel*>();
 	this->_isRegistered = false;
 	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
 }
@@ -31,7 +22,7 @@ User&		User::operator=(User &src)
 	this->_userName = src.getUserName();
 	this->_nickName = src.getNickName();
 	this->_realName = src.getRealName();
-	// this->_channelList = src._channelList;
+	this->_channelList = src._channelList;
 	this->_isRegistered = src._isRegistered;
 	return (*this);
 }
@@ -49,9 +40,9 @@ int		User::getFd(void)
 	return (this->_userFd);
 }
 
-void		User::setNickName(std::string nickName)
+void		User::setNickName(const std::vector<std::string>& args)
 {
-	_nickName = nickName;
+	_nickName = args[0];
 }
 
 std::string		User::getNickName(void)
@@ -59,9 +50,9 @@ std::string		User::getNickName(void)
 	return (this->_nickName);
 }
 
-void		User::setUserName(std::string userName)
+void		User::setUserName(const std::vector<std::string>& args)
 {
-	_userName = userName;
+	_userName = args[0];
 }
 
 std::string		User::getUserName(void)
@@ -69,9 +60,9 @@ std::string		User::getUserName(void)
 	return (this->_userName);
 }
 
-void		User::setRealName(std::string realName)
+void		User::setRealName(const std::vector<std::string>& args)
 {
-	_realName = realName;
+	_realName = args[0];
 }
 
 std::string		User::getRealName(void)
@@ -82,14 +73,47 @@ std::string		User::getRealName(void)
 //		*!* Command execution  *!*
 //		---------------------------
 
-void		User::executeCommand(std::string command, std::vector<std::string> args)
+void		User::executeCommand(std::string command, std::vector<std::string>& args)
 {
-	if (command == "sendMsg")
-		sendMsg(args);
-	else if (command == "sendPrivateMsg")
-		sendPrivateMsg(args);
+	if (command == "NICK")
+		setNickName(args);
+	else if (command == "USER")
+		setUserName(args);
+	// else if (command == "REAL")
+	// 	setRealName(args);
+	else if (command == "JOIN")
+		joinChannel(args);
+	// else if (command == "")
+	// 	changeTopic(args);
+	else if (command == "")
+		inviteUser(args);
+	else if (command == "JOIN")
+		joinChannel(args);
+	else if (command == "KICK")
+		kickUser(args);
+	else if (command == "PART")
+		leaveChannel(args);
+	// else if (command == "")
+	// 	modifyChannel(args);
+	// else if (command == "")
+	// 	sendNotification(args);
+	else if (command == "PRIVMSG")
+	{
+		if (args[0].at(0) == '#')
+			sendMsg(args);
+		else
+			sendPrivateMsg(args);
+	}
+	else if (command == "PASS")
+		sendPW(args);
+	// else if (command == "")
+	// 	isOperator(args);
 	else
+	{
 		std::cout << "Command \'" << command << "\' not found." << std::endl;
+		// send("Command \'" << command << "\' not found.")
+	}
+
 }
 
 
@@ -141,14 +165,35 @@ void		User::executeCommand(std::string command, std::vector<std::string> args)
 
 // }
 
-int		User::sendMsg(const std::vector<std::string> args)
+int		User::sendMsg(const std::vector<std::string>& args)
 {
-	(void) args;
-	std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /* args[2] << */ "\'." << std::endl;
+	std::list<Channel>::iterator iterChannel;
+	std::vector<std::string>::iterator iterString;
+
+	std::ostringstream msgstream;
+	msgstream << args[1].replace(input.find(":"), 1, "");
+	for (iterString = args.begin() + 1; iterString != args.end(); iterString++)
+		msgstream << iterString.operator*();
+	std::string msg = msgstream.str(); 
+	
+	Channel currentChannel;
+	for (iterChannel = _channelList.begin(); iterChannel != _channelList.end(); iterChannel++)
+	{
+		if (args[0] == iterChannel->getChannelName())
+		{
+			currentChannel = iterChannel.operator*();
+			// iter->broadcastMsg(msg);
+			break;
+		}
+		// Errormessage when no Channel with that name;
+	}
+	std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << currentChannel.getChannelName() << "\'." << std::endl;
 	return (0);
 }
 
-int		User::sendPrivateMsg(const std::vector<std::string> args)
+
+
+int		User::sendPrivateMsg(const std::vector<std::string>& args)
 {
 	(void) args;
 	std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to User \'" << /* args[2] << */ "\' with fd = " << /*args[3] << */ std::endl;
@@ -169,3 +214,5 @@ int		User::sendPrivateMsg(const std::vector<std::string> args)
 // {
 
 // }
+
+

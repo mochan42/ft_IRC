@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Channel.hpp                                        :+:      :+:    :+:   */
+/*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/15 20:52:23 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/17 10:56:07 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <cstring>
 # include <list>
 # include <exception>
-//# include "../inc/User.hpp"
+# include "user.hpp"
 # include <unistd.h>
 
 # define CHN_MAX_USERS (1024)
