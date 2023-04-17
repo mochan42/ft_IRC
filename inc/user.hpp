@@ -2,25 +2,26 @@
 # define USER_HPP
 
 # include "server.hpp"
-# include "channel.hpp"
+// # include "channel.hpp"
 # include <string.h>
 # include <iostream>
 # include <list>
+# include <vector>
 # include <poll.h>
 
 
 class User
 {
 	private:
-		int						_userFd;
-		std::string				_userName;
-		std::string				_nickName;
-		std::string				_realName;
-		bool					_isRegistered;
-		std::list<Channel*>		_channelList;
-		std::list<std::string>	_inputTokens;
+		int							_userFd;
+		std::string					_userName;
+		std::string					_nickName;
+		std::string					_realName;
+		bool						_isRegistered;
+		// std::list<Channel*>			_channelList;
 
 	public:
+					User();
 					User(pollfd &client);
 		User&		operator=(User &src);
 					~User();
@@ -42,8 +43,8 @@ class User
 		// void		leaveChannel(channel& currentChannel);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 		// std::string	sendNotification(const std::string& msg);
-		std::vector<std::string>	sendMsg(const std::vector<std::string> args);
-		std::vector<std::string>	sendPrivateMsg(const std::vector<std::string> args);
+		int			sendMsg(const std::vector<std::string> args);
+		int			sendPrivateMsg(const std::vector<std::string> args);
 		// std::string	sendPW(Server& ircServer);
 		// bool		isOperator(channel& channel);
 };

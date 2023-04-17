@@ -3,16 +3,26 @@
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------
 
+User::User()
+{
+	this->_userFd = 4;
+	this->_userName = "";
+	this->_nickName = "";
+	this->_realName = "";
+	// this->_channelList = std::list<Channel*>();
+	this->_isRegistered = false;
+	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
+}
+
 User::User(pollfd &client)
 {
 	this->_userFd = client.fd;
 	this->_userName = "";
 	this->_nickName = "";
 	this->_realName = "";
-	this->_channelList = std::list<Channel*>();
+	// this->_channelList = std::list<Channel*>();
 	this->_isRegistered = false;
-	this->_inputTokens = std::list<std::string>();
-	std::cout << "User with fd = " << this->getFd() << " created at server." << std::endl;
+	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
 }
 
 User&		User::operator=(User &src)
@@ -21,9 +31,9 @@ User&		User::operator=(User &src)
 	this->_userName = src.getUserName();
 	this->_nickName = src.getNickName();
 	this->_realName = src.getRealName();
-	this->_channelList = src._channelList;
+	// this->_channelList = src._channelList;
 	this->_isRegistered = src._isRegistered;
-	this->_inputTokens = src._inputTokens;
+	return (*this);
 }
 
 User::~User()
@@ -78,6 +88,8 @@ void		User::executeCommand(std::string command, std::vector<std::string> args)
 		sendMsg(args);
 	else if (command == "sendPrivateMsg")
 		sendPrivateMsg(args);
+	else
+		std::cout << "Command \'" << command << "\' not found." << std::endl;
 }
 
 
@@ -129,14 +141,18 @@ void		User::executeCommand(std::string command, std::vector<std::string> args)
 
 // }
 
-std::vector<std::string>	User::sendMsg(const std::vector<std::string> args)
+int		User::sendMsg(const std::vector<std::string> args)
 {
+	(void) args;
 	std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /* args[2] << */ "\'." << std::endl;
+	return (0);
 }
 
-std::vector<std::string>	User::sendPrivateMsg(const std::vector<std::string> args)
+int		User::sendPrivateMsg(const std::vector<std::string> args)
 {
+	(void) args;
 	std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to User \'" << /* args[2] << */ "\' with fd = " << /*args[3] << */ std::endl;
+	return (0);
 }
 
 
