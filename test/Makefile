@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+         #
+#    By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/16 09:55:57 by cudoh             #+#    #+#              #
-#    Updated: 2023/04/16 11:18:23 by cudoh            ###   ########.fr        #
+#    Updated: 2023/04/17 23:03:25 by pmeising         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ OBJS		:= $(addprefix $(DIR_OBJS), $(OBJ_FILES))
 
 NAME = test
 
-CC = g++
+CC = c++
 STD_CPP = c++14
 CFLAGS = -Werror -Wall -Wextra -g -std=$(STD_CPP)
 INCLUDES = -I ./inc
