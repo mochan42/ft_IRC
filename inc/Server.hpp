@@ -12,6 +12,8 @@
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
+# include <unistd.h> 
+# include <exception>
 # include <string>
 # include <cstdlib> // for strtol
 # include <cctype> // for isdigit
@@ -19,17 +21,23 @@
 # include <limits.h> // for INT_MAX and INT_MIN
 # include <iostream>
 # include <fstream>
-# include <exception>
 # include <map>
 # include <list>
 # include <sys/socket.h>  // to create socket
+#include <netdb.h> // for getnameinfo()
+# include <netinet/in.h> // to use struct addr_in which is used to represnt an IP address and port number.
+# include <fcntl.h>
+# include <poll.h>
+# include <arpa/inet.h> // for inet_ntop()
 //# include "User.hpp"
 //# include "Channel.hpp"
 
-#define MIN_PORT_NUMBER 1025
-#define MAX_PORT_NUMBER 65535
-#define BACKLOG         5
-#define BUF_SIZE		30
+
+#define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
+#define MAX_PORT_NUMBER	65535
+#define BACKLOG			5
+#define BUFFER_SIZE		1024
+#define MAX_CONNECTIONS	10
 
 //class User;
 
@@ -70,6 +78,7 @@ class Server
 		unsigned int			getPort(void) const;
 		const std::string		getPassword(void) const;
 		int						getListeningSocket(void) const;
+		void					setListeningSocket (int n);
 		//User*					getUser(void) const;
 
 
@@ -79,6 +88,14 @@ class Server
 
 		// member functions
 		void					createSocket();
+		void					makeListeningSocketReusable();
+		void					setSocketToNonBlocking();
+		void					bindListeningSocketToServerPort(sockaddr_in addr);
+		void					listenToClients();
+		void					handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
+		void					handle_client_data(int client_socket, char *buffer, int buffer_size);
+
+		void					setupServer();
 
 		// exception class
 		class ErrorInternal : public std::exception
@@ -89,10 +106,12 @@ class Server
 			}
 		};
 
+		struct pollfd			clients[1024];
 };
 
 int	checkIsDigit(char *s);
 int	checkOutOfRange(char *s);
 int	checkPort(char *port);
+
 
 #endif
