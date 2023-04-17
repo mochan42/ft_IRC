@@ -125,7 +125,7 @@ void	Server::listenToClients()
 
 
 /* Function to handle new client connections */
-void handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
+void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
 {
     struct sockaddr_in client_addr;
     socklen_t addr_len = sizeof(client_addr);
@@ -145,7 +145,7 @@ void handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
 }
 
 /* Function to handle data from a client socket */
-void handle_client_data(int client_socket, char *buffer, int buffer_size)
+void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
 {
     int num_bytes = recv(client_socket, buffer, buffer_size, 0);
     
@@ -162,7 +162,6 @@ void handle_client_data(int client_socket, char *buffer, int buffer_size)
         std::cout << "Received message from client: " << buffer << std::endl;
     }
 }
-
 
 /* setup IRC server */
 void	Server::setupServer()
@@ -200,15 +199,15 @@ void	Server::setupServer()
 	}
 
 	/* We cannot use non blocking unless we use poll simultaneously, otherwise, accept() will not block and always return an error and the serer will exit without accepting any clients */
-	//try
-	//{
-	//	this->setSocketToNonBlocking();
-	//}
-	//catch(const std::exception& e)
-	//{
-	//	std::cerr << e.what() << RED << "Error: could not make the listening socket non blocking." << D << "\n";
-	//	return ;
-	//}
+	try
+	{
+		this->setSocketToNonBlocking();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << RED << "Error: could not make the listening socket non blocking." << D << "\n";
+		return ;
+	}
 
 	/* Binding socket to sockaddr... */
 	try
@@ -239,11 +238,11 @@ void	Server::setupServer()
     
     while (true)
 	{
-        // Use poll to wait for activity on any of the sockets
+        /* Use poll to wait for activity on any of the sockets */
         int num_ready_fds = poll(fds, num_fds, -1);
         if (num_ready_fds < 0)
 		{
-            std::cout << RED << "Error polling for events" << D << "\n";
+            std::cout << RED << "Error : polling for events" << D << "\n";
             return ;
         }
 		else if (num_ready_fds == 0)
@@ -251,22 +250,21 @@ void	Server::setupServer()
             continue;
         }
         
-        // Check for new connections on the server socket
+        /* Check for new connections on the server socket */
         if (fds[0].revents & POLLIN)
 		{
-            handle_new_connection(this->getListeningSocket(), fds, &num_fds);
+            this->handle_new_connection(this->getListeningSocket(), fds, &num_fds);
             num_ready_fds--;
         }
         
-        // Check for activity on any of the client sockets
+        /* Check for activity on any of the client sockets */
         for (int i = 1; i < num_fds && num_ready_fds > 0; i++) {
             if (fds[i].revents & POLLIN) {
-                handle_client_data(fds[i].fd, buffer, BUFFER_SIZE);
+                this->handle_client_data(fds[i].fd, buffer, BUFFER_SIZE);
                 num_ready_fds--;
             }
         }
     }
-    
     close(this->getListeningSocket());
 }
 

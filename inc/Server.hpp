@@ -92,6 +92,9 @@ class Server
 		void					setSocketToNonBlocking();
 		void					bindListeningSocketToServerPort(sockaddr_in addr);
 		void					listenToClients();
+		void					handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
+		void					handle_client_data(int client_socket, char *buffer, int buffer_size);
+
 		void					setupServer();
 
 		// exception class
@@ -109,8 +112,6 @@ class Server
 int	checkIsDigit(char *s);
 int	checkOutOfRange(char *s);
 int	checkPort(char *port);
-void handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
-void handle_client_data(int client_socket, char *buffer, int buffer_size);
 
 
 #endif
