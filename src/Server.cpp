@@ -150,14 +150,19 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 {
     int num_bytes = recv(client_socket, buffer, buffer_size, 0);
     
-    if (num_bytes < 0) {
-        std::cerr << "Error receiving data from client" << D  << "\n";
+    if (num_bytes < 0)
+	{
+        std::cout << RED << "Error receiving data from client" << D  << "\n";
         return;
-    } else if (num_bytes == 0) {
+    }
+	else if (num_bytes == 0)
+	{
         /* Client has disconnected */
         std::cout << "Client disconnected\n";
         close(client_socket);
-    } else {
+    }
+	else
+	{
         /* Output the received message */
         buffer[num_bytes] = '\0';
         std::cout << "Received message from client: " << buffer << "\n";
@@ -170,7 +175,6 @@ void	Server::setupServer()
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
 	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
-	char buffer[BUFFER_SIZE];
 
 	/* Creating server socket... */
 	try
@@ -233,15 +237,16 @@ void	Server::setupServer()
 		return ;
 	}
 
-	struct pollfd fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listenign socket for the server.
-    int num_fds = 1;
+	struct pollfd fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listening socket for the server.
+    int num_fds = 1; // The first element of the array is the Listening socket so there the number of sockets is 1.
     fds[0].fd = this->getListeningSocket();
-    fds[0].events = POLLIN;
-    
+    fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
+    char buffer[BUFFER_SIZE]; // to store message from client(s).
+
     while (true)
 	{
         /* Use poll to wait for activity on any of the sockets */
-        int num_ready_fds = poll(fds, num_fds, -1);
+        int num_ready_fds = poll(fds, num_fds, -1); // poll returns the number of elements in the fds array. -1 means waiting forever.
         if (num_ready_fds < 0)
 		{
             std::cout << RED << "Error : polling for events" << D << "\n";
@@ -253,15 +258,17 @@ void	Server::setupServer()
         }
         
         /* Check for new connections on the server socket */
-        if (fds[0].revents & POLLIN)
+        if (fds[0].revents & POLLIN) // & : bitwise AND operator.
 		{
             this->handle_new_connection(this->getListeningSocket(), fds, &num_fds);
             num_ready_fds--;
         }
         
         /* Check for activity on any of the client sockets */
-        for (int i = 1; i < num_fds && num_ready_fds > 0; i++) {
-            if (fds[i].revents & POLLIN) {
+        for (int i = 1; i < num_fds && num_ready_fds > 0; i++) // start at i=1 to skip Listening socket
+		{
+            if (fds[i].revents & POLLIN)
+			{
                 this->handle_client_data(fds[i].fd, buffer, BUFFER_SIZE);
                 num_ready_fds--;
             }
