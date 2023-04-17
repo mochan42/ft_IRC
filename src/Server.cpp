@@ -131,6 +131,8 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     socklen_t addr_len = sizeof(client_addr);
     int client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
     
+	/* instantiate User class for new client, store IP address, fd = client_socket */
+
     if (client_socket < 0)
 	{
         std::cout << RED << "Error accepting new connection" << D << "\n";
@@ -166,6 +168,9 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
         /* Output the received message */
         buffer[num_bytes] = '\0';
         std::cout << "Received message from client: " << buffer << "\n";
+		/* parse buffer */
+		/* client_socket execute cmd */
+
     }
 }
 
