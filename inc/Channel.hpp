@@ -18,7 +18,7 @@
 # include <cstring>
 # include <list>
 # include <exception>
-# include "user.hpp"
+# include "User.hpp"
 # include <unistd.h>
 
 # define CHN_MAX_USERS (1024)

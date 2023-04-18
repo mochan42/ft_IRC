@@ -21,7 +21,7 @@ END_COLOR			:= \033[0;39m
 # **************************************************************************** #
 # SOURCES
 
-SRC_FILES			:=	main.cpp user.cpp Server.cpp \
+SRC_FILES			:=	main.cpp User.cpp Server.cpp \
 
 OBJ_FILES			:= ${SRC_FILES:.cpp=.o}
 

@@ -1,4 +1,4 @@
-#include "../inc/user.hpp"
+#include "../inc/User.hpp"
 
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------

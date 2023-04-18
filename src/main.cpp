@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include "Server.h"
-#include <../inc/user.hpp>
+#include "../inc/User.hpp"
 
 int main(int argc, char **argv)
 {
