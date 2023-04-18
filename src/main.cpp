@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moninechan <moninechan@student.42.fr>      +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 17:20:54 by mochan            #+#    #+#             */
-/*   Updated: 2023/04/10 10:05:43 by moninechan       ###   ########.fr       */
+/*   Updated: 2023/04/18 12:59:11 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include "Server.h"
-
+#include <../inc/user.hpp>
 
 int main(int argc, char **argv)
 {
