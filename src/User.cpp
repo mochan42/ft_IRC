@@ -3,11 +3,11 @@
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------
 
-User::User(int fd, long ip/*, Server ircserver*/)
+User::User(int fd, long ip, Server *ircserver)
 {
-	// this->_server = ircserver;
+	this->_server = ircserver;
 	this->_userFd = fd;
-	this->_ip = ip; //as a string or can we save it differently?
+	this->_ip = ip;
 	this->_userName = "";
 	this->_nickName = "";
 	this->_realName = "";
@@ -136,20 +136,39 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 
 // }
 
-/* void		User::joinChannel(std::string channelName)
+
+/**
+ * @brief 
+ * The method get 
+ * @param channelName 
+ */
+void		User::joinChannel(std::vector<std::string>& args)
 {
-	channel *chptr = server->searchChannel(channelName);
-	if (chptr == NULL) //Create channel
+	try
 	{
-		chptr = server->createChannel(channelName);
-		chptr->addUserToList(*this);
-		chptr->addUserOperatorList(*this);
+		if (args[0][0] != '#')
+		{
+			//:master.ircgod.com 476 flori test :Bad Channel Mask
+			throw (std::exception());
+		}
+		Channel *chptr = _server->searchChannel(channelName);
+		if (chptr == NULL) //Create channel
+		{
+			chptr = _server->createChannel(channelName);
+			chptr->addUserToList(*this);
+			chptr->addUserOperatorList(*this);
+		}
+		else { //join channel
+			//check if we are allowed to join (invite only)
+			chptr->addUserToList(*this);
+		}
 	}
-	else { //join channel
-		//check if we are allowed to join (invite only)
-		chptr->addUserToList(*this);
+	catch(std::exception() *e what())
+	{
+		
 	}
-} */
+	
+}
 
 // void		User::kickUser(channel& channelToBeKickedOutOf, std::string nickName)
 // {

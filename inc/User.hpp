@@ -11,7 +11,7 @@
 class User
 {
 	private:
-		// Server 						_server;
+		Server 						*_server;
 		int							_userFd;
 		std::string					_ip;
 		std::string					_userName;
@@ -21,7 +21,7 @@ class User
 		std::list<Channel *>		_channelList;
 
 	public:
-					User(int fd, long ip/*, Server ircserver*/);
+					User(int fd, long ip, Server *ircserver);
 		User&		operator=(User &src);
 					~User();
 
