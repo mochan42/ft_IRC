@@ -21,9 +21,9 @@ class User
 		std::list<Channel *>		_channelList;
 
 	public:
-					User(int fd, long ip, Server *ircserver);
+		User(int fd, long ip, Server *ircserver);
 		User&		operator=(User &src);
-					~User();
+		~User();
 
 		int			getFd(void);
 		long		getIP(void);
@@ -50,8 +50,8 @@ class User
 		// void		changeTopic(channel& currentChannel, std::string newTopic);
 		// channel&	createChannel(std::string channelName);
 		// void 		inviteUser(channel& currentChannel, std::string nickName);
-		void		joinChannel(std::string channelName);
-		// void		kickUser(channel& channelToBeKickedOutOf, std::string nickName);
+		void		joinChannel(std::vector<std::string>& args);
+		void		kickUser(std::vector<std::string>& args);
 		// void		leaveChannel(channel& currentChannel);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 		// std::string	sendNotification(const std::string& msg);
@@ -77,12 +77,13 @@ class User
 		// std::string	sendPW(Server& ircServer);
 		// bool		isOperator(channel& channel);
 
+		std::string	combine_args(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd);
 
 		//Exceptions
-		class channelNotFoundException : public std::exception {
+		class badChannelMask : public std::exception {
 			public:
 				virtual const char *what() const throw() {
-					return ("Channel doesn't exist");
+					return ("Bad Channel Mask");
 				}
 		};
 };

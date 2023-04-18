@@ -142,20 +142,12 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 // }
 
 
-/**
- * @brief 
- * The method get 
- * @param channelName 
- */
-void		User::joinChannel(std::vector<std::string>& args)
+/* void		User::joinChannel(std::vector<std::string>& args)
 {
 	try
 	{
 		if (args[0][0] != '#')
-		{
-			//:master.ircgod.com 476 flori test :Bad Channel Mask
-			throw (std::exception());
-		}
+			throw (badChannelMask());
 		Channel *chptr = _server->searchChannel(channelName);
 		if (chptr == NULL) //Create channel
 		{
@@ -168,17 +160,32 @@ void		User::joinChannel(std::vector<std::string>& args)
 			chptr->addUserToList(*this);
 		}
 	}
-	catch(std::exception() *e what())
+	catch(badChannelMask &e)
 	{
-		
+		(void)e;
+		//Handle the error -> call a error function or smth like that
+		//:master.ircgod.com 476 flori test :Bad Channel Mask
 	}
+} */
+
+void		User::kickUser(std::vector<std::string>& args)
+{
+	std::string channel = args[0];
+	std::string nick = args[1];
+	std::string reason = combine_args(args.begin() + 2, args.end());
+	Channel *channelPtr;
 	
+	channelPtr = _server->searchChannel(channel);
+	if (channelPtr->isUserInList(nick))
+	{
+		//write broadcastmessage: ":<Nick>!<Nick_USER@IP> KICK <channel> <kickedNick> <kickedNick>"
+		channelPtr->removeUserFromList(nick);
+	}
+	else
+	{
+		//write error: ":<ServerName> 441 <Nick> <kickedNick> :Is not on channel <channel>"
+	}
 }
-
-// void		User::kickUser(channel& channelToBeKickedOutOf, std::string nickName)
-// {
-
-// }
 
 // void		User::leaveChannel(channel& currentChannel)
 // {
@@ -224,8 +231,6 @@ int		User::sendMsg(std::vector<std::string>& args)
 	}
 	// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /*(*iterChannel)->getChannelName() << */ "\'." << std::endl;
 	return (0);
-
-
 }
 
 
@@ -251,4 +256,21 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 
 // }
 
-
+std::string	User::combine_args(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd)
+{
+	std::ostringstream msgstream;
+	if ((*iterBegin)[0] == ':')
+	{
+		msgstream << (*iterBegin).replace((*iterBegin).find(":"), 1, "");
+		++iterBegin;
+		if (iterBegin != iterEnd && iterBegin + 1 != iterEnd)
+			msgstream << " ";
+	}
+	for (; iterBegin != iterEnd; ++iterBegin)
+	{
+		msgstream << *iterBegin;
+		if (iterBegin + 1 != iterEnd)
+			msgstream << " ";
+	}
+	return (msgstream.str());
+}
