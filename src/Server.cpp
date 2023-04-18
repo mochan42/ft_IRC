@@ -16,7 +16,12 @@
 Server::Server(unsigned int port, const std::string& password) :
     _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), clients() 
 {
-
+	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
+	{
+		this->fds[i].fd = 0;
+		this->fds[i].events = 0;
+		this->fds[i].revents = 0;
+	}
 }
 
 
@@ -151,8 +156,7 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
 {
     int num_bytes = recv(client_socket, buffer, buffer_size, 0);
-    
-    if (num_bytes < 0)
+	if (num_bytes < 0)
 	{
         std::cout << RED << "Error receiving data from client" << D  << "\n";
         return;
@@ -173,6 +177,28 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 
     }
 }
+
+void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
+{
+	/* Check for new connections on the server socket */
+	if (this->fds[0].revents & POLLIN) // & : bitwise AND operator.
+	{
+		this->handle_new_connection(this->getListeningSocket(), this->fds, ptrNum_fds);
+		(*ptrNum_ready_fds)--;
+	}
+	
+	/* Check for activity on any of the client sockets */
+	for (int i = 1; i < *ptrNum_fds && *ptrNum_ready_fds > 0; i++) // start at i=1 to skip Listening socket
+	{
+		if (this->fds[i].revents & POLLIN)
+		{
+			std::cout << "HERE\n";
+			this->handle_client_data(this->fds[i].fd, buffer, BUFFER_SIZE);
+			(*ptrNum_ready_fds)--;
+		}
+	}
+}
+
 
 /* setup IRC server */
 void	Server::setupServer()
@@ -241,42 +267,29 @@ void	Server::setupServer()
 		std::cerr << e.what() << RED << "Error: Listening Socket could not listen to clients." << D << "\n";
 		return ;
 	}
-
-	struct pollfd fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listening socket for the server.
+ 
     int num_fds = 1; // The first element of the array is the Listening socket so there the number of sockets is 1.
-    fds[0].fd = this->getListeningSocket();
-    fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
+    int *ptrNum_fds = &num_fds;
+	this->fds[0].fd = this->getListeningSocket();
+    this->fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
     char buffer[BUFFER_SIZE]; // to store message from client(s).
 
     while (true)
 	{
         /* Use poll to wait for activity on any of the sockets */
-        int num_ready_fds = poll(fds, num_fds, -1); // poll returns the number of elements in the fds array. -1 means waiting forever.
-        if (num_ready_fds < 0)
+		int num_ready_fds = poll(this->fds, num_fds, -1);
+		int *ptrNum_ready_fds = &num_ready_fds;
+        switch (num_ready_fds) // poll returns the number of elements in the fds array. -1 means waiting forever.
 		{
-            std::cout << RED << "Error : polling for events" << D << "\n";
-            return ;
-        }
-		else if (num_ready_fds == 0)
-		{
-            continue;
-        }
-        
-        /* Check for new connections on the server socket */
-        if (fds[0].revents & POLLIN) // & : bitwise AND operator.
-		{
-            this->handle_new_connection(this->getListeningSocket(), fds, &num_fds);
-            num_ready_fds--;
-        }
-        
-        /* Check for activity on any of the client sockets */
-        for (int i = 1; i < num_fds && num_ready_fds > 0; i++) // start at i=1 to skip Listening socket
-		{
-            if (fds[i].revents & POLLIN)
+			case -1:
+			    std::cout << RED << "Error : polling for events" << D << "\n";
+				return ;
+			case 0 :
+				continue;
+			default:
 			{
-                this->handle_client_data(fds[i].fd, buffer, BUFFER_SIZE);
-                num_ready_fds--;
-            }
+				this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
+			}
         }
     }
     close(this->getListeningSocket());

@@ -65,6 +65,7 @@ class Server
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
 	public:
+		struct pollfd					fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listening socket for the server.
 		Server(unsigned int port, const std::string& password);
 		~Server();
 		// void			startServer(void);
@@ -94,7 +95,7 @@ class Server
 		void					listenToClients();
 		void					handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
 		void					handle_client_data(int client_socket, char *buffer, int buffer_size);
-
+		void					connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer);
 		void					setupServer();
 
 		// exception class
