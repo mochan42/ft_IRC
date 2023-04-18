@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/18 19:32:38 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/18 21:03:17 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ _invitedUsers(NULL), _operators(NULL), _bannedUsers(NULL), _ordinaryUsers(NULL)
     		_bannedUsers = new std::list<User *>;
     		_ordinaryUsers = new std::list<User *>;
 		}
-
 	}
 	catch(const std::exception & e)
 	{
