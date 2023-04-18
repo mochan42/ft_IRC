@@ -14,7 +14,7 @@
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), clients() 
+    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _userIPs()
 {
 	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
 	{
@@ -24,13 +24,14 @@ Server::Server(unsigned int port, const std::string& password) :
 	}
 }
 
-
 //======== OVERLOAD OPERATORS ===================================================================
 
 
 //======== DESTRUCTOR ===========================================================================
 Server::~Server()
 {
+    _messages.clear();
+    _userIPs.clear();
 }
 
 //======== GETTERS / SETTERS ====================================================================
@@ -147,9 +148,10 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     /* Add the new client socket to the list of fds to poll */
     fds[*num_fds].fd = client_socket;
     fds[*num_fds].events = POLLIN;
+	this->_userIPs[client_socket] = std::string(inet_ntoa(client_addr.sin_addr));
     (*num_fds)++;
     
-    std::cout << "New client connected from " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
+	std::cout << "New client connected from " << this->_userIPs[client_socket] << ":" << ntohs(client_addr.sin_port) << "\n";
 }
 
 /* Function to handle data from a client socket */
@@ -171,10 +173,10 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	{
         /* Output the received message */
         buffer[num_bytes] = '\0';
-        std::cout << "Received message from client: " << buffer << "\n";
+		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
+		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
 		/* parse buffer */
 		/* client_socket execute cmd */
-
     }
 }
 
@@ -199,7 +201,6 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 	}
 }
 
-
 /* setup IRC server */
 void	Server::setupServer()
 {
@@ -222,7 +223,8 @@ void	Server::setupServer()
 	struct sockaddr_in hint;
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(this->getPort());
-	hint.sin_addr.s_addr = htonl(INADDR_ANY); // assigning the IP address of my own local machine (loopback address)
+	hint.sin_addr.s_addr = htonl(INADDR_ANY); //  the server will listen on all available network interfaces, including the loopback interface (127.0.0.1)
+	std::cout << "IRC Server IP and port are <IP:Port> : " << inet_ntoa(hint.sin_addr) << ":" << this->getPort() << "\n";
 
 	/* Making socket reusable... */
 	try
@@ -287,9 +289,7 @@ void	Server::setupServer()
 			case 0 :
 				continue;
 			default:
-			{
 				this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
-			}
         }
     }
     close(this->getListeningSocket());

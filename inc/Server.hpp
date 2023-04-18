@@ -53,14 +53,13 @@ class Server
 		Server(const Server& obj);
 		Server&	operator=(const Server& rhs);
 
-		
 		unsigned int					_port;
 		int								_listeningSocket;
 		const std::string				_password;
 		const std::string				_errorFile;
 		std::list<std::string>			_operators;
-
-
+		std::map<int, std::string>		_messages;
+		std::map<int, std::string>		_userIPs;
 
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
@@ -106,8 +105,6 @@ class Server
 				return exception::what();
 			}
 		};
-
-		struct pollfd			clients[1024];
 };
 
 int	checkIsDigit(char *s);
