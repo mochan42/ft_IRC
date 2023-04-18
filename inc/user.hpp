@@ -4,11 +4,9 @@
 # include "server.hpp"
 # include "Channel.hpp"
 # include <string.h>
-# include <iostream>
-# include <list>
+# include <sstream>
 # include <vector>
 # include <poll.h>
-
 
 class User
 {
@@ -62,7 +60,7 @@ class User
 		 *
 		 * @param args std::vector < std::string >
 		 */
-		int			sendMsg(const std::vector<std::string>& args);
+		int			sendMsg(std::vector<std::string>& args);
 
 
 		/**
@@ -71,7 +69,7 @@ class User
 		 *
 		 * @param args std::vector < std::string >
 		 */
-		int			sendPrivateMsg(const std::vector<std::string>& args);
+		int			sendPrivateMsg(std::vector<std::string>& args);
 
 
 		// std::string	sendPW(Server& ircServer);

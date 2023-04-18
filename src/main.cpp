@@ -2,7 +2,6 @@
 
 int main()
 {
-    User user1;
-	user1.setNickName("user1");
+    User user1(5);
     return (0);
 }

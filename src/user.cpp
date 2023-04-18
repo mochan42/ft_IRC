@@ -79,20 +79,20 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		setNickName(args);
 	else if (command == "USER")
 		setUserName(args);
-	// else if (command == "REAL")
-	// 	setRealName(args);
-	else if (command == "JOIN")
-		joinChannel(args);
+	else if (command == "REAL")
+		setRealName(args);
+	// else if (command == "JOIN")
+	// 	joinChannel(args);
 	// else if (command == "")
 	// 	changeTopic(args);
-	else if (command == "")
-		inviteUser(args);
-	else if (command == "JOIN")
-		joinChannel(args);
-	else if (command == "KICK")
-		kickUser(args);
-	else if (command == "PART")
-		leaveChannel(args);
+	// else if (command == "")
+	// 	inviteUser(args);
+	// else if (command == "JOIN")
+	// 	joinChannel(args);
+	// else if (command == "KICK")
+	// 	kickUser(args);
+	// else if (command == "PART")
+	// 	leaveChannel(args);
 	// else if (command == "")
 	// 	modifyChannel(args);
 	// else if (command == "")
@@ -104,8 +104,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		else
 			sendPrivateMsg(args);
 	}
-	else if (command == "PASS")
-		sendPW(args);
+	// else if (command == "PASS")
+	// 	sendPW(args);
 	// else if (command == "")
 	// 	isOperator(args);
 	else
@@ -165,35 +165,38 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 
 // }
 
-int		User::sendMsg(const std::vector<std::string>& args)
+int		User::sendMsg(std::vector<std::string>& args)
 {
-	std::list<Channel>::iterator iterChannel;
-	std::vector<std::string>::iterator iterString;
+	std::list<Channel *>::iterator iterChannel;
+	std::list<Channel>::iterator iterChannel2;
+	std::vector<std::string>::iterator iterString = args.begin() + 1;
 
 	std::ostringstream msgstream;
-	msgstream << args[1].replace(input.find(":"), 1, "");
-	for (iterString = args.begin() + 1; iterString != args.end(); iterString++)
-		msgstream << iterString.operator*();
+	// msgstream << args[1].replace(args[1].find(":"), 1, "");
+	msgstream << args[1] << " ";
+	for (; iterString != args.end(); ++iterString)
+		msgstream << *iterString << " ";
 	std::string msg = msgstream.str(); 
 	
-	Channel currentChannel;
+
+
 	for (iterChannel = _channelList.begin(); iterChannel != _channelList.end(); iterChannel++)
 	{
-		if (args[0] == iterChannel->getChannelName())
+		// if (args[0] == (*iterChannel)->getChannelName())
 		{
-			currentChannel = iterChannel.operator*();
-			// iter->broadcastMsg(msg);
+			// (*iterChannel)->broadcastMsg(msg);
 			break;
 		}
 		// Errormessage when no Channel with that name;
 	}
-	std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << currentChannel.getChannelName() << "\'." << std::endl;
+	// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /*(*iterChannel)->getChannelName() << */ "\'." << std::endl;
 	return (0);
+
+
 }
 
 
-
-int		User::sendPrivateMsg(const std::vector<std::string>& args)
+int		User::sendPrivateMsg(std::vector<std::string>& args)
 {
 	(void) args;
 	std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to User \'" << /* args[2] << */ "\' with fd = " << /*args[3] << */ std::endl;
