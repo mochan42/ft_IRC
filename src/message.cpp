@@ -1,20 +1,32 @@
 #include "../inc/Message.hpp"
 
 Message::Message(const std::string& user_input) {
-    parseMessage(user_input);
+    parse(user_input);
 }
 
-Message::Message(const Message& other) : command(other.command), arguments(other.arguments) {}
+Message::Message(const Message& other) {
+    prefix = other.prefix;
+    command = other.command;
+    args = other.args;
+}
 
 Message& Message::operator=(const Message& other) {
-    if (this != &other) {
-        command = other.command;
-        arguments = other.arguments;
+    if (this == &other) {
+        return *this;
     }
+
+    prefix = other.prefix;
+    command = other.command;
+    args = other.args;
+
     return *this;
 }
 
 Message::~Message() {
+}
+
+std::string Message::getPrefix() const {
+    return prefix;
 }
 
 std::string Message::getCommand() const {
@@ -22,22 +34,28 @@ std::string Message::getCommand() const {
 }
 
 std::vector<std::string> Message::getArguments() const {
-    return arguments;
+    return args;
 }
 
-void Message::parseMessage(const std::string& user_input) {
+void Message::parse(const std::string& user_input) {
     std::istringstream iss(user_input);
     std::string token;
+    bool hasPrefix = false;
+    bool hasCommand = false;
 
-    // Extract the command
-    if (std::getline(iss, token, ' ')) {
-        command = token;
+    while (iss >> token) {
+        if (!hasPrefix && token[0] == ':') {
+            prefix = token.substr(1);
+            hasPrefix = true;
+        } else if (!hasCommand) {
+            command = token;
+            hasCommand = true;
+        } else {
+            args.push_back(token);
+        }
     }
 
-    // Extract the arguments
-    while (std::getline(iss, token, ' ')) {
-        arguments.push_back(token);
-    }
+    std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 }
 
 bool isValidNickname(const std::vector<std::string>& args) {
@@ -68,16 +86,48 @@ bool isValidNickname(const std::vector<std::string>& args) {
     return true;
 }
 
+bool isValidChannelName(const std::string& channelName) {
+    size_t maxLength = 50; // According to RFC 2812, a channel name can be up to 50 characters long.
+
+    if (channelName.length() < 2 || channelName.length() > maxLength) {
+        return false;
+    }
+
+    // Check the first character.
+    if (channelName[0] != '#' && channelName[0] != '&' && channelName[0] != '+' && channelName[0] != '!') {
+        return false;
+    }
+
+    // Check the rest of the characters.
+    for (size_t i = 1; i < channelName.length(); ++i) {
+        if (channelName[i] == ' ' || channelName[i] == ',' || channelName[i] == '\x07') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void handleNick(const std::vector<std::string>& args) {
     if (isValidNickname(args)) {
         std::cout << "The Nickname is valid and can be set" << std::endl;
+		//additional code to actually set the nickname
     } else {
         std::cout << "Error in chosen nickname" << std::endl;
     }
 }
 
 void handleJoin(const std::vector<std::string>& args) {
-    std::cout << "Handling JOIN command" << std::endl;
+    if (args.empty()) {
+        std::cout << "No channel selected" << std::endl;
+        return;
+    }
+
+    if (isValidChannelName(args[0])) {
+        std::cout << "The channel name is valid" << std::endl;
+    } else {
+        std::cout << "Error in channel name" << std::endl;
+    }
 }
 
 void handlePrivmsg(const std::vector<std::string>& args) {
