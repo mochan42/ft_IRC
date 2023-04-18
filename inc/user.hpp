@@ -14,6 +14,7 @@ class User
 {
 	private:
 		int							_userFd;
+		std::string					_ip;
 		std::string					_userName;
 		std::string					_nickName;
 		std::string					_realName;
@@ -22,8 +23,7 @@ class User
 		//std::list<Channel*>			_channelList;
 
 	public:
-					User();
-					User(pollfd &client);
+					User(int fd, long ip);
 		User&		operator=(User &src);
 					~User();
 

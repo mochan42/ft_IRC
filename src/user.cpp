@@ -3,20 +3,10 @@
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------
 
-User::User()
+User::User(int fd, long ip)
 {
-	this->_userFd = 4;
-	this->_userName = "";
-	this->_nickName = "";
-	this->_realName = "";
-	// this->_channelList = std::list<Channel*>();
-	this->_isRegistered = false;
-	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
-}
-
-User::User(pollfd &client)
-{
-	this->_userFd = client.fd;
+	this->_userFd = fd;
+	this->_ip = ip; //as a string or can we save it differently?
 	this->_userName = "";
 	this->_nickName = "";
 	this->_realName = "";
@@ -117,7 +107,9 @@ void		User::executeCommand(std::string command, std::vector<std::string> args)
 	channel *chptr = server->searchChannel(channelName);
 	if (chptr == NULL) //Create channel
 	{
-		
+		chptr = server->createChannel(channelName);
+		chptr->addUserToList(*this);
+		chptr->addUserOperatorList(*this);
 	}
 	else { //join channel
 		//check if we are allowed to join (invite only)
@@ -169,11 +161,6 @@ int		User::sendPrivateMsg(const std::vector<std::string> args)
 
 
 // std::string	User::sendPW(Server& ircServer)
-// {
-
-// }
-
-// bool		User::isOperator(channel& channel)
 // {
 
 // }

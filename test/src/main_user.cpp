@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 20:01:16 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/17 15:04:26 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/17 21:27:58 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,23 +21,24 @@
  */
 
 # include "../../inc/user.hpp"
+#include <iostream>
 
 TEST_CASE("Test setNick, getNick") {
-	User user;
-
-	user.setNickName("florian");
-	REQUIRE(user.getNickName() == "florian");
+	User user(4, 0);
+	
+	user.setNickName("florian_nick");
+	REQUIRE(user.getNickName() == "florian_nick");
 }
 
 TEST_CASE("Test setUsername, getUsername") {
-	User user;
+	User user(4, 0);
 
 	user.setUserName("UserName");
 	REQUIRE(user.getUserName() == "UserName");
 }
 
 TEST_CASE("Test setRealName, getRealName") {
-	User user;
+	User user(4, 0);
 
 	user.setRealName("Crazy Name");
 	REQUIRE(user.getRealName() == "Crazy Name");
