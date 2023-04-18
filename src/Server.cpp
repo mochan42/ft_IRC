@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/18 22:05:59 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/18 22:11:38 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,7 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	{
         /* Client has disconnected */
         std::cout << "Client disconnected\n";
+		// This also needs to entail some freeing of memory on our side, right?
         close(client_socket);
     }
 	else
