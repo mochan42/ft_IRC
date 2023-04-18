@@ -13,7 +13,7 @@ class User
 	private:
 		// Server 						_server;
 		int							_userFd;
-		std::string					_ip;
+		long						_ip;
 		std::string					_userName;
 		std::string					_nickName;
 		std::string					_realName;
@@ -26,6 +26,7 @@ class User
 					~User();
 
 		int			getFd(void);
+		long		getIP(void);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
 		void		setUserName(const std::vector<std::string>& args);
