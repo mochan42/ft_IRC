@@ -168,17 +168,16 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 int		User::sendMsg(std::vector<std::string>& args)
 {
 	std::list<Channel *>::iterator iterChannel;
-	std::list<Channel>::iterator iterChannel2;
 	std::vector<std::string>::iterator iterString = args.begin() + 1;
 
 	std::ostringstream msgstream;
-	// msgstream << args[1].replace(args[1].find(":"), 1, "");
-	msgstream << args[1] << " ";
+	msgstream << args[1].replace(args[1].find(":"), 1, "");
+	// msgstream << args[1] << " ";
 	for (; iterString != args.end(); ++iterString)
 		msgstream << *iterString << " ";
 	std::string msg = msgstream.str(); 
 	
-
+	std::cout << msg << std::endl;
 
 	for (iterChannel = _channelList.begin(); iterChannel != _channelList.end(); iterChannel++)
 	{
