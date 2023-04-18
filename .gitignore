@@ -1,1 +1,5 @@
 *.txt
+obj
+*.o
+a.out
+ircserv
