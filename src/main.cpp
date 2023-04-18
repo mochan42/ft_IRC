@@ -2,7 +2,7 @@
 
 int main()
 {
-    User user1(5);
+    User user1(5, 5159024057);
 	std::string command = "PRIVMSG";
 	std::vector<std::string> args;
 	args.push_back("channel1");
