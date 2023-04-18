@@ -3,10 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   test_channel.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 18:59:02 by cudoh             #+#    #+#             */
+<<<<<<< HEAD:test/src/main_channel.cpp
+/*   Updated: 2023/04/17 18:55:23 by fmollenh         ###   ########.fr       */
+=======
 /*   Updated: 2023/04/16 10:25:10 by cudoh            ###   ########.fr       */
+>>>>>>> main:test/src/test_channel.cpp
 /*                                                                            */
 /* ************************************************************************** */
 

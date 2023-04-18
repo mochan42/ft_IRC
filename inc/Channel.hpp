@@ -3,21 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/15 20:52:23 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/18 10:19:36 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
+
 # include <iostream>
 # include <cstring>
 # include <list>
 # include <exception>
-//# include "../inc/User.hpp"
+# include "User.hpp"
 # include <unistd.h>
 
 # define CHN_MAX_USERS (1024)
@@ -34,16 +35,18 @@ typedef enum e_chn_action
 	MAX_ACTION
 }	t_chn_action;
 
+class User;
+
 class Channel
 {
     private:
         std::string			_channelName;
         std::string			_topic;
         const unsigned int	_channelCapacity;
-        std::list<user *>	*_invitedUsers;
-        std::list<user *>	*_operators;
-        std::list<user *>	*_bannedUsers;
-        std::list<user *>	*_allUsers;
+        std::list<User *>	*_invitedUsers;
+        std::list<User *>	*_operators;
+        std::list<User *>	*_bannedUsers;
+        std::list<User *>	*_allUsers;		// without operators
 
     public:
     	Channel(std::string name, std::string topic );	// Parametric constructor
@@ -51,7 +54,7 @@ class Channel
     
     	/* Getters and Setters */
     	std::string			getChannelName(void) const;
-    	std::string			getTopic(void); const;
+    	std::string			getTopic(void) const;
     	unsigned int		getChannelCapacity(void) const;
     	std::list<User *>	*getListPtrInvitedUsers(void) const;
     	std::list<User *>	*getListPtrOperators(void) const;
