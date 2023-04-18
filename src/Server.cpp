@@ -11,10 +11,11 @@
 /* ************************************************************************** */
 
 #include "Server.h"
+#include "User.hpp"
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _userIPs()
+    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages()
 {
 	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
 	{
@@ -31,7 +32,9 @@ Server::Server(unsigned int port, const std::string& password) :
 Server::~Server()
 {
     _messages.clear();
-    _userIPs.clear();
+	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
+		delete it->second;
+	_users.clear();
 }
 
 //======== GETTERS / SETTERS ====================================================================
@@ -88,7 +91,7 @@ void	Server::makeListeningSocketReusable()
 	if (reuse < 0)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket successfully set to reusable." << D << "\n";
+		std::cout << GREEN << "Listening Socket successfully set to reusable" << D << "\n";
 }
 
 /* Set listening socket to be non blocking. All of the sockets for the incoming 
@@ -102,7 +105,7 @@ void	Server::setSocketToNonBlocking()
 	if (nonblock == -1)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket successfully set to non blocking." << D << "\n";
+		std::cout << GREEN << "Listening Socket successfully set to non blocking" << D << "\n";
 }
 
 /* Bind the listening socket to the server port*/
@@ -113,7 +116,7 @@ void	Server::bindListeningSocketToServerPort(sockaddr_in addr)
 	if (rbind == -1)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket sucessfully bound to server port." << D << "\n";
+		std::cout << GREEN << "Listening Socket sucessfully bound to server port" << D << "\n";
 }
 
 
@@ -126,7 +129,7 @@ void	Server::listenToClients()
 	if (rlisten == -1)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket started listening to IRC clients." << D << "\n";
+		std::cout << GREEN << "Listening Socket started listening to IRC clients..." << D << "\n";
 }
 
 
@@ -148,10 +151,12 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     /* Add the new client socket to the list of fds to poll */
     fds[*num_fds].fd = client_socket;
     fds[*num_fds].events = POLLIN;
-	this->_userIPs[client_socket] = std::string(inet_ntoa(client_addr.sin_addr));
-    (*num_fds)++;
+	User* new_user = new User(client_socket, inet_addr(inet_ntoa(client_addr.sin_addr)));
+    this->_users.insert(std::make_pair(client_socket, new_user));
+	(*num_fds)++;
     
-	std::cout << "New client connected from " << this->_userIPs[client_socket] << ":" << ntohs(client_addr.sin_port) << "\n";
+	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
+	std::cout << "IP Address (long) :" << (*new_user).getIP() << "\n";
 }
 
 /* Function to handle data from a client socket */
@@ -194,7 +199,6 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 	{
 		if (this->fds[i].revents & POLLIN)
 		{
-			std::cout << "HERE\n";
 			this->handle_client_data(this->fds[i].fd, buffer, BUFFER_SIZE);
 			(*ptrNum_ready_fds)--;
 		}

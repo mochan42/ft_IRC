@@ -40,6 +40,11 @@ int		User::getFd(void)
 	return (this->_userFd);
 }
 
+long	User::getIP(void)
+{
+	return (this->_ip);
+}
+
 void		User::setNickName(const std::vector<std::string>& args)
 {
 	_nickName = args[0];
