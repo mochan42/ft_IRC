@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/17 22:39:35 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/18 22:05:59 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages()
+    _port(port), _listeningSocket(0), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages()
 {
 	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
 	{
@@ -137,19 +137,19 @@ void	Server::listenToClients()
 
 
 /* Function to handle new client connections */
-void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
+void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
 {
-    struct sockaddr_in client_addr;
-    socklen_t addr_len = sizeof(client_addr);
-    int client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
+    struct sockaddr_in	client_addr;
+    socklen_t 			addr_len = sizeof(client_addr);
+    int 				client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
     
-	/* instantiate User class for new client, store IP address, fd = client_socket */
-
     if (client_socket < 0)
 	{
         std::cout << RED << "Error accepting new connection" << D << "\n";
         return;
     }
+
+	/* instantiate User class for new client, store IP address, fd = client_socket */
     
     /* Add the new client socket to the list of fds to poll */
     fds[*num_fds].fd = client_socket;
@@ -159,7 +159,7 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 	(*num_fds)++;
     
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
-	std::cout << "IP Address (long) :" << (*new_user).getIP() << "\n";
+	std::cout << "IP Address (long) :" << new_user->getIP() << "\n";
 }
 
 /* Function to handle data from a client socket */

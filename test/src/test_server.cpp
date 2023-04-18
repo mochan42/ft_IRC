@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 22:52:04 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/18 21:08:17 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/18 22:01:07 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,20 @@
 
 TEST_CASE( "Server : Server Constructor", "[Server]")
 {
-	SECTION("Server Constructor NULL")
-	{
-		Server	server();
-		REQUIRE(server.);
-	}
 	SECTION("Server Constructor Port 50000, Password '' ")
 	{
 		Server	server(50000, "");
-		REQUIRE("Error: expected number of arguments is 2 : <server port number> <server password>");
+		REQUIRE(server.getPort() == 50000);
+		REQUIRE(server.getPassword() == "");
+		REQUIRE(server.getListeningSocket() == 0);
+		REQUIRE(server.fds->fd >= 0);
+		REQUIRE(server.fds->events >= 0);
+		REQUIRE(server.fds->revents >= 0);
 	}
-	SECTION("Server Constructor Port 50000, Password '' ")
+	SECTION("Server createSocket() function valid")
 	{
-		Server	server(50000, ".");
-		REQUIRE("Server Password is      : .");
+		Server	server(50000, "password");
+		server.createSocket();
+		REQUIRE(server.getListeningSocket() > 2);
 	}
 }
