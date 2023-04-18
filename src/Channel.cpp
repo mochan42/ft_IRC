@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/17 21:04:26 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/18 19:32:38 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 
 Channel::Channel( std::string name, std::string topic )
 : _channelCapacity(CHN_MAX_USERS),
+_invitedUsers(NULL), _operators(NULL), _bannedUsers(NULL), _ordinaryUsers(NULL)
 {
     COUT << "\nCall parametric constructor : Channel" << ENDL;
 	try
 	{
 		if (name == "" || topic == "")
-			throw EmptyContentException;
+			throw EmptyContentException();
 		else
 		{
 			_channelName = name;
@@ -27,7 +28,7 @@ Channel::Channel( std::string name, std::string topic )
     		_invitedUsers = new std::list<User *>;
     		_operators = new std::list<User *>;
     		_bannedUsers = new std::list<User *>;
-    		_allUsers = new std::list<User *>;
+    		_ordinaryUsers = new std::list<User *>;
 		}
 
 	}
@@ -43,7 +44,7 @@ Channel::~Channel(void)
 	deallocPtrs(_invitedUsers);
 	deallocPtrs(_operators);
 	deallocPtrs(_bannedUsers);
-	deallocPtrs(_allUsers);
+	deallocPtrs(_ordinaryUsers);
 }
 
 /*---------------Getters and setters--------------------------- */
@@ -66,27 +67,27 @@ unsigned int    Channel::getChannelCapacity(void) const
 }
 
 
-std::list<User *>	Channel::*getListPtrInvitedUsers(void) const
+std::list<User *>	*Channel::getListPtrInvitedUsers(void) const
 {
     return (_invitedUsers);
 }
 
 
-std::list<User *>	Channel::*getListPtrOperators(void) const
+std::list<User *>	*Channel::getListPtrOperators(void) const
 {
     return (_operators);
 }
 
 
-std::list<User *>	Channel::*getListPtrBannedUsers(void) const
+std::list<User *>	*Channel::getListPtrBannedUsers(void) const
 {
     return (_bannedUsers);
 }
 
 
-std::list<User *>	Channel::*getListPtrAllUsers(void) const
+std::list<User *>	*Channel::getListPtrOrdinaryUsers(void) const
 {
-    return (_allUsers);
+    return (_ordinaryUsers);
 }
 
 
@@ -114,13 +115,20 @@ void Channel::broadcastMsg(std::string msg)
 	try
 	{
 		if (msgLen == 0)
-			throw EmptyContentException;
-		if (_allUsers == NULL)
+			throw EmptyContentException();
+		if (_operators == NULL || _ordinaryUsers == NULL)
 			throw NullPointerException();
-		for (it = _allUsers.begin(); it != _allUsers.end(); ++it)
+		
+		/* iterate over operators and ordinary user lists to send msg */
+		for (it = _operators->begin(); it != _operators->end(); ++it)
 		{
 			fd = (*it)->getFd();
-			write(fd, msg.c_str(); msgLen);
+			write(fd, msg.c_str(), msgLen);
+		}
+		for (it = _ordinaryUsers->begin(); it != _ordinaryUsers->end(); ++it)
+		{
+			fd = (*it)->getFd();
+			write(fd, msg.c_str(), msgLen);
 		}
 	}	
 	catch(const std::exception & e)
@@ -141,7 +149,7 @@ bool    Channel::isUserListEmpty(std::list<User *> *list_users)
 		{
 			throw NullPointerException();
 		}
-		result = list_users.empty();
+		result = (*list_users).empty();
 	}
 	catch(const std::exception & e)
 	{
@@ -163,7 +171,7 @@ bool	Channel::isUserInList(std::list<User *> *list_users, User *user)
 			throw NullPointerException();
 		}
 	
-		for (it = list_users.begin(); it != list_users.end(); ++it)
+		for (it = list_users->begin(); it != list_users->end(); ++it)
 		{
 			if (*it == user)
 			{
@@ -183,11 +191,11 @@ void	Channel::addUserToList(std::list<User *> *list_users, User *user)
 {
 	if (isUserInList(list_users, user) == false)
 	{
-		list_user->push_back(user);
+		list_users->push_back(user);
 	}
 	else
 	{
-		throw UsrExistException;
+		throw UsrExistException();
 	}
 }
 
@@ -196,11 +204,11 @@ void	Channel::removeUserFromList(std::list<User *> *list_users, User *user)
 {
 	if (isUserInList(list_users, user) == true)
 	{
-		list_user->remove(user);
+		list_users->remove(user);
 	}
 	else
 	{
-		throw UsrNotFoundException;
+		throw UsrNotFoundException();
 	}
 }
 
@@ -242,16 +250,16 @@ int	Channel::emptyUserList(std::list<User *> *list_users)
 	if (list_users != NULL)
 	{
 		result = CHN_TRUE;
-		while (!(list_users.empty()))
+		while (!((*list_users).empty()))
 		{
-			list_users.pop_back();
+			(*list_users).pop_back();
 		}
 	}
 	return (result);
 }
 
 
-void	deallocPtrs(std::list<User *> *list_users)
+void	Channel::deallocPtrs(std::list<User *> *list_users)
 {
 	if (emptyUserList(list_users) == CHN_TRUE)
 	{
