@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 12:14:29 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/18 20:38:58 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     /* Add the new client socket to the list of fds to poll */
     fds[*num_fds].fd = client_socket;
     fds[*num_fds].events = POLLIN;
-	User* new_user = new User(client_socket, inet_addr(inet_ntoa(client_addr.sin_addr)));
+	User* new_user = new User(client_socket, inet_addr(inet_ntoa(client_addr.sin_addr)), this);
     this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
     

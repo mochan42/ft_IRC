@@ -8,6 +8,8 @@
 # include <vector>
 # include <poll.h>
 
+class Server;
+
 class User
 {
 	private:

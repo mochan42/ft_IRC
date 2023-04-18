@@ -175,8 +175,12 @@ void		User::kickUser(std::vector<std::string>& args)
 	std::string reason = combine_args(args.begin() + 2, args.end());
 	Channel *channelPtr;
 	
-	channelPtr = _server->searchChannel(channel);
-	if (!channelPtr->isUserInListOP(*this))
+	//channelPtr = _server->searchChannel(channel);
+
+	std::list<User *> *test = channelPtr->getListPtrAllUsers();
+	channelPtr->isUserInList(test, this);
+
+/* 	if (!channelPtr->isUserInListOP(*this))
 	{
 		//write error: :<ServerName> 482 <Nick> <channel> :You're not channel operator
 	}
@@ -189,7 +193,7 @@ void		User::kickUser(std::vector<std::string>& args)
 	else
 	{
 		//write error: ":<ServerName> 441 <Nick> <kickedNick> :Is not on channel <channel>"
-	}
+	} */
 }
 
 // void		User::leaveChannel(channel& currentChannel)
