@@ -176,6 +176,11 @@ void		User::kickUser(std::vector<std::string>& args)
 	Channel *channelPtr;
 	
 	channelPtr = _server->searchChannel(channel);
+	if (!channelPtr->isUserInListOP(*this))
+	{
+		//write error: :<ServerName> 482 <Nick> <channel> :You're not channel operator
+	}
+
 	if (channelPtr->isUserInList(nick))
 	{
 		//write broadcastmessage: ":<Nick>!<Nick_USER@IP> KICK <channel> <kickedNick> <kickedNick>"
