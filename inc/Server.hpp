@@ -39,16 +39,16 @@
 #define BUFFER_SIZE		1024
 #define MAX_CONNECTIONS	10
 
-//class User;
+class User;
 
-//class Channel;
+class Channel;
 
 class Server
 {
 	private:
 		Server();
-		//std::map<int, User*>			_users;
-		//std::map<std::string, Channel*>	_channels;
+		std::map<int, User*>			_users;
+		std::map<std::string, Channel*>	_channels;
 		//std::map<t_err, std::string>	_errors;
 		Server(const Server& obj);
 		Server&	operator=(const Server& rhs);
@@ -59,7 +59,6 @@ class Server
 		const std::string				_errorFile;
 		std::list<std::string>			_operators;
 		std::map<int, std::string>		_messages;
-		std::map<int, std::string>		_userIPs;
 
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
