@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 20:41:56 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 20:59:25 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,10 @@ Server::~Server()
 {
     _messages.clear();
 	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
+	{
 		delete it->second;
-	_users.clear();
+		this->_users.erase(it);
+	}
 }
 
 //======== GETTERS / SETTERS ====================================================================
