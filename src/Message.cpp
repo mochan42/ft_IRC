@@ -40,27 +40,29 @@ std::vector<std::string> Message::getArguments() const {
 void Message::parse(const std::string& user_input) {
     std::istringstream iss(user_input);
     std::string token;
-    bool hasPrefix = false;
-    bool hasCommand = false;
+    iss >> token;
+    command = token;
 
     while (iss >> token) {
-        if (!hasPrefix && token[0] == ':') {
-            prefix = token.substr(1);
-            hasPrefix = true;
-        } else if (!hasCommand) {
-            command = token;
-            hasCommand = true;
+        if (token[0] == ':') {
+            std::string trailing = token.substr(1);
+            while (iss >> token) {
+                trailing += " " + token;
+            }
+            args.push_back(trailing);
+            break;
         } else {
             args.push_back(token);
         }
     }
 
-    std::transform(command.begin(), command.end(), command.begin(), ::toupper);
-
-    // Debug output to see the arguments as they are parsed
-    std::cout << "Parsed arguments inside parse function: ";
+    // Debug output to see the command and arguments as they are parsed
+    std::cout << "Parsed command: " << command << std::endl;
+    std::cout << "Parsed arguments: ";
+    int i = 0;
     for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
-        std::cout << *it << " ";
+        std::cout <<i <<" "<< *it << "\n";
+        i++;
     }
-    std::cout << "\n";
+    std::cout << std::endl;
 }
