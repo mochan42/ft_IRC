@@ -28,7 +28,7 @@ class User
 		~User();
 
 		int			getFd(void);
-		long		getIP(void);
+		std::string	getIP(void);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
 		void		setUserName(const std::vector<std::string>& args);
@@ -52,9 +52,9 @@ class User
 		// void		changeTopic(channel& currentChannel, std::string newTopic);
 		// channel&	createChannel(std::string channelName);
 		// void 		inviteUser(channel& currentChannel, std::string nickName);
-		void		joinChannel(std::vector<std::string>& args);
-		void		kickUser(std::vector<std::string>& args);
-		void		leaveChannel(std::vector<std::string>& args);
+		// void		joinChannel(std::vector<std::string>& args);
+		// void		kickUser(std::vector<std::string>& args);
+		// void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 		// std::string	sendNotification(const std::string& msg);
 
