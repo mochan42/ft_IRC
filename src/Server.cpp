@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 12:14:29 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/18 22:11:38 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ std::string		Server::getServerName()
 
 /* Creates a stream socket to receive incoming connections on */
 /* AF_INET : for IPv4 protocol*/
-/* We use TCP Protocol, hence SOCK_STREAM */
+/* We use TCP Protocol, hence SOCK_STREAM being a stream socket*/
 /* protocol = 0 beacuase there is only one protocol available for UNIX domain sockets */
 void	Server::createSocket()
 {
@@ -86,7 +86,10 @@ void	Server::createSocket()
 		std::cout << GREEN << "Listening Socket successfully created : "  << this->getListeningSocket() << D <<"\n";
 }
 
-/* Allow listening socket file description to be reuseable */
+/* Allow listening socket file description to be reuseable
+	https://beej.us/guide/bgnet/html/#getaddrinfoprepare-to-launch 5.3 bind()
+	Intends to prevent the socket from blocking the port for longer than neccessary.
+*/
 void	Server::makeListeningSocketReusable()
 {
 	int	reuse, on = 1;
@@ -138,19 +141,19 @@ void	Server::listenToClients()
 
 
 /* Function to handle new client connections */
-void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
+void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
 {
-    struct sockaddr_in client_addr;
-    socklen_t addr_len = sizeof(client_addr);
-    int client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
+    struct sockaddr_in	client_addr;
+    socklen_t 			addr_len = sizeof(client_addr);
+    int 				client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
     
-	/* instantiate User class for new client, store IP address, fd = client_socket */
-
     if (client_socket < 0)
 	{
         std::cout << RED << "Error accepting new connection" << D << "\n";
         return;
     }
+
+	/* instantiate User class for new client, store IP address, fd = client_socket */
     
     /* Add the new client socket to the list of fds to poll */
     fds[*num_fds].fd = client_socket;
@@ -161,7 +164,7 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 	(*num_fds)++;
     
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
-	std::cout << "IP Address (long) :" << (*new_user).getIP() << "\n";
+	std::cout << "IP Address (long) :" << new_user->getIP() << "\n";
 }
 
 /* Function to handle data from a client socket */
@@ -177,6 +180,7 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	{
         /* Client has disconnected */
         std::cout << "Client disconnected\n";
+		// This also needs to entail some freeing of memory on our side, right?
         close(client_socket);
     }
 	else
