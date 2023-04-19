@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 12:14:29 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 20:38:15 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages()
+    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
 {
 	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
 	{
@@ -38,22 +38,22 @@ Server::~Server()
 }
 
 //======== GETTERS / SETTERS ====================================================================
-unsigned int    Server::getPort(void) const
+unsigned int	Server::getPort(void) const
 {
     return (this->_port);
 }
 
-void    Server::setPort(int inputPortNumber)
+void 	Server::setPort(int inputPortNumber)
 {
     this->_port = inputPortNumber;
 }
 
-const std::string	Server::getPassword(void) const
+const	std::string	Server::getPassword(void) const
 {
     return (this->_password);
 }
 
-int Server::getListeningSocket() const
+int 	Server::getListeningSocket() const
 {
 	return (this->_listeningSocket);
 }
@@ -63,12 +63,16 @@ void	Server::setListeningSocket (int n)
 	this->_listeningSocket = n;
 }
 
+std::string		Server::getServerName()
+{
+	return(this->_serverName);
+}
 
 //======== MEMBER FUNCTIONS =====================================================================
 
 /* Creates a stream socket to receive incoming connections on */
 /* AF_INET : for IPv4 protocol*/
-/* We use TCP Protocol, hence SOCK_STREAM */
+/* We use TCP Protocol, hence SOCK_STREAM being a stream socket*/
 /* protocol = 0 beacuase there is only one protocol available for UNIX domain sockets */
 void	Server::createSocket()
 {
@@ -82,7 +86,10 @@ void	Server::createSocket()
 		std::cout << GREEN << "Listening Socket successfully created : "  << this->getListeningSocket() << D <<"\n";
 }
 
-/* Allow listening socket file description to be reuseable */
+/* Allow listening socket file description to be reuseable
+	https://beej.us/guide/bgnet/html/#getaddrinfoprepare-to-launch 5.3 bind()
+	Intends to prevent the socket from blocking the port for longer than neccessary.
+*/
 void	Server::makeListeningSocketReusable()
 {
 	int	reuse, on = 1;
@@ -134,29 +141,30 @@ void	Server::listenToClients()
 
 
 /* Function to handle new client connections */
-void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
+void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
 {
-    struct sockaddr_in client_addr;
-    socklen_t addr_len = sizeof(client_addr);
-    int client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
+    struct sockaddr_in	client_addr;
+    socklen_t 			addr_len = sizeof(client_addr);
+    int 				client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
     
-	/* instantiate User class for new client, store IP address, fd = client_socket */
-
     if (client_socket < 0)
 	{
         std::cout << RED << "Error accepting new connection" << D << "\n";
         return;
     }
+
+	/* instantiate User class for new client, store IP address, fd = client_socket */
     
     /* Add the new client socket to the list of fds to poll */
     fds[*num_fds].fd = client_socket;
     fds[*num_fds].events = POLLIN;
-	User* new_user = new User(client_socket, inet_addr(inet_ntoa(client_addr.sin_addr)));
+	std::string ipAddress = inet_ntoa(client_addr.sin_addr);
+	User* new_user = new User(client_socket, ipAddress);
     this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
-    
+    // Respond with welcome message to user RPLY Code 001
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
-	std::cout << "IP Address (long) :" << (*new_user).getIP() << "\n";
+	std::cout << "IP Address (long) :" << new_user->getIP() << "\n";
 }
 
 /* Function to handle data from a client socket */
@@ -172,19 +180,52 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	{
         /* Client has disconnected */
         std::cout << "Client disconnected\n";
+		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
+		delete this->_users.find(client_socket)->second;
+		this->_users.erase(client_socket);
         close(client_socket);
     }
 	else
 	{
         /* Output the received message */
+		// Check if CTRL + D
         buffer[num_bytes] = '\0';
 		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
 		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
 		/* parse buffer */
+		// Create a Message instance using the buffer content
+		Message msg(this->_messages[client_socket]);
+		
+		// Extract the command and arguments from the Message instance
+		std::string command = msg.getCommand();
+		std::vector<std::string> args = msg.getArguments();
+		
+		// Print the command and arguments for debugging purposes
+		std::cout << "Command: " << command << "\n";
+   		 //for debugging
+    	std::cout << "Parsed arguments: ";
+    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
+        	std::cout << *it << " ";
 		/* client_socket execute cmd */
+		std::map<int, User*>::iterator user_it = _users.find(client_socket);
+		if (user_it != _users.end()) {
+    		User *user = user_it->second;
+    		user->executeCommand(command, args);
+		} 
+		else {
+    	// Handle the case when the user is not found
+		}
     }
 }
 
+/*
+*	Is called whenever the poll() functions finds that there is a readable Socket available.
+*	1.	First checks, whether the fd that is ready to read from is the listening socket from the server.
+*		if so it starts the connections and calls handle_new_connection();
+*	2.	Then walks through the file descriptors (i.e. sockets) and checks if any of them are ready
+*		to be read from. If so, it reads in the data (handle_client_data()) and  reduces the count of 
+*		read-ready fds by one.
+*/
 void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 {
 	/* Check for new connections on the server socket */
@@ -208,6 +249,7 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 /* setup IRC server */
 void	Server::setupServer()
 {
+	std::cout << "Server Name is\t\t: " << this->getServerName() << "\n";
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
 	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";

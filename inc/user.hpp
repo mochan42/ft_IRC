@@ -13,7 +13,7 @@ class User
 	private:
 		// Server 						_server;
 		int							_userFd;
-		long						_ip;
+		std::string					_ip;
 		std::string					_userName;
 		std::string					_nickName;
 		std::string					_realName;
@@ -21,12 +21,12 @@ class User
 		std::list<Channel *>		_channelList;
 
 	public:
-					User(int fd, long ip/*, Server ircserver*/);
+					User(int fd, std::string ip/*, Server ircserver*/);
 		User&		operator=(User &src);
 					~User();
 
 		int			getFd(void);
-		long		getIP(void);
+		std::string	getIP(void);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
 		void		setUserName(const std::vector<std::string>& args);

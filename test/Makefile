@@ -6,7 +6,7 @@
 #    By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/16 09:55:57 by cudoh             #+#    #+#              #
-#    Updated: 2023/04/18 20:43:46 by cudoh            ###   ########.fr        #
+#    Updated: 2023/04/19 23:51:33 by cudoh            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,6 +23,19 @@ SRC_FILES_TEST	:=	main.cpp test_channel.cpp \
 # PROJECT FILES TO BE TESTED ARE LISTE HERE 
 SRC_FILES_PROJ	:= Channel.cpp User.cpp
 
+# PROJECT FILES TO BE TESTED ARE LISTE HERE 
+SRC_FILES_PROJ	:= Server.cpp User.cpp
+
+
+
+OBJ_FILES_TEST	:=	$(SRC_FILES_TEST:.cpp=.o)	# Test object files
+OBJ_FILES_PROJ	:=	$(SRC_FILES_PROJ:.cpp=.o)	# Project object files
+
+SRCS_TEST		:=	$(addprefix $(DIR_SRCS_TEST), $(SRC_FILES_TEST))
+OBJS_TEST		:=	$(addprefix $(DIR_OBJS_TEST), $(OBJ_FILES_TEST))
+
+SRCS_PROJ		:=	$(addprefix $(DIR_SRCS_PROJ), $(SRC_FILES_PROJ))
+OBJS_PROJ		:=	$(addprefix $(DIR_OBJS_PROJ), $(OBJ_FILES_PROJ))
 
 
 OBJ_FILES_TEST	:=	$(SRC_FILES_TEST:.cpp=.o)	# Test object files
