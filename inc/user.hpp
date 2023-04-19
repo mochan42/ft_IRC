@@ -1,49 +1,90 @@
 #ifndef USER_HPP
 # define USER_HPP
 
-# include "server.hpp"
-# include "channel.hpp"
+# include "Server.hpp"
+# include "Channel.hpp"
 # include <string.h>
-# include <iostream>
-# include <list>
+# include <sstream>
+# include <vector>
 # include <poll.h>
-
 
 class User
 {
 	private:
-		int						_userFd;
-		std::string				_userName;
-		std::string				_nickName;
-		std::string				_realName;
-		bool					_isRegistered;
-		std::list<Channel>		_channelList;
-		std::list<std::string>	_inputTokens
+		// Server 						_server;
+		int							_userFd;
+		std::string					_ip;
+		std::string					_userName;
+		std::string					_nickName;
+		std::string					_realName;
+		bool						_isRegistered;
+		std::list<Channel *>		_channelList;
 
 	public:
-					User(pollfd &client);
-		User&		operator=(const User &src);
+					User(int fd, std::string ip/*, Server ircserver*/);
+		User&		operator=(User &src);
 					~User();
 
-		void		getFd(void);
-		void		setNickName(std::string nickName);
-		void		getNickName(void);
-		void		setUserName(std::string userName);
-		void		getUserName(void);
-		void		setRealName(std::string realName);
-		void		getRealName(void);
+		int			getFd(void);
+		std::string	getIP(void);
+		void		setNickName(const std::vector<std::string>& args);
+		std::string	getNickName(void);
+		void		setUserName(const std::vector<std::string>& args);
+		std::string	getUserName(void);
+		void		setRealName(const std::vector<std::string>& args);
+		std::string	getRealName(void);
 
-		User&		newUser(void);
-		void		changeTopic(channel& currentChannel, std::string newTopic);
-		channel&	createChannel(std::string channelName);
-		void 		inviteUser(channel& currentChannel, std::string nickName);
+
+
+
+		/**
+		 * @brief 
+		 * function to call the received command.
+		 *
+		 * @param command std::string
+		 * @param args std::vector < std::string >
+		 */
+		void		executeCommand(std::string command, std::vector<std::string>& args);
+
+
+		// void		changeTopic(channel& currentChannel, std::string newTopic);
+		// channel&	createChannel(std::string channelName);
+		// void 		inviteUser(channel& currentChannel, std::string nickName);
 		void		joinChannel(std::string channelName);
-		void		kickUser(channel& channelToBeKickedOutOf, std::string nickName);
-		void		leaveChannel(channel& currentChannel);
-		void		modifyChannel(std::string channelName, std::string nickName, char mode);
-		std::string	sendNotification(const std::string& msg);
-		std::string	sendMsg(const std::string& msg);
-		std::string	sendPrivateMsg(const std::string& msg);
-		std::string	sendPW(Server& ircServer);
-		bool		isOperator(channel& channel);
-}
+		// void		kickUser(channel& channelToBeKickedOutOf, std::string nickName);
+		// void		leaveChannel(channel& currentChannel);
+		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
+		// std::string	sendNotification(const std::string& msg);
+
+		/**
+		 * @brief 
+		 * function to send a message to all users in the channel.
+		 *
+		 * @param args std::vector < std::string >
+		 */
+		int			sendMsg(std::vector<std::string>& args);
+
+
+		/**
+		 * @brief 
+		 * function to send a message to one user.
+		 *
+		 * @param args std::vector < std::string >
+		 */
+		int			sendPrivateMsg(std::vector<std::string>& args);
+
+
+		// std::string	sendPW(Server& ircServer);
+		// bool		isOperator(channel& channel);
+
+
+		//Exceptions
+		class channelNotFoundException : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return ("Channel doesn't exist");
+				}
+		};
+};
+
+#endif
