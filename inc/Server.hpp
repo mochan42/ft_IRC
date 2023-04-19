@@ -59,6 +59,7 @@ class Server
 		const std::string				_errorFile;
 		std::list<std::string>			_operators;
 		std::map<int, std::string>		_messages;
+		std::string						_serverName;
 
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
@@ -79,6 +80,7 @@ class Server
 		int						getListeningSocket(void) const;
 		void					setListeningSocket (int n);
 		//User*					getUser(void) const;
+		std::string				getServerName();
 
 
 		// setters

@@ -3,7 +3,7 @@
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------
 
-User::User(int fd, long ip/*, Server ircserver*/)
+User::User(int fd, std::string ip/*, Server ircserver*/)
 {
 	// this->_server = ircserver;
 	this->_userFd = fd;
@@ -40,7 +40,7 @@ int		User::getFd(void)
 	return (this->_userFd);
 }
 
-long	User::getIP(void)
+std::string	User::getIP(void)
 {
 	return (this->_ip);
 }
