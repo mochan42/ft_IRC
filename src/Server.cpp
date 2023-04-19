@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 22:24:12 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 22:52:04 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,11 @@ void 	Server::setPort(int inputPortNumber)
     this->_port = inputPortNumber;
 }
 
-const	std::string	Server::getPassword(void) const
+bool	Server::verifyPassword(const std::string& password) const
 {
-    return (this->_password);
+    if (password == this->_password)
+		return (true);
+	return (false);
 }
 
 int 	Server::getListeningSocket() const
@@ -256,7 +258,7 @@ void	Server::setupServer()
 {
 	std::cout << "Server Name is\t\t: " << this->getServerName() << "\n";
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
-	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
+	std::cout << "Server Password is\t: " << this->_password << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
 
 	/* Creating server socket... */
