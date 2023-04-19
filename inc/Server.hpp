@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/18 21:36:39 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 18:16:55 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <arpa/inet.h> // for inet_ntop()
 # include "User.hpp"
 # include "Channel.hpp"
+# include "Message.hpp"
 
 
 #define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):

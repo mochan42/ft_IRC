@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/18 22:11:38 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 18:17:20 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,30 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
 		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
 		/* parse buffer */
+		// Create a Message instance using the buffer content
+		Message msg(this->_messages[client_socket]);
+		
+		// Extract the command and arguments from the Message instance
+		std::string command = msg.getCommand();
+		std::vector<std::string> args = msg.getArguments();
+		
+		// Print the command and arguments for debugging purposes
+		std::cout << "Command: " << command << "\n";
+   		 //for debugging
+    	std::cout << "Parsed arguments: ";
+    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
+        	std::cout << *it << " ";
+    	}
 		/* client_socket execute cmd */
+		std::map<int, User*>::iterator user_it = _users.find(client_socket);
+		if (user_it != _users.end()) {
+    		User *user = user_it->second;
+    		user->executeCommand(command, args);
+		} 
+		else {
+    	// Handle the case when the user is not found
+		}
+		
     }
 }
 

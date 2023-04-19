@@ -6,7 +6,7 @@
 #    By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/16 09:55:57 by cudoh             #+#    #+#              #
-#    Updated: 2023/04/18 21:05:23 by pmeising         ###   ########.fr        #
+#    Updated: 2023/04/19 18:18:09 by pmeising         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,15 +16,26 @@ DIR_OBJS_TEST = ./obj/
 DIR_SRCS_PROJ = ../src/
 DIR_OBJS_PROJ = ../obj/
 
-# MAKE SURE TO INCLUDE YOUR RESPECTIVE FILES HERE WHEN TESTING!
-
 #SRC_FILES	:= $(shell ls ./src | xargs)
-SRC_FILES_TEST	:=	main.cpp test_server.cpp \
+SRC_FILES_TEST	:=	main.cpp test_channel.cpp \
 #				main_user.cpp 
+
+# PROJECT FILES TO BE TESTED ARE LISTE HERE 
+SRC_FILES_PROJ	:= Channel.cpp User.cpp
 
 # PROJECT FILES TO BE TESTED ARE LISTE HERE 
 SRC_FILES_PROJ	:= Server.cpp User.cpp
 
+
+
+OBJ_FILES_TEST	:=	$(SRC_FILES_TEST:.cpp=.o)	# Test object files
+OBJ_FILES_PROJ	:=	$(SRC_FILES_PROJ:.cpp=.o)	# Project object files
+
+SRCS_TEST		:=	$(addprefix $(DIR_SRCS_TEST), $(SRC_FILES_TEST))
+OBJS_TEST		:=	$(addprefix $(DIR_OBJS_TEST), $(OBJ_FILES_TEST))
+
+SRCS_PROJ		:=	$(addprefix $(DIR_SRCS_PROJ), $(SRC_FILES_PROJ))
+OBJS_PROJ		:=	$(addprefix $(DIR_OBJS_PROJ), $(OBJ_FILES_PROJ))
 
 
 OBJ_FILES_TEST	:=	$(SRC_FILES_TEST:.cpp=.o)	# Test object files
