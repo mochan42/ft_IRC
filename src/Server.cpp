@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 18:17:20 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 20:15:13 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,7 +162,7 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 	User* new_user = new User(client_socket, ipAddress);
     this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
-    
+    // Respond with welcome message to user RPLY Code 001
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
 	std::cout << "IP Address (long) :" << new_user->getIP() << "\n";
 }
@@ -186,6 +186,7 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	else
 	{
         /* Output the received message */
+		// Check if CTRL + D
         buffer[num_bytes] = '\0';
 		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
 		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
@@ -201,9 +202,8 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		std::cout << "Command: " << command << "\n";
    		 //for debugging
     	std::cout << "Parsed arguments: ";
-    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
+    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
         	std::cout << *it << " ";
-    	}
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
@@ -213,7 +213,6 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		else {
     	// Handle the case when the user is not found
 		}
-		
     }
 }
 
