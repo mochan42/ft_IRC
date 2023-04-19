@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 22:58:35 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 23:15:43 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,13 @@ Server::Server(unsigned int port, const std::string& password) :
 //======== DESTRUCTOR ===========================================================================
 Server::~Server()
 {
-    _messages.clear();
 	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
 	{
 		delete it->second;
 		this->_users.erase(it);
 	}
+    _messages.clear();
+	// delete[] _messages;
 }
 
 //======== GETTERS / SETTERS ====================================================================
