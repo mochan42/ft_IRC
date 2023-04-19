@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 20:38:15 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 23:05:35 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     fds[*num_fds].fd = client_socket;
     fds[*num_fds].events = POLLIN;
 	std::string ipAddress = inet_ntoa(client_addr.sin_addr);
-	User* new_user = new User(client_socket, ipAddress);
+	User* new_user = new User(client_socket, ipAddress, this);
     this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
     // Respond with welcome message to user RPLY Code 001
@@ -205,7 +205,7 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
    		 //for debugging
     	std::cout << "Parsed arguments: ";
     	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
-        	std::cout << *it << " ";
+			std::cout << *it << " ";
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
