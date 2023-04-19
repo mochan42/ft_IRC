@@ -56,4 +56,11 @@ void Message::parse(const std::string& user_input) {
     }
 
     std::transform(command.begin(), command.end(), command.begin(), ::toupper);
+
+    // Debug output to see the arguments as they are parsed
+    std::cout << "Parsed arguments inside parse function: ";
+    for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
+        std::cout << *it << " ";
+    }
+    std::cout << "\n";
 }

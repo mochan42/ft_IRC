@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 12:14:29 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 11:51:34 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,13 +172,38 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	else
 	{
         /* Output the received message */
-        buffer[num_bytes] = '\0';
-		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
+		buffer[num_bytes] = '\0';
+		std::ostringstream oss;
+		oss.write(buffer, num_bytes);
+		this->_messages[client_socket] = oss.str();
 		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
 		/* parse buffer */
+		// Create a Message instance using the buffer content
+		Message msg(this->_messages[client_socket]);
+		
+		// Extract the command and arguments from the Message instance
+		std::string command = msg.getCommand();
+		std::vector<std::string> args = msg.getArguments();
+		
+		// Print the command and arguments for debugging purposes
+		std::cout << "Command: " << command << "\n";
+   		 //for debugging
+    	std::cout << "Parsed arguments: ";
+    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
+        	std::cout << *it << " ";
+    	}
 		/* client_socket execute cmd */
+		std::map<int, User*>::iterator user_it = _users.find(client_socket);
+		if (user_it != _users.end()) {
+    		User *user = user_it->second;
+    		user->executeCommand(command, args);
+		} 
+		else {
+    	// Handle the case when the user is not found
+		}
+		}
     }
-}
+
 
 void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 {
@@ -194,7 +219,7 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 	{
 		if (this->fds[i].revents & POLLIN)
 		{
-			std::cout << "HERE\n";
+			std::cout << "\nHERE\n";
 			this->handle_client_data(this->fds[i].fd, buffer, BUFFER_SIZE);
 			(*ptrNum_ready_fds)--;
 		}
