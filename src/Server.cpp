@@ -15,7 +15,7 @@
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages()
+    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
 {
 	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
 	{
@@ -38,22 +38,22 @@ Server::~Server()
 }
 
 //======== GETTERS / SETTERS ====================================================================
-unsigned int    Server::getPort(void) const
+unsigned int	Server::getPort(void) const
 {
     return (this->_port);
 }
 
-void    Server::setPort(int inputPortNumber)
+void 	Server::setPort(int inputPortNumber)
 {
     this->_port = inputPortNumber;
 }
 
-const std::string	Server::getPassword(void) const
+const	std::string	Server::getPassword(void) const
 {
     return (this->_password);
 }
 
-int Server::getListeningSocket() const
+int 	Server::getListeningSocket() const
 {
 	return (this->_listeningSocket);
 }
@@ -63,6 +63,10 @@ void	Server::setListeningSocket (int n)
 	this->_listeningSocket = n;
 }
 
+std::string		Server::getServerName()
+{
+	return(this->_serverName);
+}
 
 //======== MEMBER FUNCTIONS =====================================================================
 
@@ -151,7 +155,8 @@ void Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     /* Add the new client socket to the list of fds to poll */
     fds[*num_fds].fd = client_socket;
     fds[*num_fds].events = POLLIN;
-	User* new_user = new User(client_socket, inet_addr(inet_ntoa(client_addr.sin_addr)));
+	std::string ipAddress = inet_ntoa(client_addr.sin_addr);
+	User* new_user = new User(client_socket, ipAddress);
     this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
     
@@ -208,6 +213,7 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 /* setup IRC server */
 void	Server::setupServer()
 {
+	std::cout << "Server Name is\t\t: " << this->getServerName() << "\n";
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
 	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
