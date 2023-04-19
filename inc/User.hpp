@@ -15,7 +15,7 @@ class User
 	private:
 		Server 						*_server;
 		int							_userFd;
-		long						_ip;
+		std::string					_ip;
 		std::string					_userName;
 		std::string					_nickName;
 		std::string					_realName;
@@ -23,7 +23,7 @@ class User
 		std::list<Channel *>		_channelList;
 
 	public:
-		User(int fd, long ip, Server *ircserver);
+		User(int fd, std::string ip, Server *ircserver);
 		User&		operator=(User &src);
 		~User();
 
@@ -54,7 +54,7 @@ class User
 		// void 		inviteUser(channel& currentChannel, std::string nickName);
 		void		joinChannel(std::vector<std::string>& args);
 		void		kickUser(std::vector<std::string>& args);
-		// void		leaveChannel(channel& currentChannel);
+		void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 		// std::string	sendNotification(const std::string& msg);
 
@@ -86,6 +86,24 @@ class User
 			public:
 				virtual const char *what() const throw() {
 					return ("Bad Channel Mask");
+				}
+		};
+		class notAnOperator : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return (":You're not channel operator");
+				}
+		};
+		class notOnTheChannel : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return (":Is not on channel");
+				}
+		};
+		class noSuchChannel : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return (":No such channel");
 				}
 		};
 };
