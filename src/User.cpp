@@ -3,9 +3,9 @@
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------
 
-User::User(int fd, std::string ip/*, Server ircserver*/)
+User::User(int fd, std::string ip, Server *ircserver)
 {
-	// this->_server = ircserver;
+	this->_server = ircserver;
 	this->_userFd = fd;
 	this->_ip = ip; //as a string or can we save it differently?
 	this->_userName = "";
