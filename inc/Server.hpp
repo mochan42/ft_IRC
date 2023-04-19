@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 18:16:55 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 22:03:25 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,12 +79,12 @@ class Server
 		unsigned int			getPort(void) const;
 		const std::string		getPassword(void) const;
 		int						getListeningSocket(void) const;
-		void					setListeningSocket (int n);
 		//User*					getUser(void) const;
 		std::string				getServerName();
 
 
 		// setters
+		void					setListeningSocket (int n);
 		void					setPort(int inputPortNumber);
 		void					checkPassword(const std::string& password) const;
 
@@ -112,6 +112,5 @@ class Server
 int	checkIsDigit(char *s);
 int	checkOutOfRange(char *s);
 int	checkPort(char *port);
-
 
 #endif

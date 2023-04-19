@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 17:20:54 by mochan            #+#    #+#             */
-/*   Updated: 2023/04/19 21:13:10 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 22:02:49 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ int main(int argc, char **argv)
 	{
 		int                 errPortNumber = 0;
 		const std::string   portStr(argv[1]);
-		Channel				channel();
 
 		errPortNumber = checkPort(argv[1]);
 		if (errPortNumber > 0)

@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 20:59:25 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 22:24:12 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,8 +161,9 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     fds[*num_fds].fd = client_socket;
     fds[*num_fds].events = POLLIN;
 	std::string ipAddress = inet_ntoa(client_addr.sin_addr);
-	User* new_user = new User(client_socket, ipAddress);
-    this->_users.insert(std::make_pair(client_socket, new_user));
+	User* new_user = new User(client_socket, ipAddress, this);
+	this->_users[client_socket] = new_user;
+    // this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
     // Respond with welcome message to user RPLY Code 001
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
