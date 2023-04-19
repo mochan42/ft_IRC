@@ -1,3 +1,93 @@
-Code, Message
-001, "<client> :Welcome to the <networkname> Network, <nick>[!<user>@<host>]"
-002, "<client> :Your host is <servername>, running version <version>"
+/JOIN/
+401 "ERR_NOSUCHNICK" "<nickname> :No such nick/channel"
+402 "ERR_NOSUCHSERVER" "<server name> :No such server"
+403 "ERR_NOSUCHCHANNEL" "<channel name> :No such channel"
+404 "ERR_CANNOTSENDTOCHAN" "<channel name> :Cannot send to channel"
+405 "ERR_TOOMANYCHANNELS" "<channel name> :You have joined too many channels"
+406 "ERR_WASNOSUCHNICK" "<nickname> :There was no such nickname"
+407 "ERR_TOOMANYTARGETS" "<target> :<error code> recipients. <abort message>"
+408 "ERR_NOSUCHSERVICE" "<service name> :No such service"
+
+/KICK/
+461 "ERR_NEEDMOREPARAMS" "<command> :Not enough parameters"
+403 "ERR_NOSUCHCHANNEL" "<channel> :No such channel"
+415 "ERR_BADCHANMASK" "<channel> :Bad Channel Mask"
+482 "ERR_CHANOPRIVSNEEDED" "<channel> :You're not channel operator"
+441 "ERR_USERNOTINCHANNEL" "<nick> <channel> :They aren't on that channel"
+442 "ERR_NOTONCHANNEL" "<channel> :You're not on that channel"
+
+/NICK/
+431 "ERR_NONICKNAMEGIVEN" ":No nickname given"
+432 "ERR_ERRONEUSNICKNAME" "<nick> :Erroneous nickname"
+433 "ERR_NICKNAMEINUSE" "<nick> :Nickname is already in use"
+436 "ERR_NICKCOLLISION" "<nick> :Nickname collision KILL from <user>@<host>"
+437 "ERR_UNAVAILRESOURCE" "<nick/channel> :Nick/channel is temporarily unavailable"
+484 "ERR_RESTRICTED" ":Your connection is restricted!"
+
+/USER/
+461 "ERR_NEEDMOREPARAMS" "<command> :Not enough parameters"
+462 "ERR_ALREADYREGISTRED" ":You may not reregister"
+
+/INVITE/
+461 "ERR_NEEDMOREPARAMS" "<command> :Not enough parameters"
+401 "ERR_NOSUCHNICK" "<nickname> :No such nick/channel"
+442 "ERR_NOTONCHANNEL" "<channel> :You're not on that channel"
+443 "ERR_USERONCHANNEL" "<user> <channel> :is already on channel"
+482 "ERR_CHANOPRIVSNEEDED" "<channel> :You're not channel operator"
+341 "RPL_INVITING" "<channel> <nick>"
+
+/TOPIC/
+461 "ERR_NEEDMOREPARAMS" "<command> :Not enough parameters"
+442 "ERR_NOTONCHANNEL" "<channel> :You're not on that channel"
+331 "RPL_NOTOPIC" "<channel> :No topic is set"
+332 "RPL_TOPIC" "<channel> :<topic>"
+482 "ERR_CHANOPRIVSNEEDED" "<channel> :You're not channel operator"
+477 "ERR_NOCHANMODES" "<channel> :Channel doesn't support modes"
+
+/MODE/
+461 "ERR_NEEDMOREPARAMS" "<command> :Not enough parameters"
+502 "ERR_USERSDONTMATCH" ":Cannot change mode for other users"
+501 "ERR_UMODEUNKNOWNFLAG" ":Unknown MODE flag"
+221 "RPL_UMODEIS" "<user mode string>"
+
+/PART/
+403 "ERR_NOSUCHCHANNEL" "<channel> :No such channel"
+461 "ERR_NEEDMOREPARAMS" "<command> :Not enough parameters"
+442 "ERR_NOTONCHANNEL" "<channel> :You're not on that channel"
+
+/PRIVMSG/
+401 "ERR_NOSUCHNICK" "<nickname> :No such nick/channel"
+404 "ERR_CANNOTSENDTOCHAN" "<channel> :Cannot send to channel"
+412 "ERR_NOTEXTTOSEND" ":No text to send"
+421 "ERR_UNKNOWNCOMMAND" "<command> :Unknown command"
+431 "ERR_NONICKNAMEGIVEN" ":No nickname given"
+462 "ERR_ALREADYREGISTRED" ":You may not reregister"
+441 "ERR_USERNOTINCHANNEL" "<nick> <channel> :They aren't on that channel"
+
+/NOTICE/
+401 "ERR_NOSUCHNICK" "<nickname> :No such nick/channel"
+404 "ERR_CANNOTSENDTOCHAN" "<channel> :Cannot send to channel"
+411 "ERR_NORECIPIENT" ":No recipient given (<command>)"
+412 "ERR_NOTEXTTOSEND" ":No text to send"
+421 "ERR_UNKNOWNCOMMAND" "<command> :Unknown command"
+431 "ERR_NONICKNAMEGIVEN" ":No nickname given"
+462 "ERR_ALREADYREGISTRED" ":You may not reregister"
+441 "ERR_USERNOTINCHANNEL" "<nick> <channel> :They aren't on that channel"
+
+/WHOIS/
+401 "ERR_NOSUCHNICK" "<nickname> :No such nick/channel"
+402 "ERR_NOSUCHSERVER" "<server name> :No such server"
+461 "ERR_NEEDMOREPARAMS" "<command> :Not enough parameters"
+462 "ERR_ALREADYREGISTRED" ":You may not reregister"
+318 "RPL_ENDOFWHOIS" "<nick> :End of /WHOIS list."
+311 "RPL_WHOISUSER" "<nick> <user> <host> * :<real name>"
+312 "RPL_WHOISSERVER" "<nick> <server> :<server info>"
+317 "RPL_WHOISIDLE" "<nick> <integer> :seconds idle"
+318 "RPL_ENDOFWHOIS" "<nick> :End of /WHOIS list."
+
+/WJOIN/
+471 "ERR_CHANNELISFULL" "<channel> :Cannot join channel (+l)"
+473 "ERR_INVITEONLYCHAN" "<channel> :Cannot join channel (+i)"
+474 "ERR_BANNEDFROMCHAN" "<channel> :Cannot join channel (+b)"
+475 "ERR_BADCHANNELKEY" "<channel> :Cannot join channel (+k)"
+471 "ERR_CHANNELISFULL" "<channel> :Cannot join channel (+l)"

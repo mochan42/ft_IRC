@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/15 11:53:28 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 18:16:55 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <arpa/inet.h> // for inet_ntop()
 # include "User.hpp"
 # include "Channel.hpp"
+# include "Message.hpp"
 
 
 #define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
@@ -59,6 +60,7 @@ class Server
 		const std::string				_errorFile;
 		std::list<std::string>			_operators;
 		std::map<int, std::string>		_messages;
+		std::string						_serverName;
 
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
@@ -79,6 +81,7 @@ class Server
 		int						getListeningSocket(void) const;
 		void					setListeningSocket (int n);
 		//User*					getUser(void) const;
+		std::string				getServerName();
 
 
 		// setters
