@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 20:15:13 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 20:32:44 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,6 +216,14 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
     }
 }
 
+/*
+*	Is called whenever the poll() functions finds that there is a readable Socket available.
+*	1.	First checks, whether the fd that is ready to read from is the listening socket from the server.
+*		if so it starts the connections and calls handle_new_connection();
+*	2.	Then walks through the file descriptors (i.e. sockets) and checks if any of them are ready
+*		to be read from. If so, it reads in the data (handle_client_data()) and  reduces the count of 
+*		read-ready fds by one.
+*/
 void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 {
 	/* Check for new connections on the server socket */
