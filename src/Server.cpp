@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 22:52:04 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 22:58:35 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 Server::Server(unsigned int port, const std::string& password) :
     _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
 {
-	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
+	for (int i = 0; i <= MAX_CONNECTIONS; i++)
 	{
 		this->fds[i].fd = 0;
 		this->fds[i].events = 0;
