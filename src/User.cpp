@@ -131,33 +131,27 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 
 // }
 
-// channel&	User::createChannel(std::string channelName)
-// {
-
-// }
 
 // void 		User::inviteUser(channel& currentChannel, std::string nickName)
 // {
 
 // }
 
-
-/* void		User::joinChannel(std::vector<std::string>& args)
+void		User::joinChannel(std::vector<std::string>& args)
 {
 	try
 	{
 		if (args[0][0] != '#')
 			throw (badChannelMask());
-		Channel *chptr = _server->searchChannel(channelName);
+		Channel *chptr = _server->searchChannel(args[0]);
 		if (chptr == NULL) //Create channel
 		{
-			chptr = _server->createChannel(channelName);
-			chptr->addUserToList(*this);
-			chptr->addUserOperatorList(*this);
+			chptr = _server->createChannel(args[0]);
+			chptr->addUserToList(chptr->getListPtrOperators(), this);
 		}
 		else { //join channel
 			//check if we are allowed to join (invite only)
-			chptr->addUserToList(*this);
+			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
 		}
 	}
 	catch(badChannelMask &e)
@@ -166,34 +160,39 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		//Handle the error -> call a error function or smth like that
 		//:master.ircgod.com 476 flori test :Bad Channel Mask
 	}
-} */
+}
 
 void		User::kickUser(std::vector<std::string>& args)
 {
 	std::string channel = args[0];
 	std::string nick = args[1];
-	std::string reason = combine_args(args.begin() + 2, args.end());
+	std::string reason = argsToString(args.begin() + 2, args.end());
 	Channel *channelPtr;
+	User	*tmpUser;
 	
 	//channelPtr = _server->searchChannel(channel);
 
-	std::list<User *> *test = channelPtr->getListPtrAllUsers();
+	std::list<User *> *test = channelPtr->getListPtrOrdinaryUsers();
 	channelPtr->isUserInList(test, this);
 
-/* 	if (!channelPtr->isUserInListOP(*this))
+	if (!channelPtr->isUserInList(channelPtr->getListPtrOperators(), this))
 	{
 		//write error: :<ServerName> 482 <Nick> <channel> :You're not channel operator
 	}
 
-	if (channelPtr->isUserInList(nick))
+	if (tmpUser = channelPtr->isUserInChannel(nick))
 	{
 		//write broadcastmessage: ":<Nick>!<Nick_USER@IP> KICK <channel> <kickedNick> <kickedNick>"
-		channelPtr->removeUserFromList(nick);
+		
+		if (channelPtr->isUserInList(channelPtr->getListPtrOperators(), tmpUser))
+			channelPtr->removeUserFromList(channelPtr->getListPtrOperators(), tmpUser);
+		if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
+			channelPtr->removeUserFromList(channelPtr->getListPtrOrdinaryUsers(), tmpUser);
 	}
 	else
 	{
 		//write error: ":<ServerName> 441 <Nick> <kickedNick> :Is not on channel <channel>"
-	} */
+	}
 }
 
 // void		User::leaveChannel(channel& currentChannel)
@@ -265,7 +264,7 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 
 // }
 
-std::string	User::combine_args(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd)
+std::string	User::argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd)
 {
 	std::ostringstream msgstream;
 	if ((*iterBegin)[0] == ':')

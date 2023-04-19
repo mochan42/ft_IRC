@@ -79,7 +79,7 @@ class User
 		// std::string	sendPW(Server& ircServer);
 		// bool		isOperator(channel& channel);
 
-		std::string	combine_args(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd);
+		std::string	argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd);
 
 		//Exceptions
 		class badChannelMask : public std::exception {
