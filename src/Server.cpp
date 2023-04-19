@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 20:32:44 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 20:38:15 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,9 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	{
         /* Client has disconnected */
         std::cout << "Client disconnected\n";
-		// This also needs to entail some freeing of memory on our side, right?
+		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
+		delete this->_users.find(client_socket)->second;
+		this->_users.erase(client_socket);
         close(client_socket);
     }
 	else
