@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 20:38:15 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 22:58:56 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,7 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
    		 //for debugging
     	std::cout << "Parsed arguments: ";
     	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
-        	std::cout << *it << " ";
+			std::cout << *it << " ";
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
