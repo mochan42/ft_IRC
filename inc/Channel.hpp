@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/18 10:19:36 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/18 19:21:49 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 # include <cstring>
 # include <list>
 # include <exception>
-# include "User.hpp"
 # include <unistd.h>
+# include "User.hpp"
 
 # define CHN_MAX_USERS (1024)
 # define COUT std::cout
@@ -46,7 +46,7 @@ class Channel
         std::list<User *>	*_invitedUsers;
         std::list<User *>	*_operators;
         std::list<User *>	*_bannedUsers;
-        std::list<User *>	*_allUsers;		// without operators
+        std::list<User *>	*_ordinaryUsers;			// without operators
 
     public:
     	Channel(std::string name, std::string topic );	// Parametric constructor
@@ -59,7 +59,7 @@ class Channel
     	std::list<User *>	*getListPtrInvitedUsers(void) const;
     	std::list<User *>	*getListPtrOperators(void) const;
     	std::list<User *>	*getListPtrBannedUsers(void) const;
-    	std::list<User *>	*getListPtrAllUsers(void) const;
+    	std::list<User *>	*getListPtrOrdinaryUsers(void) const;
     	void				setChannelName(std::string name);
     	void				setTopic(std::string topic);
     

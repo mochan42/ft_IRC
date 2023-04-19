@@ -6,7 +6,7 @@
 /*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 11:35:53 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/19 11:59:11 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,19 +37,19 @@
 #define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
 #define MAX_PORT_NUMBER	65535
 #define BACKLOG			5
-#define BUFFER_SIZE		2048
+#define BUFFER_SIZE		1024
 #define MAX_CONNECTIONS	10
 
-//class User;
+class User;
 
-//class Channel;
+class Channel;
 
 class Server
 {
 	private:
 		Server();
 		std::map<int, User*>			_users;
-		//std::map<std::string, Channel*>	_channels;
+		std::map<std::string, Channel*>	_channels;
 		//std::map<t_err, std::string>	_errors;
 		Server(const Server& obj);
 		Server&	operator=(const Server& rhs);
@@ -60,7 +60,6 @@ class Server
 		const std::string				_errorFile;
 		std::list<std::string>			_operators;
 		std::map<int, std::string>		_messages;
-		std::map<int, std::string>		_userIPs;
 
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
