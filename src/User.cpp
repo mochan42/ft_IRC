@@ -3,7 +3,7 @@
 //		*!* CONSTRUCTORS and DESTRUCTOR  *!*
 //		------------------------------------
 
-User::User(int fd, long ip, Server *ircserver)
+User::User(int fd, std::string ip, Server *ircserver)
 {
 	this->_server = ircserver;
 	this->_userFd = fd;
@@ -307,11 +307,6 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 
 
 // std::string	User::sendPW(Server& ircServer)
-// {
-
-// }
-
-// bool		User::isOperator(channel& channel)
 // {
 
 // }
