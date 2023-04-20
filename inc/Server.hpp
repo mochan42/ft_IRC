@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 22:50:02 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/20 21:28:21 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ class Server
 		unsigned int			getPort(void) const;
 		bool					verifyPassword(const std::string& password) const;
 		int						getListeningSocket(void) const;
-		void					setListeningSocket (int n);
 		User*					getUser(std::string nickName);
 		std::string				getServerName();
 
