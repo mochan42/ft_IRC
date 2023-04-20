@@ -21,6 +21,7 @@ class User
 		std::string					_nickName;
 		std::string					_realName;
 		bool						_isRegistered;
+		bool						_usernameSet;
 		std::list<Channel *>		_channelList;
 
 	public:
@@ -33,7 +34,7 @@ class User
 		void		setPw(const std::vector<std::string>& args);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
-		void		setUserName(const std::vector<std::string>& args);
+		void		setUserName(std::vector<std::string>& args);
 		std::string	getUserName(void);
 		void		setRealName(const std::vector<std::string>& args);
 		std::string	getRealName(void);
@@ -115,6 +116,33 @@ class User
 				virtual const char *what() const throw()
 				{
 					return ("Error while sending message to own client.");
+				}
+		};
+
+		class cannotJoinChannelPW : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Cannot join channel (+k)");
+				}
+		};
+
+		class cannotJoinChannelIn : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Cannot join channel (+i)");
+				}
+		};
+
+		class channelCapacity : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Cannot join channel (+l)");
 				}
 		};
 };

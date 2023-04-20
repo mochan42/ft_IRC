@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/19 23:25:35 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/20 18:19:00 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ class Channel
     	std::list<User *>	*getListPtrOrdinaryUsers(void) const;
     	void				setChannelName(std::string name);
     	void				setTopic(std::string topic);
-    
+
     	/* Methods */
 		
 		/**
@@ -137,7 +137,7 @@ class Channel
 		 * @param action 
 		 */
     	void	updateUserList(std::list<User *> *list_users, User *user, t_chn_action action);
-		
+
 
 		/**
 		 * @brief 

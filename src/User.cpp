@@ -13,6 +13,7 @@ User::User(int fd, std::string ip, Server *ircserver)
 	this->_realName = "";
 	this->_channelList = std::list<Channel*>();
 	this->_isRegistered = false;
+	this->_usernameSet = false;
 	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
 }
 
@@ -24,6 +25,7 @@ User&		User::operator=(User &src)
 	this->_realName = src.getRealName();
 	this->_channelList = src._channelList;
 	this->_isRegistered = src._isRegistered;
+	this->_usernameSet = src._usernameSet;
 	return (*this);
 }
 
@@ -157,9 +159,19 @@ std::string	User::getNickName(void)
 	return (this->_nickName);
 }
 
-void		User::setUserName(const std::vector<std::string>& args)
+void		User::setUserName(std::vector<std::string>& args)
 {
-	_userName = args[0];
+	if (_usernameSet == true)
+	{
+		std::ostringstream msg;
+		msg << ":" << _server->getServerName() << " 462 " << _nickName << " :Unauthorized command (already registered)";
+		sendMsgToOwnClient(msg.str());
+	}
+	else
+	{
+		_userName = args[0];
+		_realName = argsToString(args.begin() + 3, args.end());
+	}
 }
 
 std::string		User::getUserName(void)
@@ -211,19 +223,55 @@ void		User::joinChannel(std::vector<std::string>& args)
 			chptr = _server->createChannel(args[0]);
 			chptr->addUserToList(chptr->getListPtrOperators(), this);
 		}
-		else
-		{ //join channel
-			//check if we are allowed to join (invite only)
+		else //join channel
+		{
+			// if (boolean ChannelKey == 1)
+			// {
+			// 	if (!args[1] || chptr->password != args[1])
+			// 		throw (cannotJoinChannelPW());
+			// }
+			// if (boolean isInviteOnly == 1)
+			// {
+			// 	if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
+			// 		throw (cannotJoinChannelIn());
+			// 	else
+			// 		chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
+			// }
+			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
+			// 	throw (channelCapacity());
 			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
 		}
+		std::ostringstream msgadd;
+		msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
+		chptr->broadcastMsg(msgadd.str());
 	}
 	catch (badChannelMask &e)
 	{
 		(void)e;
-		//:master.ircgod.com 476 flori test :Bad Channel Mask
 		std::ostringstream msg;
-		msg << ":" <</* _server->getServerName() <<*/ " 476 " << _nickName << " " << args[0] << " :Bad Channel Mask";
-		//SEND MESSAGE HERE: msg.str();
+		msg << ":" << _server->getServerName() << " 476 " << _nickName << " " << args[0] << " :Bad Channel Mask";
+		sendMsgToOwnClient(msg.str());
+	}
+	catch (cannotJoinChannelPW &e)
+	{
+		(void)e;
+		std::ostringstream msg;
+		msg << ":" << _server->getServerName() << " 475 " << _nickName << " " << args[0] << " :Cannot join channel (+k)";
+		sendMsgToOwnClient(msg.str());
+	}
+	catch (cannotJoinChannelIn &e)
+	{
+		(void)e;
+		std::ostringstream msg;
+		msg << ":" << _server->getServerName() << " 473 " << _nickName << " " << args[0] << " :Cannot join channel (+i)";
+		sendMsgToOwnClient(msg.str());
+	}
+	catch (channelCapacity &e)
+	{
+		(void)e;
+		std::ostringstream msg;
+		msg << ":" << _server->getServerName() << " 471 " << _nickName << " " << args[0] << " :Cannot join channel (+l)";
+		sendMsgToOwnClient(msg.str());
 	}
 }
 
