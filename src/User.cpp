@@ -200,9 +200,21 @@ std::string		User::getRealName(void)
 // }
 
 
-// void 		User::inviteUser(channel& currentChannel, std::string nickName)
+// void 		User::inviteUser(std::vector<std::string>& args)
 // {
+// 	//WIP
+// 	std::string nick = args[0];
+// 	std::string channel = args[1];
 
+// 	User *user = _server->getUser(nick);
+// 	if (!user)
+// 	{
+// 		std::ostringstream msgadd;
+// 		msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
+// 		sendMsgToOwnClient(msgadd.str());
+// 	}
+// 	//>> :master.ircgod.com 443 superman superman#test :User is already on that channel
+// 	//>> :master.ircgod.com 401 superman gfdsafas :No such nick/channel
 // }
 
 /**
@@ -217,7 +229,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 	{
 		if (args[0][0] != '#')
 			throw (badChannelMask());
-		Channel *chptr = _server->searchChannel(args[0]);
+		Channel *chptr = _server->getChannel(args[0]);
 		if (chptr == NULL) //Create channel
 		{
 			chptr = _server->createChannel(args[0]);
