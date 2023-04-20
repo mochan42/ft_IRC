@@ -46,7 +46,7 @@ class User
 		// void		changeTopic(channel& currentChannel, std::string newTopic);
 		// channel&	createChannel(std::string channelName);
 		// void 		inviteUser(channel& currentChannel, std::string nickName);
-		// void		joinChannel(std::vector<std::string>& args);
+		void		joinChannel(std::vector<std::string>& args);
 		// void		kickUser(std::vector<std::string>& args);
 		// void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);

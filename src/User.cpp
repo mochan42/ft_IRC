@@ -193,34 +193,45 @@ std::string		User::getRealName(void)
 
 // }
 
-// void		User::joinChannel(std::vector<std::string>& args)
-// {
-// 	try
-// 	{
-// 		if (args[0][0] != '#')
-// 			throw (badChannelMask());
-// 		Channel *chptr = _server->searchChannel(args[0]);
-// 		if (chptr == NULL) //Create channel
-// 		{
-// 			chptr = _server->createChannel(args[0]);
-// 			chptr->addUserToList(chptr->getListPtrOperators(), this);
-// 		}
-// 		else
-// 		{ //join channel
-// 			//check if we are allowed to join (invite only)
-// 			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
-// 		}
-// 	}
-// 	catch (badChannelMask &e)
-// 	{
-// 		(void)e;
-// 		//:master.ircgod.com 476 flori test :Bad Channel Mask
-// 		std::ostringstream msg;
-// 		msg << ":" <</* _server->getServerName() <<*/ " 476 " << _nickName << " " << args[0] << " :Bad Channel Mask";
-// 		//SEND MESSAGE HERE: msg.str();
-// 	}
-// }
+/**
+ * @brief
+ * function to add a user to a channel
+ * or create a new channel and add the user to it
+ * @param args All arguments after the cmd
+ */
+void		User::joinChannel(std::vector<std::string>& args)
+{
+	try
+	{
+		if (args[0][0] != '#')
+			throw (badChannelMask());
+		Channel *chptr = _server->searchChannel(args[0]);
+		if (chptr == NULL) //Create channel
+		{
+			chptr = _server->createChannel(args[0]);
+			chptr->addUserToList(chptr->getListPtrOperators(), this);
+		}
+		else
+		{ //join channel
+			//check if we are allowed to join (invite only)
+			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
+		}
+	}
+	catch (badChannelMask &e)
+	{
+		(void)e;
+		//:master.ircgod.com 476 flori test :Bad Channel Mask
+		std::ostringstream msg;
+		msg << ":" <</* _server->getServerName() <<*/ " 476 " << _nickName << " " << args[0] << " :Bad Channel Mask";
+		//SEND MESSAGE HERE: msg.str();
+	}
+}
 
+/**
+ * @brief 
+ * Will kick a user from a channel and inform all other user on the channel about it.
+ * @param args All arguments after the cmd
+ */
 // void		User::kickUser(std::vector<std::string>& args)
 // {
 // 	std::string channel = args[0];
@@ -266,6 +277,11 @@ std::string		User::getRealName(void)
 // 	}
 // }
 
+/**
+ * @brief 
+ * Function to leave a channel and inform all user in the channel about it.
+ * @param args All arguments after the cmd
+ */
 // void		User::leaveChannel(std::vector<std::string>& args)
 // {
 // 	std::string	channel = args[0];
