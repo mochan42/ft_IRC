@@ -6,7 +6,7 @@
 /*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/20 07:26:19 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/19 22:24:12 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,10 @@ Server::~Server()
 {
     _messages.clear();
 	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
+	{
 		delete it->second;
-	_users.clear();
+		this->_users.erase(it);
+	}
 }
 
 //======== GETTERS / SETTERS ====================================================================
@@ -67,6 +69,24 @@ std::string		Server::getServerName()
 {
 	return(this->_serverName);
 }
+
+
+User* Server::getUser(std::string nickName)
+{
+    std::map<int, User*>::iterator it;
+    for (it = this->_users.begin(); it != this->_users.end(); it++)
+    {
+        if (nickName == (*it).second->getNickName())
+		{
+            std::cout << "Nickname of found User is : " << (*it).second->getNickName() << "\n";
+			return (*it).second;
+		}
+    }
+    std::cout << RED << "User " << nickName << " not found" << D << "\n";
+    return (NULL);
+}
+
+
 
 //======== MEMBER FUNCTIONS =====================================================================
 
@@ -160,7 +180,8 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     fds[*num_fds].events = POLLIN;
 	std::string ipAddress = inet_ntoa(client_addr.sin_addr);
 	User* new_user = new User(client_socket, ipAddress, this);
-    this->_users.insert(std::make_pair(client_socket, new_user));
+	this->_users[client_socket] = new_user;
+    // this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
     // Respond with welcome message to user RPLY Code 001
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
@@ -195,17 +216,19 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		/* parse buffer */
 		// Create a Message instance using the buffer content
 		Message msg(this->_messages[client_socket]);
-   		std::vector<std::string> commands = msg.getCommand();
-	    std::vector<std::vector<std::string> > args = msg.getArguments();
-
-    	for (size_t i = 0; i < commands.size(); i++) {
-        	std::cout << "Command " << i+1 << ": " << commands[i] << std::endl;
-        	std::cout << "Arguments for command " << i+1 << ": ";
-        for (size_t j = 0; j < args[i].size(); j++) {
-            std::cout << args[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
+		
+		// Extract the command and arguments from the Message instance
+		std::string command = msg.getCommand();
+		std::vector<std::string> args = msg.getArguments();
+		
+		// Print the command and arguments for debugging purposes
+		std::cout << "Command: " << command << "\n";
+   		 //for debugging
+    std::cout << "Parsed arguments: ";
+    for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
+		{
+        	std::cout << *it << " ";
+		}
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
