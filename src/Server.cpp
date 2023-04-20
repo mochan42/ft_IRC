@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/20 21:26:26 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/20 22:31:55 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,25 @@ User* Server::getUser(std::string nickName)
     return (NULL);
 }
 
+Channel*	Server::getChannel(const std::string& channel_name) const
+{
+	std::map<std::string, Channel*>::const_iterator	it = this->_channels.find(channel_name);
+	if (it != this->_channels.end())
+		return (it->second);
+	else
+		throw ErrorInternal();
+	return (NULL);
+}
 
+void	Server::createChannel(const std::string& channel_name, const std::string& topic, User* user)
+{
+	std::map<std::string, Channel*>::iterator	it = this->_channels.find(channel_name);
+	if (it == this->_channels.end())
+	{
+		Channel	*channel = new Channel(channel_name, topic, user);
+		this->_channels[channel_name] = channel;
+	}
+}
 
 //======== MEMBER FUNCTIONS =====================================================================
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/19 23:25:35 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/20 22:18:10 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ class Channel
         std::list<User *>	*_ordinaryUsers;			// without operators
 
     public:
-    	Channel(std::string name, std::string topic );	// Parametric constructor
+    	Channel(std::string name, std::string topic, User* user);	// Parametric constructor
     	~Channel(void);									// Destructor
     
     	/* Getters and Setters */

@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/20 21:28:21 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/20 22:30:14 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ class Server
 		// void			startServer(void);
 		// void			closeServer(void);
 		
-		void					createChannel(const std::string& channel) const;
+		void					createChannel(const std::string& channel_name, const std::string& topic, User* user);
 		void					pingClient(void) const;
 		
 		// getters
@@ -86,9 +86,9 @@ class Server
 		// setters
 		void					setListeningSocket (int n);
 		void					setPort(int inputPortNumber);
-		void					checkPassword(const std::string& password) const;
 
 		// member functions
+		void					checkPassword(const std::string& password) const;
 		void					createSocket();
 		void					makeListeningSocketReusable();
 		void					setSocketToNonBlocking();
