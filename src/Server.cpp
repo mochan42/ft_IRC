@@ -68,6 +68,24 @@ std::string		Server::getServerName()
 	return(this->_serverName);
 }
 
+
+User* Server::getUser(std::string nickName)
+{
+    std::map<int, User*>::iterator it;
+    for (it = this->_users.begin(); it != this->_users.end(); it++)
+    {
+        if (nickName == (*it).second->getNickName())
+		{
+            std::cout << "Nickname of found User is : " << (*it).second->getNickName() << "\n";
+			return (*it).second;
+		}
+    }
+    std::cout << RED << "User " << nickName << " not found" << D << "\n";
+    return (NULL);
+}
+
+
+
 //======== MEMBER FUNCTIONS =====================================================================
 
 /* Creates a stream socket to receive incoming connections on */
