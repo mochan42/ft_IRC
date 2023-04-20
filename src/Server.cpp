@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 23:05:35 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/20 07:26:19 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,22 +195,22 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		/* parse buffer */
 		// Create a Message instance using the buffer content
 		Message msg(this->_messages[client_socket]);
-		
-		// Extract the command and arguments from the Message instance
-		std::string command = msg.getCommand();
-		std::vector<std::string> args = msg.getArguments();
-		
-		// Print the command and arguments for debugging purposes
-		std::cout << "Command: " << command << "\n";
-   		 //for debugging
-    	std::cout << "Parsed arguments: ";
-    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
-			std::cout << *it << " ";
+   		std::vector<std::string> commands = msg.getCommand();
+	    std::vector<std::vector<std::string> > args = msg.getArguments();
+
+    	for (size_t i = 0; i < commands.size(); i++) {
+        	std::cout << "Command " << i+1 << ": " << commands[i] << std::endl;
+        	std::cout << "Arguments for command " << i+1 << ": ";
+        for (size_t j = 0; j < args[i].size(); j++) {
+            std::cout << args[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
-    		User *user = user_it->second;
-    		user->executeCommand(command, args);
+    		//User *user = user_it->second;
+    		//user->executeCommand(commands[1], args[1]);
 		} 
 		else {
     	// Handle the case when the user is not found
