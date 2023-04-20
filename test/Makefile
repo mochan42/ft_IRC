@@ -6,7 +6,7 @@
 #    By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/16 09:55:57 by cudoh             #+#    #+#              #
-#    Updated: 2023/04/20 22:32:46 by pmeising         ###   ########.fr        #
+#    Updated: 2023/04/20 23:04:00 by pmeising         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,16 +17,11 @@ DIR_SRCS_PROJ = ../src/
 DIR_OBJS_PROJ = ../obj/
 
 #SRC_FILES	:= $(shell ls ./src | xargs)
-SRC_FILES_TEST	:=	main.cpp test_channel.cpp \
+SRC_FILES_TEST	:=	main.cpp test_server.cpp \
 #				main_user.cpp 
 
 # PROJECT FILES TO BE TESTED ARE LISTE HERE 
-SRC_FILES_PROJ	:= Channel.cpp User.cpp
-
-# PROJECT FILES TO BE TESTED ARE LISTE HERE 
-SRC_FILES_PROJ	:= Server.cpp User.cpp
-
-
+SRC_FILES_PROJ	:= Channel.cpp User.cpp Server.cpp Message.cpp
 
 OBJ_FILES_TEST	:=	$(SRC_FILES_TEST:.cpp=.o)	# Test object files
 OBJ_FILES_PROJ	:=	$(SRC_FILES_PROJ:.cpp=.o)	# Project object files

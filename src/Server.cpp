@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/20 22:31:55 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/20 23:31:01 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
+    _port(port), _listeningSocket(0), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
 {
 	for (int i = 0; i <= MAX_CONNECTIONS; i++)
 	{
@@ -31,10 +31,26 @@ Server::Server(unsigned int port, const std::string& password) :
 //======== DESTRUCTOR ===========================================================================
 Server::~Server()
 {
-	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
+	if (!this->_channels.empty())
 	{
-		delete it->second;
-		this->_users.erase(it);
+		std::map<std::string, Channel*>::iterator begin_it = _channels.begin();
+		std::map<std::string, Channel*>::iterator end_it = _channels.end();
+		for (std::map<std::string, Channel*>::iterator it = begin_it; it != end_it; it++)
+		{
+			delete it->second;
+			this->_channels.erase(it);
+			if (it == end_it)
+				break;
+		}	
+	}
+	if (!this->_users.empty())
+	{
+		for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++)
+		{
+			if (it->second)
+				delete it->second;
+			this->_users.erase(it);
+		}	
 	}
     _messages.clear();
 	// delete[] _messages;
