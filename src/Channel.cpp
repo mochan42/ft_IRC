@@ -3,10 +3,9 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/18 21:03:17 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,4 +264,69 @@ void	Channel::deallocPtrs(std::list<User *> *list_users)
 		delete list_users;
 		list_users = NULL;
 	}
+}
+
+
+
+User	*Channel::fetchUserPtrFromList(std::list<User *> *user_list, 
+									   std::string nickname)
+{
+	std::list<User *>::iterator	it = user_list->begin();
+	
+	for (; it != user_list->end(); ++it)
+	{
+		if ((*it)->getNickName() == nickname)
+		{
+			return (*it);
+		}
+	}
+	return (nullptr);
+}
+
+
+
+User	*Channel::isUserInChannel(std::string nickname)
+{
+	User	*user = nullptr;
+	
+	user = fetchUserPtrFromList(_operators, nickname);
+	if (user == nullptr)
+	{
+		user = fetchUserPtrFromList(_ordinaryUsers, nickname);
+	}
+	return (user);
+}
+
+
+
+int	Channel::demoteUser(std::string nickname)
+{
+	int rc_code = -1; // does not exist
+	User *user = nullptr;
+	
+	user = fetchUserPtrFromList(_operators, nickname);
+	if (user != nullptr)
+	{
+		rc_code = 0;
+		removeUserFromList(_operators, user);
+		addUserToList(_ordinaryUsers, user);
+	}
+	return (rc_code);
+}
+
+
+
+int	Channel::promoteUser(std::string nickname)
+{
+	int rc_code = -1; // does not exist
+	User *user = nullptr;
+	
+	user = fetchUserPtrFromList(_ordinaryUsers, nickname);
+	if (user != nullptr)
+	{
+		rc_code = 0;
+		removeUserFromList(_ordinaryUsers, user);
+		addUserToList(_operators, user);
+	}
+	return (rc_code);
 }

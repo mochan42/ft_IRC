@@ -1,8 +1,6 @@
 #ifndef MESSAGE_HPP
- #define MESSAGE_HPP
+#define MESSAGE_HPP
 
-#include <algorithm>
-#include <cctype>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -15,16 +13,16 @@ public:
     Message& operator=(const Message& other);
     ~Message();
 
-    std::string getPrefix() const;
-    std::string getCommand() const;
-    std::vector<std::string> getArguments() const;
+    std::vector<std::string> getPrefix() const;
+    std::vector<std::string> getCommand() const;
+    std::vector<std::vector<std::string> > getArguments() const;
 
 private:
-    void parse(const std::string& user_input);
+    std::vector<std::string> prefix;
+    std::vector<std::string> command;
+    std::vector<std::vector<std::string> > args;
 
-    std::string prefix;
-    std::string command;
-    std::vector<std::string> args;
+    void parse(const std::string& user_input);
 };
 
-#endif //MESSAGE_HPP
+#endif

@@ -16,6 +16,7 @@ class User
 		Server 						*_server;
 		int							_userFd;
 		std::string					_ip;
+		std::string					_pw;
 		std::string					_userName;
 		std::string					_nickName;
 		std::string					_realName;
@@ -23,12 +24,13 @@ class User
 		std::list<Channel *>		_channelList;
 
 	public:
-					User(int fd, std::string ip, Server *ircserver);
+		User(int fd, std::string ip, Server *ircserver);
 		User&		operator=(User &src);
-					~User();
+		~User();
 
 		int			getFd(void);
 		std::string	getIP(void);
+		void		setPw(const std::vector<std::string>& args);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
 		void		setUserName(const std::vector<std::string>& args);
@@ -36,55 +38,83 @@ class User
 		void		setRealName(const std::vector<std::string>& args);
 		std::string	getRealName(void);
 
-
-
-
-		/**
-		 * @brief 
-		 * function to call the received command.
-		 *
-		 * @param command std::string
-		 * @param args std::vector < std::string >
-		 */
+		int			sendMsgToOwnClient(std::string msg);
+		int			sendMsgToTargetClient(std::string msg, int targetUserFd);
 		void		executeCommand(std::string command, std::vector<std::string>& args);
 
 
 		// void		changeTopic(channel& currentChannel, std::string newTopic);
 		// channel&	createChannel(std::string channelName);
 		// void 		inviteUser(channel& currentChannel, std::string nickName);
-		void		joinChannel(std::string channelName);
-		// void		kickUser(channel& channelToBeKickedOutOf, std::string nickName);
-		// void		leaveChannel(channel& currentChannel);
+		// void		joinChannel(std::vector<std::string>& args);
+		// void		kickUser(std::vector<std::string>& args);
+		// void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
-		// std::string	sendNotification(const std::string& msg);
 
-		/**
-		 * @brief 
-		 * function to send a message to all users in the channel.
-		 *
-		 * @param args std::vector < std::string >
-		 */
+
+		void		sendNotification(std::vector<std::string>& args);	
 		int			sendMsg(std::vector<std::string>& args);
-
-
-		/**
-		 * @brief 
-		 * function to send a message to one user.
-		 *
-		 * @param args std::vector < std::string >
-		 */
 		int			sendPrivateMsg(std::vector<std::string>& args);
 
 
-		// std::string	sendPW(Server& ircServer);
 		// bool		isOperator(channel& channel);
 
+		std::string	argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd);
 
 		//Exceptions
-		class channelNotFoundException : public std::exception {
+		class badChannelMask : public std::exception {
 			public:
 				virtual const char *what() const throw() {
-					return ("Channel doesn't exist");
+					return ("Bad Channel Mask");
+				}
+		};
+
+		class notAnOperator : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return (":You're not channel operator");
+				}
+		};
+
+		class notOnTheChannel : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return (":Is not on channel");
+				}
+		};
+
+		class noSuchChannel : public std::exception {
+			public:
+				virtual const char *what() const throw()
+				{
+					return (":No such channel");
+				}
+		};
+
+		class channelNotFoundException : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Channel doesn't exist.");
+				}
+		};
+
+		class SendToTargetCLientException : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Error while sending message to target client.");
+				}
+		};
+
+		class SendToOwnCLientException : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Error while sending message to own client.");
 				}
 		};
 };
