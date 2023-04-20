@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 18:17:20 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 22:24:12 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,10 @@ Server::~Server()
 {
     _messages.clear();
 	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
+	{
 		delete it->second;
-	_users.clear();
+		this->_users.erase(it);
+	}
 }
 
 //======== GETTERS / SETTERS ====================================================================
@@ -177,10 +179,11 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     fds[*num_fds].fd = client_socket;
     fds[*num_fds].events = POLLIN;
 	std::string ipAddress = inet_ntoa(client_addr.sin_addr);
-	User* new_user = new User(client_socket, ipAddress);
-    this->_users.insert(std::make_pair(client_socket, new_user));
+	User* new_user = new User(client_socket, ipAddress, this);
+	this->_users[client_socket] = new_user;
+    // this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
-    
+    // Respond with welcome message to user RPLY Code 001
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
 	std::cout << "IP Address (long) :" << new_user->getIP() << "\n";
 }
@@ -198,12 +201,15 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	{
         /* Client has disconnected */
         std::cout << "Client disconnected\n";
-		// This also needs to entail some freeing of memory on our side, right?
+		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
+		delete this->_users.find(client_socket)->second;
+		this->_users.erase(client_socket);
         close(client_socket);
     }
 	else
 	{
         /* Output the received message */
+		// Check if CTRL + D
         buffer[num_bytes] = '\0';
 		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
 		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
@@ -219,9 +225,10 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		std::cout << "Command: " << command << "\n";
    		 //for debugging
     	std::cout << "Parsed arguments: ";
-    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it) {
+    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
+		{
         	std::cout << *it << " ";
-    	}
+		}
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
@@ -231,10 +238,17 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		else {
     	// Handle the case when the user is not found
 		}
-		
     }
 }
 
+/*
+*	Is called whenever the poll() functions finds that there is a readable Socket available.
+*	1.	First checks, whether the fd that is ready to read from is the listening socket from the server.
+*		if so it starts the connections and calls handle_new_connection();
+*	2.	Then walks through the file descriptors (i.e. sockets) and checks if any of them are ready
+*		to be read from. If so, it reads in the data (handle_client_data()) and  reduces the count of 
+*		read-ready fds by one.
+*/
 void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 {
 	/* Check for new connections on the server socket */
