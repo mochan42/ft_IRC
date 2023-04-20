@@ -6,7 +6,7 @@
 /*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 22:24:12 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 23:15:43 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 Server::Server(unsigned int port, const std::string& password) :
     _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
 {
-	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
+	for (int i = 0; i <= MAX_CONNECTIONS; i++)
 	{
 		this->fds[i].fd = 0;
 		this->fds[i].events = 0;
@@ -31,12 +31,13 @@ Server::Server(unsigned int port, const std::string& password) :
 //======== DESTRUCTOR ===========================================================================
 Server::~Server()
 {
-    _messages.clear();
 	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
 	{
 		delete it->second;
 		this->_users.erase(it);
 	}
+    _messages.clear();
+	// delete[] _messages;
 }
 
 //======== GETTERS / SETTERS ====================================================================
@@ -50,9 +51,11 @@ void 	Server::setPort(int inputPortNumber)
     this->_port = inputPortNumber;
 }
 
-const	std::string	Server::getPassword(void) const
+bool	Server::verifyPassword(const std::string& password) const
 {
-    return (this->_password);
+    if (password == this->_password)
+		return (true);
+	return (false);
 }
 
 int 	Server::getListeningSocket() const
@@ -274,7 +277,7 @@ void	Server::setupServer()
 {
 	std::cout << "Server Name is\t\t: " << this->getServerName() << "\n";
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
-	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
+	std::cout << "Server Password is\t: " << this->_password << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
 
 	/* Creating server socket... */
