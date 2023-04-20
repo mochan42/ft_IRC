@@ -200,22 +200,44 @@ std::string		User::getRealName(void)
 // }
 
 
-// void 		User::inviteUser(std::vector<std::string>& args)
-// {
-// 	//WIP
-// 	std::string nick = args[0];
-// 	std::string channel = args[1];
+void 		User::inviteUser(std::vector<std::string>& args)
+{
+	std::string nick = args[0];
+	std::string channel = args[1];
 
-// 	User *user = _server->getUser(nick);
-// 	if (!user)
-// 	{
-// 		std::ostringstream msgadd;
-// 		msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
-// 		sendMsgToOwnClient(msgadd.str());
-// 	}
-// 	//>> :master.ircgod.com 443 superman superman#test :User is already on that channel
-// 	//>> :master.ircgod.com 401 superman gfdsafas :No such nick/channel
-// }
+	User *user = _server->getUser(nick);
+	Channel	*chptr = _server->getChannel(channel);
+	if (!user || !channel)
+	{
+		//>> :master.ircgod.com 401 superman gfdsafas :No such nick/channel
+		std::ostringstream msgadd;
+		msgadd << ":" << _server->getServerName() << " 401 " << _nickName << " " << nick << " :No such nick/channel";
+		sendMsgToOwnClient(msgadd.str());
+	}
+	else
+	{
+		if (chptr->isUserInChannel(nick) != NULL)
+		{
+			//>> :master.ircgod.com 443 superman superman#test :User is already on that channel
+			std::ostringstream msgerr;
+			msgerr << ":" << _server->getServerName() << " 443 " << _nickName << " " << nick << " " << channel << " :User is already on that channel";
+			sendMsgToOwnClient(msgerr.str());
+		}
+		else
+		{
+			chptr->addUserToList(chptr->getListPtrInvitedUsers(), user);
+			//>> :master.ircgod.com 341 superman floNick #test
+			std::ostringstream msg;
+			msg << ":" << _server->getServerName() << " 341 " << _nickName << " " << nick << " " << channel;
+			sendMsgToOwnClient(msg.str());
+			//!!!     write to other person:   !!!!
+			//>> :<Nick>!<User@IP> INVITE <otherNick> <channel>
+			std::ostringstream msg;
+			msg << ":" << _nickName << "!" << _userName << "@" << _ip << " INVITE " << nick << channel;
+			//Send to "otherNick" User
+		}
+	}
+}
 
 /**
  * @brief
