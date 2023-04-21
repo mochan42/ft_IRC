@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 23:05:35 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/20 10:38:57 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,11 +206,13 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
     	std::cout << "Parsed arguments: ";
     	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
 			std::cout << *it << " ";
+		std::cout << std::endl;
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
     		User *user = user_it->second;
     		user->executeCommand(command, args);
+			// std::cout << " !!!   TEST TEST !!!" << std::endl;
 		} 
 		else {
     	// Handle the case when the user is not found

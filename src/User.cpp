@@ -85,14 +85,18 @@ int			User::sendMsgToTargetClient(std::string msg, int targetUserFd)
  */
 void		User::executeCommand(std::string command, std::vector<std::string>& args)
 {
-	//Notice: Some Arguments like Pass can be written like: PASS, pass, Pass ...
-	if (command == "NICK")
+	//Notice: Some Arguments like Pass can be written like: PASS, pass, Pass ... 
+
+	std::cout << "User::executeCommand called." << std::endl;
+	if (command == "CAP")
+		;
+	else if (command == "NICK")
 		setNickName(args);
 	else if (command == "USER")
 		setUserName(args);
 	else if (command == "REAL")
 		setRealName(args);
-	else if (command == "PW")
+	else if (command == "PASS")
 		setPw(args);
 	// else if (command == "JOIN")
 	// 	joinChannel(args);
@@ -119,11 +123,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	// 	isOperator(args);
 	else
 	{
-		std::ostringstream msgstream;
-		msgstream << ":" << /* _server.getName() << */ " " << this->getNickName() << " " << command << " : Unkown command";
-		std::string msg = msgstream.str();
-		this->sendMsgToOwnClient(msg);
-		std::cout << msg << std::endl;
+		this->sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
+		std::cout << _replyMessage << std::endl;
 	}
 }
 
@@ -150,6 +151,7 @@ void		User::setPw(const std::vector<std::string>& args)
 void		User::setNickName(const std::vector<std::string>& args)
 {
 	_nickName = args[0];
+	std::cout << "User::setNickname called. The _nickName is now:  " << _nickName << std::endl;
 }
 
 std::string	User::getNickName(void)

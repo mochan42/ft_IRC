@@ -22,6 +22,7 @@ class User
 		std::string					_realName;
 		bool						_isRegistered;
 		std::list<Channel *>		_channelList;
+		std::string					_replyMessage;
 
 	public:
 		User(int fd, std::string ip, Server *ircserver);
@@ -61,7 +62,16 @@ class User
 
 		std::string	argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd);
 
-		//Exceptions
+//		*!* REPLY LIBRARY  *!*
+//		----------------------
+
+		const char		*RPY_welcomeToServer(void);
+
+		const char 		*RPY_ERR_commandNotfound(std::string command);
+
+//		*!* EXCEPTIONS  *!*
+//		-------------------
+
 		class badChannelMask : public std::exception {
 			public:
 				virtual const char *what() const throw() {
