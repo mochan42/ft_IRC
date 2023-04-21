@@ -278,61 +278,61 @@ void 		User::inviteUser(std::vector<std::string>& args)
  * or create a new channel and add the user to it
  * @param args All arguments after the cmd
  */
-void		User::joinChannel(std::vector<std::string>& args)
-{
-	try
-	{
-		if (args[0][0] != '#')
-			throw (badChannelMask());
-		Channel *chptr = _server->getChannel(args[0]);
-		if (chptr == NULL) //Create channel
-		{
-			chptr = _server->createChannel(args[0]);
-			chptr->addUserToList(chptr->getListPtrOperators(), this);
-		}
-		else //join channel
-		{
-			// if (boolean ChannelKey == 1)
-			// {
-			// 	if (!args[1] || chptr->password != args[1])
-			// 		throw (cannotJoinChannelPW());
-			// }
-			// if (boolean isInviteOnly == 1)
-			// {
-			// 	if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
-			// 		throw (cannotJoinChannelIn());
-			// 	else
-			// 		chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
-			// }
-			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
-			// 	throw (channelCapacity());
-			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
-		}
-		std::ostringstream msgadd;
-		msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
-		chptr->broadcastMsg(msgadd.str());
-	}
-	catch (badChannelMask &e)
-	{
-		(void)e;
-		sendMsgToOwnClient(RPY_ERR476_badChannelMask(args[0]));
-	}
-	catch (cannotJoinChannelPW &e)
-	{
-		(void)e;
-		sendMsgToOwnClient(RPY_ERR475_canNotJoinK(args[0]));
-	}
-	catch (cannotJoinChannelIn &e)
-	{
-		(void)e;
-		sendMsgToOwnClient(RPY_ERR473_canNotJoinI(args[0]));
-	}
-	catch (channelCapacity &e)
-	{
-		(void)e;
-		sendMsgToOwnClient(RPY_ERR471_canNotJoinL(args[0]));
-	}
-}
+// void		User::joinChannel(std::vector<std::string>& args)
+// {
+// 	try
+// 	{
+// 		if (args[0][0] != '#')
+// 			throw (badChannelMask());
+// 		Channel *chptr = _server->getChannel(args[0]);
+// 		if (chptr == NULL) //Create channel
+// 		{
+// 			chptr = _server->createChannel(args[0]);
+// 			chptr->addUserToList(chptr->getListPtrOperators(), this);
+// 		}
+// 		else //join channel
+// 		{
+// 			// if (boolean ChannelKey == 1)
+// 			// {
+// 			// 	if (!args[1] || chptr->password != args[1])
+// 			// 		throw (cannotJoinChannelPW());
+// 			// }
+// 			// if (boolean isInviteOnly == 1)
+// 			// {
+// 			// 	if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
+// 			// 		throw (cannotJoinChannelIn());
+// 			// 	else
+// 			// 		chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
+// 			// }
+// 			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
+// 			// 	throw (channelCapacity());
+// 			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
+// 		}
+// 		std::ostringstream msgadd;
+// 		msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
+// 		chptr->broadcastMsg(msgadd.str());
+// 	}
+// 	catch (badChannelMask &e)
+// 	{
+// 		(void)e;
+// 		sendMsgToOwnClient(RPY_ERR476_badChannelMask(args[0]));
+// 	}
+// 	catch (cannotJoinChannelPW &e)
+// 	{
+// 		(void)e;
+// 		sendMsgToOwnClient(RPY_ERR475_canNotJoinK(args[0]));
+// 	}
+// 	catch (cannotJoinChannelIn &e)
+// 	{
+// 		(void)e;
+// 		sendMsgToOwnClient(RPY_ERR473_canNotJoinI(args[0]));
+// 	}
+// 	catch (channelCapacity &e)
+// 	{
+// 		(void)e;
+// 		sendMsgToOwnClient(RPY_ERR471_canNotJoinL(args[0]));
+// 	}
+// }
 
 /**
  * @brief 
