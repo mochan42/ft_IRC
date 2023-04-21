@@ -200,19 +200,31 @@ void		User::who(std::vector<std::string>& args)
 {
 	if (args.size() == 0)
 		return;
-	std::string channel = args[0];
-	Channel *channelPtr = _server->getChannel(channel);
-	if (channelPtr)
+	if (args[0][0] == '#') //handle channel
 	{
-		std::list<User *> *userList = channelPtr->getListPtrOperators();
-		std::list<User *>::iterator it = userList->begin();
-		while (it != userList->end())
+		std::string channel = args[0];
+		Channel *channelPtr = _server->getChannel(channel);
+		if (channelPtr)
 		{
-			sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel));
-			++it;
+			std::list<User *> *userList = channelPtr->getListPtrOperators();
+			std::list<User *>::iterator it = userList->begin();
+			while (it != userList->end())
+			{
+				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(channelPtr->getListPtrOperators(), *it)));
+				++it;
+			}
 		}
+		sendMsgToOwnClient(RPY_315_endWhoList(channel));
 	}
-	sendMsgToOwnClient(RPY_315_endWhoList(channel));
+	else //handle single user
+	{
+		std::string user = args[0];
+		User *userptr = _server->getUser(user);
+
+		if (userptr)
+			sendMsgToOwnClient(userptr->RPY_352_whoUser(_nickName, "*", false));
+		sendMsgToOwnClient(RPY_315_endWhoList(user));
+	}
 }
 
 void		User::changeTopic(std::vector<std::string>& args)

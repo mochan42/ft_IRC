@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/21 14:56:16 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/21 16:03:02 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,15 +59,17 @@ const char *User::RPY_newTopic(std::string channel, std::string newTopic)
 	return (_replyMessage.c_str());
 }
 
-const char *User::RPY_352_whoUser(std::string recipientNick, std::string channel)
+const char *User::RPY_352_whoUser(std::string recipientNick, std::string channel, bool op)
 {
-	_replyMessage = ":" + _server->getServerName() + " 352 " + recipientNick + " " + channel + " " + _userName + " " +_ip + " " +_server->getServerName() + " " + _nickName + " H :0 " + _realName;
+	std::string flag = " H :0 ";
+	if (op)
+		flag = " H@ :0 ";
+	_replyMessage = ":" + _server->getServerName() + " 352 " + recipientNick + " " + channel + " " + _userName + " " +_ip + " " +_server->getServerName() + " " + _nickName + flag + _realName;
 	return (_replyMessage.c_str());
 }
 
 const char *User::RPY_315_endWhoList(std::string channel)
 {
-	//>> :<ServerName> 315 <ownNick> <channel> :End of WHO list
 	_replyMessage = ":" + _server->getServerName() + " 315 " + _nickName + " " + channel + " :End of WHO list";
 	return (_replyMessage.c_str());
 }
