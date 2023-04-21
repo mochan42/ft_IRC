@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
+/*   Updated: 2023/04/20 23:17:55 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 
-Channel::Channel( std::string name, std::string topic )
+Channel::Channel( std::string name, std::string topic, User* user)
 : _channelCapacity(CHN_MAX_USERS),
 _invitedUsers(NULL), _operators(NULL), _bannedUsers(NULL), _ordinaryUsers(NULL)
 {
@@ -28,6 +29,7 @@ _invitedUsers(NULL), _operators(NULL), _bannedUsers(NULL), _ordinaryUsers(NULL)
     		_operators = new std::list<User *>;
     		_bannedUsers = new std::list<User *>;
     		_ordinaryUsers = new std::list<User *>;
+			this->addUserToList(this->_ordinaryUsers ,user);
 		}
 	}
 	catch(const std::exception & e)
@@ -268,7 +270,7 @@ void	Channel::deallocPtrs(std::list<User *> *list_users)
 
 
 
-User	*Channel::fetchUserPtrFromList(std::list<User *> *user_list, 
+User*	Channel::fetchUserPtrFromList(std::list<User *> *user_list, 
 									   std::string nickname)
 {
 	std::list<User *>::iterator	it = user_list->begin();
@@ -280,17 +282,17 @@ User	*Channel::fetchUserPtrFromList(std::list<User *> *user_list,
 			return (*it);
 		}
 	}
-	return (nullptr);
+	return (NULL);
 }
 
 
 
 User	*Channel::isUserInChannel(std::string nickname)
 {
-	User	*user = nullptr;
+	User	*user = NULL;
 	
 	user = fetchUserPtrFromList(_operators, nickname);
-	if (user == nullptr)
+	if (user == NULL)
 	{
 		user = fetchUserPtrFromList(_ordinaryUsers, nickname);
 	}
@@ -302,10 +304,10 @@ User	*Channel::isUserInChannel(std::string nickname)
 int	Channel::demoteUser(std::string nickname)
 {
 	int rc_code = -1; // does not exist
-	User *user = nullptr;
+	User *user = NULL;
 	
 	user = fetchUserPtrFromList(_operators, nickname);
-	if (user != nullptr)
+	if (user != NULL)
 	{
 		rc_code = 0;
 		removeUserFromList(_operators, user);
@@ -319,10 +321,10 @@ int	Channel::demoteUser(std::string nickname)
 int	Channel::promoteUser(std::string nickname)
 {
 	int rc_code = -1; // does not exist
-	User *user = nullptr;
+	User *user = NULL;
 	
 	user = fetchUserPtrFromList(_ordinaryUsers, nickname);
-	if (user != nullptr)
+	if (user != NULL)
 	{
 		rc_code = 0;
 		removeUserFromList(_ordinaryUsers, user);

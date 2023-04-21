@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 23:15:43 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/21 12:39:40 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
+    _port(port), _listeningSocket(0), _password(password), _errorFile("ErrorCodes.txt"), _serverName("ourIRCServer")
 {
 	for (int i = 0; i <= MAX_CONNECTIONS; i++)
 	{
@@ -31,10 +31,26 @@ Server::Server(unsigned int port, const std::string& password) :
 //======== DESTRUCTOR ===========================================================================
 Server::~Server()
 {
-	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
+	if (!this->_channels.empty())
 	{
-		delete it->second;
-		this->_users.erase(it);
+		std::map<std::string, Channel*>::iterator begin_it = _channels.begin();
+		std::map<std::string, Channel*>::iterator end_it = _channels.end();
+		for (std::map<std::string, Channel*>::iterator it = begin_it; it != end_it; it++)
+		{
+			delete it->second;
+			this->_channels.erase(it);
+			if (it == end_it)
+				break;
+		}	
+	}
+	if (!this->_users.empty())
+	{
+		for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++)
+		{
+			if (it->second)
+				delete it->second;
+			this->_users.erase(it);
+		}	
 	}
     _messages.clear();
 	// delete[] _messages;
@@ -89,7 +105,25 @@ User* Server::getUser(std::string nickName)
     return (NULL);
 }
 
+Channel*	Server::getChannel(const std::string& channel_name) const
+{
+	std::map<std::string, Channel*>::const_iterator	it = this->_channels.find(channel_name);
+	if (it != this->_channels.end())
+		return (it->second);
+	else
+		throw ErrorInternal();
+	return (NULL);
+}
 
+void	Server::createChannel(const std::string& channel_name, const std::string& topic, User* user)
+{
+	std::map<std::string, Channel*>::iterator	it = this->_channels.find(channel_name);
+	if (it == this->_channels.end())
+	{
+		Channel	*channel = new Channel(channel_name, topic, user);
+		this->_channels[channel_name] = channel;
+	}
+}
 
 //======== MEMBER FUNCTIONS =====================================================================
 
@@ -221,17 +255,20 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		Message msg(this->_messages[client_socket]);
 		
 		// Extract the command and arguments from the Message instance
-		std::string command = msg.getCommand();
-		std::vector<std::string> args = msg.getArguments();
+		std::vector<std::string> command = msg.getCommand();
+		std::vector<std::vector<std::string> > args = msg.getArguments();
 		
 		// Print the command and arguments for debugging purposes
-		std::cout << "Command: " << command << "\n";
-   		 //for debugging
-    std::cout << "Parsed arguments: ";
-    for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
+		for (unsigned int i = 0; i < command.size(); i++)
+			std::cout << "Command: " << command[i] << "\n";
+   		//for debugging
+    	std::cout << "Parsed arguments: ";
+    	for (unsigned int i = 0; i < args.size(); i++)
 		{
-        	std::cout << *it << " ";
+			for (unsigned int j = 0; j < args[i].size(); j++)
+				std::cout << args[i][j];
 		}
+		std::cout << "\n";
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
@@ -243,6 +280,59 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		}
     }
 }
+
+// /* Function to handle data from a client socket */
+// void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
+// {
+//     int num_bytes = recv(client_socket, buffer, buffer_size, 0);
+// 	if (num_bytes < 0)
+// 	{
+//         std::cout << RED << "Error receiving data from client" << D  << "\n";
+//         return;
+//     }
+// 	else if (num_bytes == 0)
+// 	{
+//         /* Client has disconnected */
+//         std::cout << "Client disconnected\n";
+// 		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
+// 		delete this->_users.find(client_socket)->second;
+// 		this->_users.erase(client_socket);
+//         close(client_socket);
+//     }
+// 	else
+// 	{
+//         /* Output the received message */
+// 		// Check if CTRL + D
+//         buffer[num_bytes] = '\0';
+// 		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
+// 		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
+// 		/* parse buffer */
+// 		// Create a Message instance using the buffer content
+// 		Message msg(this->_messages[client_socket]);
+		
+// 		// Extract the command and arguments from the Message instance
+// 		std::string command = msg.getCommand();
+// 		std::vector<std::string> args = msg.getArguments();
+		
+// 		// Print the command and arguments for debugging purposes
+// 		std::cout << "Command: " << command << "\n";
+//    		 //for debugging
+//     std::cout << "Parsed arguments: ";
+//     for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
+// 		{
+//         	std::cout << *it << " ";
+// 		}
+// 		/* client_socket execute cmd */
+// 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
+// 		if (user_it != _users.end()) {
+//     		//User *user = user_it->second;
+//     		//user->executeCommand(commands[1], args[1]);
+// 		} 
+// 		else {
+//     	// Handle the case when the user is not found
+// 		}
+//     }
+// }
 
 /*
 *	Is called whenever the poll() functions finds that there is a readable Socket available.
