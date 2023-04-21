@@ -13,6 +13,7 @@ User::User(int fd, std::string ip, Server *ircserver)
 	this->_realName = "";
 	this->_channelList = std::list<Channel*>();
 	this->_isRegistered = false;
+	this->_channelMode = false;
 	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
 }
 
@@ -43,9 +44,10 @@ User::~User()
  */
 int			User::sendMsgToOwnClient(std::string msg)
 {
+	std::string str = msg + "\r\n"; 
 	try
 	{
-		if (send(this->_userFd, msg.c_str(), msg.length(), 0) < 0)
+		if (send(this->_userFd, str.c_str(), str.length(), 0) < 0)
 			throw SendToOwnCLientException();
 	}
 	catch(const std::exception & e)
@@ -54,6 +56,7 @@ int			User::sendMsgToOwnClient(std::string msg)
 	}
 	return (0);
 }
+
 
 /**
  * @brief 
@@ -85,11 +88,12 @@ int			User::sendMsgToTargetClient(std::string msg, int targetUserFd)
  */
 void		User::executeCommand(std::string command, std::vector<std::string>& args)
 {
-	//Notice: Some Arguments like Pass can be written like: PASS, pass, Pass ... 
+	for (size_t i = 0; i < command.length(); i++)
+			command[i] = std::toupper(command[i]);
 
-	std::cout << "User::executeCommand called." << std::endl;
+	std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 	if (command == "CAP")
-		;
+		RPY_welcomeToServer();
 	else if (command == "NICK")
 		setNickName(args);
 	else if (command == "USER")
@@ -98,8 +102,15 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		setRealName(args);
 	else if (command == "PASS")
 		setPw(args);
-	// else if (command == "JOIN")
-	// 	joinChannel(args);
+	else if (command == "JOIN")
+		joinChannel(args);
+	else if (command == "MODE")
+	{
+		if (args.size() == 1)
+			getMode(args);
+	}
+	// else if (command == "WHO")
+	// 	who(args);		
 	// else if (command == "")
 	// 	changeTopic(args);
 	// else if (command == "")
@@ -123,7 +134,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	// 	isOperator(args);
 	else
 	{
-		this->sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
+		RPY_ERR_commandNotfound(command);
 		std::cout << _replyMessage << std::endl;
 	}
 }
@@ -145,13 +156,21 @@ void		User::setPw(const std::vector<std::string>& args)
 {
 	_pw = args[0];
 	if (this->_server->verifyPassword(_pw))
+	{
 		_isRegistered = true;
+		RPY_pass(true);
+	}
+	else
+		RPY_pass(false);
+	std::cout << "User::setPw called. The _pw is now:  " << _pw << std::endl;
 }
 
 void		User::setNickName(const std::vector<std::string>& args)
 {
+	std::string oldNick = _nickName;
 	_nickName = args[0];
-	std::cout << "User::setNickname called. The _nickName is now:  " << _nickName << std::endl;
+	RPY_newNick(oldNick);
+	std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
 }
 
 std::string	User::getNickName(void)
@@ -162,6 +181,7 @@ std::string	User::getNickName(void)
 void		User::setUserName(const std::vector<std::string>& args)
 {
 	_userName = args[0];
+	std::cout << "User::setUserName called. The _UserName is now:  " << this->getUserName() << std::endl;
 }
 
 std::string		User::getUserName(void)
@@ -195,33 +215,40 @@ std::string		User::getRealName(void)
 
 // }
 
-// void		User::joinChannel(std::vector<std::string>& args)
-// {
-// 	try
-// 	{
-// 		if (args[0][0] != '#')
-// 			throw (badChannelMask());
-// 		Channel *chptr = _server->searchChannel(args[0]);
-// 		if (chptr == NULL) //Create channel
-// 		{
-// 			chptr = _server->createChannel(args[0]);
-// 			chptr->addUserToList(chptr->getListPtrOperators(), this);
-// 		}
-// 		else
-// 		{ //join channel
-// 			//check if we are allowed to join (invite only)
-// 			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
-// 		}
-// 	}
-// 	catch (badChannelMask &e)
-// 	{
-// 		(void)e;
-// 		//:master.ircgod.com 476 flori test :Bad Channel Mask
-// 		std::ostringstream msg;
-// 		msg << ":" <</* _server->getServerName() <<*/ " 476 " << _nickName << " " << args[0] << " :Bad Channel Mask";
-// 		//SEND MESSAGE HERE: msg.str();
-// 	}
-// }
+void		User::joinChannel(std::vector<std::string>& args)
+{
+	std::cout << "User::joinChannel called. The channelName to join is:    " << args[0] << std::endl;
+	try
+	{
+		if (args[0][0] != '#')
+			throw (badChannelMask());
+		Channel *chptr = _server->getChannel(args[0]);
+		if (chptr == NULL) //Create channel
+		{
+			std::cout << "Channel don't exists. createChannel called." << std::endl;
+			_server->createChannel(args[0], "Topic", this);
+			chptr = _server->getChannel(args[0]);
+			chptr->addUserToList(chptr->getListPtrOperators(), this);
+			_channelMode = true;
+			RPY_joinChannel(chptr);
+		}
+		else
+		{ //join channel
+			//check if we are allowed to join (invite only)
+			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
+			_channelMode = false;
+			RPY_joinChannel(chptr);
+		}
+	}
+	catch (badChannelMask &e)
+	{
+		(void)e;
+		//:master.ircgod.com 476 flori test :Bad Channel Mask
+		std::ostringstream msg;
+		msg << ":" <</* _server->getServerName() <<*/ " 476 " << _nickName << " " << args[0] << " :Bad Channel Mask";
+		//SEND MESSAGE HERE: msg.str();
+	}
+}
 
 // void		User::kickUser(std::vector<std::string>& args)
 // {
@@ -429,26 +456,25 @@ int		User::sendMsg(std::vector<std::string>& args)
  */
 int		User::sendPrivateMsg(std::vector<std::string>& args)
 {
-	std::list<User *>::iterator iterUser;
-	
-	// for (iterUser = _server.userList.begin(); iterUser != _server.userList.end(); iterUser++)
-	// {
-	// 	if (args[0] == (*iterUser)->getUserName())
-	// 	{
-			std::ostringstream msgstream;
-			std::vector<std::string>::iterator iterString = args.begin() + 1;
-			msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " PRIVMSG " << args[0] << " ";
-			for (; iterString != args.end(); ++iterString)
-			msgstream << *iterString << " ";
-			std::string msg = msgstream.str();
-			std::cout << msg << std::endl;
-	// 		this->sendMsgToTargetClient(msg, (*iterUser)->getFd());
+	std::cout << std::endl << std::endl << "User::sendPrivateMsg called. The nickname of target is:   <" << args[0] << ">" << std::endl;
+	User *target = _server->getUser(args[0]);
 
-	// 		break;
-			// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to User \'" << /* args[2] << */ "\' with fd = " << /*args[3] << */ std::endl;
-	// 	}
-	// }
-	// if (iterUser == _server.userList.end())
+	if (target != NULL)
+	{
+		std::cout << "User found at server !" << std::endl;
+		std::ostringstream msgstream;
+		std::vector<std::string>::iterator iterString = args.begin() + 1;
+		msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " PRIVMSG " << args[0] << " ";
+		for (; iterString != args.end(); ++iterString)
+		msgstream << *iterString << " ";
+		std::string msg = msgstream.str();
+		std::cout << msg << std::endl;
+		this->sendMsgToTargetClient(msg, target->getFd());
+		std::cout << "User " << this->getUserName() << " with fd = " << this->getFd() << " sends a message to User \'" << target->getUserName() <<  "\' with fd = " <<  target->getFd() << std::endl;
+		std::cout << "The message is: 	" << msg << std::endl;
+		// break;
+	}
+	// else
 	// {
 	// 	std::ostringstream msgstream;
 	// 	msgstream << args[0] << " : No such user";
@@ -464,10 +490,29 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 // //		------------------------------------
 
 
-// std::string	User::sendPW()
-// {
+void	User::who(std::vector<std::string>& args)
+{
+	if (args[0][0] != '#')
+		throw (badChannelMask());
+	Channel *chptr = _server->getChannel(args[0]);
+	if (chptr == NULL)
+		return ;
+	RPY_who(chptr);
+}
 
-// }
+void	User::getMode(std::vector<std::string>& args)
+{
+	if (args[0][0] != '#')
+		throw (badChannelMask());
+	Channel *chptr = _server->getChannel(args[0]);
+	if (chptr == NULL)
+		return ;
+	if (_channelMode == true)
+		RPY_getModeCreated(chptr);
+	else
+		RPY_getModeJoined(chptr);
+}
+
 
 std::string	User::argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd)
 {

@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/21 10:37:41 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/21 15:22:21 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,8 +94,8 @@ Channel*	Server::getChannel(const std::string& channel_name) const
 	std::map<std::string, Channel*>::const_iterator	it = this->_channels.find(channel_name);
 	if (it != this->_channels.end())
 		return (it->second);
-	else
-		throw ErrorInternal();
+	// else
+	// 	throw ErrorInternal();
 	return (NULL);
 }
 
@@ -256,8 +256,14 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
-    		//User *user = user_it->second;
-    		//user->executeCommand(commands[1], args[1]);
+    		User *user = user_it->second;
+			int i = 0;
+			for (std::vector<std::string>::iterator iter = command.begin(); iter != command.end(); ++iter)
+			{
+				user->executeCommand(command[i], args[i]);
+				i++;
+			}
+    			
 		} 
 		else {
     	// Handle the case when the user is not found

@@ -23,6 +23,7 @@ class User
 		bool						_isRegistered;
 		std::list<Channel *>		_channelList;
 		std::string					_replyMessage;
+		bool						_channelMode;						// variable if last channel was joined or created -- true == created
 
 	public:
 		User(int fd, std::string ip, Server *ircserver);
@@ -47,7 +48,7 @@ class User
 		// void		changeTopic(channel& currentChannel, std::string newTopic);
 		// channel&	createChannel(std::string channelName);
 		// void 		inviteUser(channel& currentChannel, std::string nickName);
-		// void		joinChannel(std::vector<std::string>& args);
+		void		joinChannel(std::vector<std::string>& args);
 		// void		kickUser(std::vector<std::string>& args);
 		// void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
@@ -57,6 +58,8 @@ class User
 		int			sendMsg(std::vector<std::string>& args);
 		int			sendPrivateMsg(std::vector<std::string>& args);
 
+		void		who(std::vector<std::string>& args);
+		void		getMode(std::vector<std::string>& args);
 
 		// bool		isOperator(channel& channel);
 
@@ -65,9 +68,16 @@ class User
 //		*!* REPLY LIBRARY  *!*
 //		----------------------
 
-		const char		*RPY_welcomeToServer(void);
+		void		RPY_welcomeToServer(void);
+		void 		RPY_newNick(std::string oldNick);
+		void 		RPY_pass(bool registered);
+		void 		RPY_createChannel(Channel* channel);
+		void 		RPY_joinChannel(Channel* channel);
+		void		RPY_who(Channel *channel);
+		void		RPY_getModeCreated(Channel *channel);
+		void		RPY_getModeJoined(Channel *channel);
 
-		const char 		*RPY_ERR_commandNotfound(std::string command);
+		void 		RPY_ERR_commandNotfound(std::string command);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
