@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/20 22:34:57 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/21 17:30:58 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,8 +110,6 @@ void Channel::broadcastMsg(std::string msg)
 	int msgLen = msg.size();
 	int fd = 0;
 	std::list<User *>::iterator it;
-	
-
 	try
 	{
 		if (msgLen == 0)
@@ -123,12 +121,18 @@ void Channel::broadcastMsg(std::string msg)
 		for (it = _operators->begin(); it != _operators->end(); ++it)
 		{
 			fd = (*it)->getFd();
-			write(fd, msg.c_str(), msgLen);
+			send(fd, msg.c_str(), msg.length(), 0);
+
+			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
+			// 	throw SendToTargetCLientException();
 		}
 		for (it = _ordinaryUsers->begin(); it != _ordinaryUsers->end(); ++it)
 		{
 			fd = (*it)->getFd();
-			write(fd, msg.c_str(), msgLen);
+			send(fd, msg.c_str(), msg.length(), 0);
+
+			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
+			// 	throw SendToTargetCLientException();
 		}
 	}	
 	catch(const std::exception & e)

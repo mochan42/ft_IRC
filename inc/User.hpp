@@ -21,9 +21,9 @@ class User
 		std::string					_nickName;
 		std::string					_realName;
 		bool						_isRegistered;
+		bool						_usernameSet;
 		std::list<Channel *>		_channelList;
 		std::string					_replyMessage;
-		bool						_channelMode;						// variable if last channel was joined or created -- true == created
 
 	public:
 		User(int fd, std::string ip, Server *ircserver);
@@ -32,10 +32,10 @@ class User
 
 		int			getFd(void);
 		std::string	getIP(void);
-		void		setPw(const std::vector<std::string>& args);
+		void		setServerPw(const std::vector<std::string>& args);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
-		void		setUserName(const std::vector<std::string>& args);
+		void		setUserName(std::vector<std::string>& args);
 		std::string	getUserName(void);
 		void		setRealName(const std::vector<std::string>& args);
 		std::string	getRealName(void);
@@ -44,13 +44,13 @@ class User
 		int			sendMsgToTargetClient(std::string msg, int targetUserFd);
 		void		executeCommand(std::string command, std::vector<std::string>& args);
 
-
-		// void		changeTopic(channel& currentChannel, std::string newTopic);
+		void		who(std::vector<std::string>& args);
+		void		changeTopic(std::vector<std::string>& args);
 		// channel&	createChannel(std::string channelName);
-		// void 		inviteUser(channel& currentChannel, std::string nickName);
+		void 		inviteUser(std::vector<std::string>& args);
 		void		joinChannel(std::vector<std::string>& args);
-		// void		kickUser(std::vector<std::string>& args);
-		// void		leaveChannel(std::vector<std::string>& args);
+		void		kickUser(std::vector<std::string>& args);
+		void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 
 
@@ -70,11 +70,34 @@ class User
 		std::string 	RPY_pass(bool registered);
 		std::string 	RPY_createChannel(Channel* channel);
 		std::string 	RPY_joinChannel(Channel* channel);
-		std::string		RPY_who(Channel *channel);
 		std::string		RPY_getModeCreated(Channel *channel);
 		std::string		RPY_getModeJoined(Channel *channel);
 
-		std::string		RPY_ERR_commandNotfound(std::string command);
+		const char		*RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
+		const char		*RPY_inviteMessage(std::string otherNick, std::string channel);
+		const char		*RPY_kickedMessage(std::string otherNick, std::string channel);
+		const char		*RPY_leaveChannel(std::string channel);
+		const char		*RPY_332_channelTopic(std::string channel, std::string topic);
+		const char		*RPY_newTopic(std::string channel, std::string newTopic);
+		const char		*RPY_352_whoUser(std::string recipientNick, std::string channel, bool op);
+		const char		*RPY_315_endWhoList(std::string channel);
+
+
+
+
+		std::string 	RPY_ERR_commandNotfound(std::string command);
+
+		const char		*RPY_ERR462_alreadyRegistered();
+		const char 		*RPY_ERR401_noSuchNickChannel(std::string nickchannel);
+		const char 		*RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string channel);
+		const char		*RPY_ERR476_badChannelMask(std::string channel);
+		const char		*RPY_ERR475_canNotJoinK(std::string channel);
+		const char		*RPY_ERR473_canNotJoinI(std::string channel);
+		const char		*RPY_ERR471_canNotJoinL(std::string channel);
+		const char		*RPY_ERR482_notChannelOp(std::string channel);
+		const char		*RPY_ERR441_kickNotOnChannel(std::string otherNick, std::string channel);
+		const char		*RPY_ERR403_noSuchChannel(std::string channel);
+		const char		*RPY_ERR442_youreNotOnThatChannel(std::string channel);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
@@ -132,6 +155,33 @@ class User
 				virtual const char *what() const throw()
 				{
 					return ("Error while sending message to own client.");
+				}
+		};
+
+		class cannotJoinChannelPW : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Cannot join channel (+k)");
+				}
+		};
+
+		class cannotJoinChannelIn : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Cannot join channel (+i)");
+				}
+		};
+
+		class channelCapacity : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Cannot join channel (+l)");
 				}
 		};
 };

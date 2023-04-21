@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/21 16:39:00 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/21 17:02:41 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,37 +46,61 @@ std::string User::RPY_pass(bool registered)
 
 std::string User::RPY_joinChannel(Channel* channel)
 {
-	std::string	replyMessage1 = ":" + this->getNickName() + "!" + this->getIP() + " JOIN " + channel->getChannelName();
-	return (replyMessage1);
+	std::string	replyMessage = ":" + this->getNickName() + "!" + this->getIP() + " JOIN " + channel->getChannelName();
+	return (replyMessage);
 }
 
-// std::string		User::RPY_who(Channel *channel)
-// {
-// 	std::string	replyMessage = ":" + _server->getServerName() + " 353 " + this->getNickName() + " = " + channel->getChannelName() + ":";
-// 	std::list<User *>::iterator iterOper = channel->getListPtrOperators()->begin();
-// 	for (;iterOper != channel->getListPtrOperators()->end(); ++iterOper)
-// 		replyMessage += "@" + (*iterOper)->getNickName() + " ";
-// 	std::list<User *>::iterator iterUser = channel->getListPtrOrdinaryUsers()->begin();
-// 	for (;iterOper != channel->getListPtrOrdinaryUsers()->end(); ++iterUser)
-// 		replyMessage += "@" + (*iterUser)->getNickName() + " ";
-// 	replyMessage.resize(replyMessage.size() - 1);
-// 	sendMsgToOwnClient(replyMessage);
-// }
+const char *User::RPY_inviteMessage(std::string otherNick, std::string channel)
+{
+	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " INVITE " + otherNick + channel;
+	return (_replyMessage.c_str());
+}
 
-// std::string		User::RPY_getModeCreated(Channel *channel)
-// {
-// 	std::string	replyMessage1 = ":" + _server->getServerName() + " 353 " + this->getNickName() + " = " + channel->getChannelName() + ":End of /NAMES list";
-// 	sendMsgToOwnClient(replyMessage1);
+const char *User::RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 341 " + _nickName + " " + otherNick + " " + channel;
+	return (_replyMessage.c_str());
+}
 
-// 	std::string	replyMessage2 = "New channel " + channel->getChannelName() + " created by you. You are operator.";
-// 	sendMsgToOwnClient(replyMessage2);
-// }
+const char *User::RPY_kickedMessage(std::string otherNick, std::string channel)
+{
+	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " KICK " + channel + otherNick;
+	return (_replyMessage.c_str());
+}
 
-// std::string		User::RPY_getModeJoined(Channel *channel)
-// {
-// 	std::string	replyMessage = "Joined channel " + channel->getChannelName() + ". You are not an operator.";
-// 	sendMsgToOwnClient(replyMessage);
-// }
+const char *User::RPY_leaveChannel(std::string channel)
+{
+	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " PART " + channel + " :Leaving";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_332_channelTopic(std::string channel, std::string topic)
+{
+	_replyMessage = ":" + _server->getServerName() + " 332 " + _nickName + " " + channel + " :" + topic;
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_newTopic(std::string channel, std::string newTopic)
+{
+	//>> :<Nick>!<User@IP> TOPIC <channel> :<new Topic>
+	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " TOPIC " + channel + " :" + newTopic;
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_352_whoUser(std::string recipientNick, std::string channel, bool op)
+{
+	std::string flag = " H :0 ";
+	if (op)
+		flag = " H@ :0 ";
+	_replyMessage = ":" + _server->getServerName() + " 352 " + recipientNick + " " + channel + " " + _userName + " " +_ip + " " +_server->getServerName() + " " + _nickName + flag + _realName;
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_315_endWhoList(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 315 " + _nickName + " " + channel + " :End of WHO list";
+	return (_replyMessage.c_str());
+}
 
 //		*!* ERROR MESSAGES  *!*
 //		-----------------------
@@ -86,4 +110,70 @@ std::string	User::RPY_ERR_commandNotfound(std::string command)
 	std::string prefix = ":" + this->getNickName() + "!" + this->getIP() + " ";
 	std::string	replyMessage = command + " : Unkown command";
 	return (replyMessage);
+}
+
+const char *User::RPY_ERR462_alreadyRegistered()
+{
+	_replyMessage = ":" + _server->getServerName() + " 462 " + _nickName + " :Unauthorized command (already registered)";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR401_noSuchNickChannel(std::string nickchannel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 401 " + _nickName + " " + nickchannel + " :No such nick/channel";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 443 " + _nickName + " " + otherNick + " " + channel + " :User is already on that channel";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR476_badChannelMask(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 476 " + _nickName + " " + channel + " :Bad Channel Mask";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR475_canNotJoinK(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 475 " + _nickName + " " + channel + " :Cannot join channel (+k)";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR473_canNotJoinI(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 473 " + _nickName + " " + channel + " :Cannot join channel (+i)";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR471_canNotJoinL(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 471 " + _nickName + " " + channel + " :Cannot join channel (+l)";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR482_notChannelOp(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 482 " + _nickName + " " + channel + " :You're not channel operator";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR441_kickNotOnChannel(std::string otherNick, std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 441 " + _nickName + " " + otherNick + " :Is not on channel " + channel;
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR403_noSuchChannel(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 403 " + _nickName + " " + channel + " :No such channel";
+	return (_replyMessage.c_str());
+}
+
+const char *User::RPY_ERR442_youreNotOnThatChannel(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 442 " + _nickName + " " + channel + " :You're not on that channel";
+	return (_replyMessage.c_str());
 }
