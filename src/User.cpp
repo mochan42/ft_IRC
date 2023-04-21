@@ -144,7 +144,7 @@ std::string		User::getIP(void)
 void		User::setPw(const std::vector<std::string>& args)
 {
 	_pw = args[0];
-	if (_pw == _server->getPassword())
+	if (this->_server->verifyPassword(_pw))
 		_isRegistered = true;
 }
 

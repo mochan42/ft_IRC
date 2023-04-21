@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/20 10:38:57 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/21 10:37:41 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 Server::Server(unsigned int port, const std::string& password) :
     _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
 {
-	for (int i = 0; i < MAX_CONNECTIONS + 1; i++)
+	for (int i = 0; i <= MAX_CONNECTIONS; i++)
 	{
 		this->fds[i].fd = 0;
 		this->fds[i].events = 0;
@@ -31,10 +31,13 @@ Server::Server(unsigned int port, const std::string& password) :
 //======== DESTRUCTOR ===========================================================================
 Server::~Server()
 {
-    _messages.clear();
 	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
+	{
 		delete it->second;
-	_users.clear();
+		this->_users.erase(it);
+	}
+    _messages.clear();
+	// delete[] _messages;
 }
 
 //======== GETTERS / SETTERS ====================================================================
@@ -48,9 +51,11 @@ void 	Server::setPort(int inputPortNumber)
     this->_port = inputPortNumber;
 }
 
-const	std::string	Server::getPassword(void) const
+bool	Server::verifyPassword(const std::string& password) const
 {
-    return (this->_password);
+    if (password == this->_password)
+		return (true);
+	return (false);
 }
 
 int 	Server::getListeningSocket() const
@@ -66,6 +71,42 @@ void	Server::setListeningSocket (int n)
 std::string		Server::getServerName()
 {
 	return(this->_serverName);
+}
+
+
+User* Server::getUser(std::string nickName)
+{
+    std::map<int, User*>::iterator it;
+    for (it = this->_users.begin(); it != this->_users.end(); it++)
+    {
+        if (nickName == (*it).second->getNickName())
+		{
+            std::cout << "Nickname of found User is : " << (*it).second->getNickName() << "\n";
+			return (*it).second;
+		}
+    }
+    std::cout << RED << "User " << nickName << " not found" << D << "\n";
+    return (NULL);
+}
+
+Channel*	Server::getChannel(const std::string& channel_name) const
+{
+	std::map<std::string, Channel*>::const_iterator	it = this->_channels.find(channel_name);
+	if (it != this->_channels.end())
+		return (it->second);
+	else
+		throw ErrorInternal();
+	return (NULL);
+}
+
+void	Server::createChannel(const std::string& channel_name, const std::string& topic, User* user)
+{
+	std::map<std::string, Channel*>::iterator	it = this->_channels.find(channel_name);
+	if (it == this->_channels.end())
+	{
+		Channel	*channel = new Channel(channel_name, topic, user);
+		this->_channels[channel_name] = channel;
+	}
 }
 
 //======== MEMBER FUNCTIONS =====================================================================
@@ -160,7 +201,8 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     fds[*num_fds].events = POLLIN;
 	std::string ipAddress = inet_ntoa(client_addr.sin_addr);
 	User* new_user = new User(client_socket, ipAddress, this);
-    this->_users.insert(std::make_pair(client_socket, new_user));
+	this->_users[client_socket] = new_user;
+    // this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
     // Respond with welcome message to user RPLY Code 001
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
@@ -197,28 +239,84 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		Message msg(this->_messages[client_socket]);
 		
 		// Extract the command and arguments from the Message instance
-		std::string command = msg.getCommand();
-		std::vector<std::string> args = msg.getArguments();
+		std::vector<std::string> command = msg.getCommand();
+		std::vector<std::vector<std::string> > args = msg.getArguments();
 		
 		// Print the command and arguments for debugging purposes
-		std::cout << "Command: " << command << "\n";
-   		 //for debugging
+		for (unsigned int i = 0; i < command.size(); i++)
+			std::cout << "Command: " << command[i] << "\n";
+   		//for debugging
     	std::cout << "Parsed arguments: ";
-    	for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
-			std::cout << *it << " ";
-		std::cout << std::endl;
+    	for (unsigned int i = 0; i < args.size(); i++)
+		{
+			for (unsigned int j = 0; j < args[i].size(); j++)
+				std::cout << args[i][j];
+		}
+		std::cout << "\n";
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
-    		User *user = user_it->second;
-    		user->executeCommand(command, args);
-			// std::cout << " !!!   TEST TEST !!!" << std::endl;
+    		//User *user = user_it->second;
+    		//user->executeCommand(commands[1], args[1]);
 		} 
 		else {
     	// Handle the case when the user is not found
 		}
     }
 }
+
+// /* Function to handle data from a client socket */
+// void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
+// {
+//     int num_bytes = recv(client_socket, buffer, buffer_size, 0);
+// 	if (num_bytes < 0)
+// 	{
+//         std::cout << RED << "Error receiving data from client" << D  << "\n";
+//         return;
+//     }
+// 	else if (num_bytes == 0)
+// 	{
+//         /* Client has disconnected */
+//         std::cout << "Client disconnected\n";
+// 		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
+// 		delete this->_users.find(client_socket)->second;
+// 		this->_users.erase(client_socket);
+//         close(client_socket);
+//     }
+// 	else
+// 	{
+//         /* Output the received message */
+// 		// Check if CTRL + D
+//         buffer[num_bytes] = '\0';
+// 		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
+// 		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
+// 		/* parse buffer */
+// 		// Create a Message instance using the buffer content
+// 		Message msg(this->_messages[client_socket]);
+		
+// 		// Extract the command and arguments from the Message instance
+// 		std::string command = msg.getCommand();
+// 		std::vector<std::string> args = msg.getArguments();
+		
+// 		// Print the command and arguments for debugging purposes
+// 		std::cout << "Command: " << command << "\n";
+//    		 //for debugging
+//     std::cout << "Parsed arguments: ";
+//     for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
+// 		{
+//         	std::cout << *it << " ";
+// 		}
+// 		/* client_socket execute cmd */
+// 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
+// 		if (user_it != _users.end()) {
+//     		//User *user = user_it->second;
+//     		//user->executeCommand(commands[1], args[1]);
+// 		} 
+// 		else {
+//     	// Handle the case when the user is not found
+// 		}
+//     }
+// }
 
 /*
 *	Is called whenever the poll() functions finds that there is a readable Socket available.
@@ -253,7 +351,7 @@ void	Server::setupServer()
 {
 	std::cout << "Server Name is\t\t: " << this->getServerName() << "\n";
 	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
-	std::cout << "Server Password is\t: " << this->getPassword() << "\n";
+	std::cout << "Server Password is\t: " << this->_password << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
 
 	/* Creating server socket... */
