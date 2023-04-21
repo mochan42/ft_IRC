@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/21 11:32:40 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/21 18:35:17 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,9 @@ class Channel
 		 *
 		 * @param msg std::string
 		 */
-    	void	broadcastMsg(std::string msg);
+    	// void	broadcastMsg(std::string msg_org);
+		void 	broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser);
+
 
 
 		/**

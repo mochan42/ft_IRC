@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/21 17:02:41 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/21 18:15:08 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ std::string User::RPY_newNick(std::string oldNick)
 	return (replyMessage);
 }
 
+
 std::string User::RPY_pass(bool registered)
 {
 	std::string	replyMessage;
@@ -44,9 +45,28 @@ std::string User::RPY_pass(bool registered)
 	return (replyMessage);
 }
 
-std::string User::RPY_joinChannel(Channel* channel)
+std::string User::RPY_ChannelMsg(std::string message, Channel* channel)
+{
+	std::string	replyMessage = ":" + this->getNickName() + "!" + this->getNickName() + "@" + this->getIP() + " PRIVMSG " + channel->getChannelName() + " " + message;
+	return (replyMessage);
+}
+
+
+std::string User::RPY_joinChannelBroadcast(Channel* channel)
 {
 	std::string	replyMessage = ":" + this->getNickName() + "!" + this->getIP() + " JOIN " + channel->getChannelName();
+	return (replyMessage);
+}
+
+std::string User::RPY_joinChannel(Channel* channel)
+{
+	std::string	replyMessage = "Joined channel " + channel->getChannelName() + ". You are not an operator.";
+	return (replyMessage);
+}
+
+std::string User::RPY_createChannel(Channel* channel)
+{
+	std::string	replyMessage = "New channel " + channel->getChannelName() + " created by you. You are operator.";
 	return (replyMessage);
 }
 

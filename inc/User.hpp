@@ -55,7 +55,7 @@ class User
 
 
 		void		sendNotification(std::vector<std::string>& args);	
-		int			sendMsg(std::vector<std::string>& args);
+		int			sendChannelMsg(std::vector<std::string>& args);
 		int			sendPrivateMsg(std::vector<std::string>& args);
 
 		// bool		isOperator(channel& channel);
@@ -68,6 +68,8 @@ class User
 		std::string		RPY_welcomeToServer(void);
 		std::string 	RPY_newNick(std::string oldNick);
 		std::string 	RPY_pass(bool registered);
+		std::string		RPY_ChannelMsg(std::string message, Channel* channel);
+		std::string		RPY_joinChannelBroadcast(Channel* channel);
 		std::string 	RPY_createChannel(Channel* channel);
 		std::string 	RPY_joinChannel(Channel* channel);
 		std::string		RPY_getModeCreated(Channel *channel);

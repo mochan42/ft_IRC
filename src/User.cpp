@@ -124,7 +124,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	else if (command == "PRIVMSG")
 	{
 		if (args[0].at(0) == '#')
-			sendMsg(args);
+			sendChannelMsg(args);
 		else
 			sendPrivateMsg(args);
 	}
@@ -258,7 +258,7 @@ void		User::changeTopic(std::vector<std::string>& args)
 	{
 		std::string newTopic = argsToString(args.begin() + 1, args.end());
 		chnptr->setTopic(newTopic);
-		chnptr->broadcastMsg(RPY_newTopic(channel, newTopic));
+		chnptr->broadcastMsg(RPY_newTopic(channel, newTopic), std::make_pair(false, (User *) NULL));
 	}
 }
 
@@ -298,6 +298,7 @@ void 		User::inviteUser(std::vector<std::string>& args)
  */
 void		User::joinChannel(std::vector<std::string>& args)
 {
+	std::cout << "USER::joinChannel called." << std::endl;
 	try
 	{
 		if (args[0][0] != '#')
@@ -306,14 +307,12 @@ void		User::joinChannel(std::vector<std::string>& args)
 		if (chptr == NULL) //Create channel
 		{
 
-			std::cout << "Channel don't exists. createChannel called." << std::endl;
+			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
 			_server->createChannel(args[0], "Topic", this);
 			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel
-			chptr->addUserToList(chptr->getListPtrOperators(), this);
-			
-			// chptr->broadcastMsg(RPY_joinChannel(chptr));
-			sendMsgToOwnClient(RPY_joinChannel(chptr));			//second message
-
+			chptr->addUserToList(chptr->getListPtrOperators(), this);	
+			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
+			sendMsgToOwnClient(RPY_createChannel(chptr));
 		}
 		else //join channel
 		{
@@ -332,8 +331,8 @@ void		User::joinChannel(std::vector<std::string>& args)
 			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
 			// 	throw (channelCapacity());
 			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
-			// chptr->broadcastMsg(RPY_joinChannel(chptr));
-			sendMsgToOwnClient(RPY_joinChannel(chptr));     		//second message
+			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
+			sendMsgToOwnClient(RPY_joinChannel(chptr));
 		}
 		// std::ostringstream msgadd;
 		// msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
@@ -525,20 +524,25 @@ void	User::sendNotification(std::vector<std::string>& args)
  *
  * @param args std::vector < std::string >
  */
-int		User::sendMsg(std::vector<std::string>& args)
+int		User::sendChannelMsg(std::vector<std::string>& args)
 {
-	std::list<Channel *>::iterator iterChannel;
-	// for (iterChannel = _channelList.begin(); iterChannel != _channelList.end(); iterChannel++)
-	// {
-		// if (args[0] == (*iterChannel)->getChannelName())     // with or without # at beginn ?
-		// {
-				std::ostringstream msgstream;
-				std::vector<std::string>::iterator iterString = args.begin() + 1;
-				msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " PRIVMSG " << args[0] << " ";
-				for (; iterString != args.end(); ++iterString)
-					msgstream << *iterString << " ";
-				std::string msg = msgstream.str(); 
-				std::cout << msg << std::endl;
+	std::cout << "User::sendChannelMsg called with Channel =      " << args[0] << std::endl;
+
+	Channel *chptr = _server->getChannel(args[0]);
+	if (chptr == NULL) 
+		(void) chptr;	// execption Channel dont exists
+	else
+		chptr->broadcastMsg(RPY_ChannelMsg(args[1], chptr), std::make_pair(true, (User *) this));
+
+
+
+	// std::ostringstream msgstream;
+	// std::vector<std::string>::iterator iterString = args.begin() + 1;
+	// msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " PRIVMSG " << args[0] << " ";
+	// for (; iterString != args.end(); ++iterString)
+	// 	msgstream << *iterString << " ";
+	// std::string msg = msgstream.str(); 
+	// std::cout << msg << std::endl;
 			// (*iterChannel)->broadcastMsg(msg);     // send to all users in this channel but not to this user
 			// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /*(*iterChannel)->getChannelName() << */ "\'." << std::endl;
 		// 	break;

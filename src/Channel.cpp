@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/21 17:30:58 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/21 18:38:24 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ _invitedUsers(NULL), _operators(NULL), _bannedUsers(NULL), _ordinaryUsers(NULL)
     		_operators = new std::list<User *>;
     		_bannedUsers = new std::list<User *>;
     		_ordinaryUsers = new std::list<User *>;
-			this->addUserToList(this->_ordinaryUsers ,user);
+			(void) user;
+			// this->addUserToList(this->_ordinaryUsers ,user);
 		}
 	}
 	catch(const std::exception & e)
@@ -105,14 +106,56 @@ void   Channel::setTopic(std::string topic)
 
 /*----------- Methods -------------------------------------*/
 
-void Channel::broadcastMsg(std::string msg)
+// void Channel::broadcastMsg(std::string msg_org)
+// {
+// 	std::string msg = msg_org + "\r\n";
+// 	int msgLen = msg.size();
+// 	int fd = 0;
+// 	std::list<User *>::iterator it;
+// 	std::cout << "Channel::broadcastMsg called" << std::endl;
+// 	try
+// 	{
+// 		if (msgLen <= 2)
+// 			throw EmptyContentException();
+// 		if (_operators == NULL || _ordinaryUsers == NULL)
+// 			throw NullPointerException();
+		
+// 		/* iterate over operators and ordinary user lists to send msg */
+// 		for (it = _operators->begin(); it != _operators->end(); ++it)
+// 		{
+// 			fd = (*it)->getFd();
+// 			std::cout << "Send message to operator:    " << (*it)->getNickName() << std::endl;
+// 			send(fd, msg.c_str(), msg.length(), 0);
+
+// 			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
+// 			// 	throw SendToTargetCLientException();
+// 		}
+// 		for (it = _ordinaryUsers->begin(); it != _ordinaryUsers->end(); ++it)
+// 		{
+// 			fd = (*it)->getFd();
+// 			std::cout << "Send message to ordinary User:    " << (*it)->getNickName() << std::endl;
+// 			send(fd, msg.c_str(), msg.length(), 0);
+
+// 			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
+// 			// 	throw SendToTargetCLientException();
+// 		}
+// 	}	
+// 	catch(const std::exception & e)
+// 	{
+// 		std::cerr << e.what() << '\n';
+// 	}
+// }
+
+void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 {
+	std::string msg = msg_org + "\r\n";
 	int msgLen = msg.size();
 	int fd = 0;
 	std::list<User *>::iterator it;
+	std::cout << "Channel::broadcastMsg called" << std::endl;
 	try
 	{
-		if (msgLen == 0)
+		if (msgLen <= 2)
 			throw EmptyContentException();
 		if (_operators == NULL || _ordinaryUsers == NULL)
 			throw NullPointerException();
@@ -121,7 +164,9 @@ void Channel::broadcastMsg(std::string msg)
 		for (it = _operators->begin(); it != _operators->end(); ++it)
 		{
 			fd = (*it)->getFd();
-			send(fd, msg.c_str(), msg.length(), 0);
+			std::cout << "Send message to operator:    " << (*it)->getNickName() << std::endl;
+			if (ownUser.first == false || (ownUser.first == true && (*it)->getNickName() != ownUser.second->getNickName()))
+				send(fd, msg.c_str(), msg.length(), 0);
 
 			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
 			// 	throw SendToTargetCLientException();
@@ -129,7 +174,9 @@ void Channel::broadcastMsg(std::string msg)
 		for (it = _ordinaryUsers->begin(); it != _ordinaryUsers->end(); ++it)
 		{
 			fd = (*it)->getFd();
-			send(fd, msg.c_str(), msg.length(), 0);
+			std::cout << "Send message to ordinary User:    " << (*it)->getNickName() << std::endl;
+			if (ownUser.first == false || (ownUser.first == true && (*it)->getNickName() != ownUser.second->getNickName()))
+				send(fd, msg.c_str(), msg.length(), 0);
 
 			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
 			// 	throw SendToTargetCLientException();
