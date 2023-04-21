@@ -49,8 +49,8 @@ class User
 		// channel&	createChannel(std::string channelName);
 		void 		inviteUser(std::vector<std::string>& args);
 		void		joinChannel(std::vector<std::string>& args);
-		// void		kickUser(std::vector<std::string>& args);
-		// void		leaveChannel(std::vector<std::string>& args);
+		void		kickUser(std::vector<std::string>& args);
+		void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 
 
@@ -67,8 +67,25 @@ class User
 //		----------------------
 
 		const char		*RPY_welcomeToServer(void);
-
+		const char		*RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
+		const char		*RPY_inviteMessage(std::string otherNick, std::string channel);
+		const char		*RPY_kickedMessage(std::string otherNick, std::string channel);
+		const char		*RPY_leaveChannel(std::string channel);
+		const char		*RPY_332_channelTopic(std::string channel, std::string topic);
+		const char		*RPY_newTopic(std::string channel, std::string newTopic);
+		
 		const char 		*RPY_ERR_commandNotfound(std::string command);
+		const char		*RPY_ERR462_alreadyRegistered();
+		const char 		*RPY_ERR401_noSuchNickChannel(std::string nickchannel);
+		const char 		*RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string channel);
+		const char		*RPY_ERR476_badChannelMask(std::string channel);
+		const char		*RPY_ERR475_canNotJoinK(std::string channel);
+		const char		*RPY_ERR473_canNotJoinI(std::string channel);
+		const char		*RPY_ERR471_canNotJoinL(std::string channel);
+		const char		*RPY_ERR482_notChannelOp(std::string channel);
+		const char		*RPY_ERR441_kickNotOnChannel(std::string otherNick, std::string channel);
+		const char		*RPY_ERR403_noSuchChannel(std::string channel);
+		const char		*RPY_ERR442_youreNotOnThatChannel(std::string channel);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------

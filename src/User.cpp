@@ -165,14 +165,14 @@ void		User::setUserName(std::vector<std::string>& args)
 {
 	if (_usernameSet == true)
 	{
-		std::ostringstream msg;
-		msg << ":" << _server->getServerName() << " 462 " << _nickName << " :Unauthorized command (already registered)";
-		sendMsgToOwnClient(msg.str());
+		sendMsgToOwnClient(RPY_ERR462_alreadyRegistered());
 	}
 	else
 	{
 		_userName = args[0];
 		_realName = argsToString(args.begin() + 3, args.end());
+		_usernameSet = true;
+		//Welcome Message could be send here
 	}
 }
 
@@ -201,15 +201,16 @@ void		User::changeTopic(std::vector<std::string>& args)
 	std::string channel = args[0];
 	Channel *chnptr = _server->getChannel(channel);
 	if (!chnptr)
-	{
-		//>> :master.ircgod.com 401 floNick #gdsafdsfa :No such nick/channel
-		std::ostringstream msgadd;
-		msgadd << ":" << _server->getServerName() << " 401 " << _nickName << " " << channel << " :No such nick/channel";
-		sendMsgToOwnClient(msgadd.str());
-	}
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(channel));
 	if (args.size() == 1)
 	{
-		//WIP
+		sendMsgToOwnClient(RPY_332_channelTopic(channel, chnptr->getTopic()));
+	}
+	else
+	{
+		std::string newTopic = argsToString(args.begin() + 1, args.end());
+		chnptr->setTopic(newTopic);
+		chnptr->broadcastMsg(RPY_newTopic(channel, newTopic));
 	}
 }
 
@@ -221,34 +222,21 @@ void 		User::inviteUser(std::vector<std::string>& args)
 
 	User *user = _server->getUser(nick);
 	Channel	*chptr = _server->getChannel(channel);
-	if (!user || !channel)
-	{
-		//>> :master.ircgod.com 401 superman gfdsafas :No such nick/channel
-		std::ostringstream msgadd;
-		msgadd << ":" << _server->getServerName() << " 401 " << _nickName << " " << nick << " :No such nick/channel";
-		sendMsgToOwnClient(msgadd.str());
-	}
+	if (!user)
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(nick));
+	else if (!chptr)
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(channel));
 	else
 	{
 		if (chptr->isUserInChannel(nick) != NULL)
-		{
-			//>> :master.ircgod.com 443 superman superman#test :User is already on that channel
-			std::ostringstream msgerr;
-			msgerr << ":" << _server->getServerName() << " 443 " << _nickName << " " << nick << " " << channel << " :User is already on that channel";
-			sendMsgToOwnClient(msgerr.str());
-		}
+			sendMsgToOwnClient(RPY_ERR443_alreadyOnChannel(nick, channel));
 		else
 		{
 			chptr->addUserToList(chptr->getListPtrInvitedUsers(), user);
-			//>> :master.ircgod.com 341 superman floNick #test
-			std::ostringstream msg;
-			msg << ":" << _server->getServerName() << " 341 " << _nickName << " " << nick << " " << channel;
-			sendMsgToOwnClient(msg.str());
+			sendMsgToOwnClient(RPY_341_userAddedtoInviteList(nick, channel));
 			//!!!     write to other person:   !!!!
-			//>> :<Nick>!<User@IP> INVITE <otherNick> <channel>
-			std::ostringstream msg;
-			msg << ":" << _nickName << "!" << _userName << "@" << _ip << " INVITE " << nick << channel;
-			//Send to "otherNick" User
+			user->sendMsgToOwnClient(RPY_inviteMessage(nick, channel));
+			//check if that works later
 		}
 	}
 }
@@ -296,30 +284,22 @@ void		User::joinChannel(std::vector<std::string>& args)
 	catch (badChannelMask &e)
 	{
 		(void)e;
-		std::ostringstream msg;
-		msg << ":" << _server->getServerName() << " 476 " << _nickName << " " << args[0] << " :Bad Channel Mask";
-		sendMsgToOwnClient(msg.str());
+		sendMsgToOwnClient(RPY_ERR476_badChannelMask(args[0]));
 	}
 	catch (cannotJoinChannelPW &e)
 	{
 		(void)e;
-		std::ostringstream msg;
-		msg << ":" << _server->getServerName() << " 475 " << _nickName << " " << args[0] << " :Cannot join channel (+k)";
-		sendMsgToOwnClient(msg.str());
+		sendMsgToOwnClient(RPY_ERR475_canNotJoinK(args[0]));
 	}
 	catch (cannotJoinChannelIn &e)
 	{
 		(void)e;
-		std::ostringstream msg;
-		msg << ":" << _server->getServerName() << " 473 " << _nickName << " " << args[0] << " :Cannot join channel (+i)";
-		sendMsgToOwnClient(msg.str());
+		sendMsgToOwnClient(RPY_ERR473_canNotJoinI(args[0]));
 	}
 	catch (channelCapacity &e)
 	{
 		(void)e;
-		std::ostringstream msg;
-		msg << ":" << _server->getServerName() << " 471 " << _nickName << " " << args[0] << " :Cannot join channel (+l)";
-		sendMsgToOwnClient(msg.str());
+		sendMsgToOwnClient(RPY_ERR471_canNotJoinL(args[0]));
 	}
 }
 
@@ -344,10 +324,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 
 // 		if (tmpUser = channelPtr->isUserInChannel(nick))
 // 		{
-// 			//write broadcastmessage: ":<Nick>!<Nick_USER@IP> KICK <channel> <kickedNick> <kickedNick>"
-// 			std::ostringstream brmsg;
-// 			brmsg << ":" << _nickName << "!" << _userName << "@" << _ip << " KICK " << channel << nick;
-// 			//SEND MSG
+// 			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel));
 			
 // 			if (channelPtr->isUserInList(channelPtr->getListPtrOperators(), tmpUser))
 // 				channelPtr->removeUserFromList(channelPtr->getListPtrOperators(), tmpUser);
@@ -359,17 +336,13 @@ void		User::joinChannel(std::vector<std::string>& args)
 // 	}
 // 	catch (notAnOperator &e)
 // 	{
-// 		//write error: :<ServerName> 482 <Nick> <channel> :You're not channel operator
-// 		std::ostringstream msg;
-// 		msg << ":" <</* _server->getServerName() <<*/ " 482 " << _nickName << " " << channel << " :You're not channel operator";
-// 		//SEND ERROR MESSAGE!!!
+// 		(void)e;
+// 		sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
 // 	}
 // 	catch (notOnTheChannel &e)
 // 	{
-// 		//write error: ":<ServerName> 441 <Nick> <kickedNick> :Is not on channel <channel>"
-// 		std::ostringstream msg;
-// 		msg << ":" <</* _server->getServerName() <<*/ " 441 " << _nickName << " " << nick << " :Is not on channel " << channel;
-// 		//SEND ERROR MSG!!!!
+// 		(void)e;
+// 		sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(nick, channel));
 // 	}
 // }
 
@@ -383,9 +356,6 @@ void		User::joinChannel(std::vector<std::string>& args)
 // 	std::string	channel = args[0];
 // 	Channel		*chPtr;
 
-// 	//:<NICK>!<User@IP> PART <channel> :Leaving
-// 	std::ostringstream msgstream;
-// 	msgstream << ":" << _nickName << "!" << _userName << "@" << _ip << " PART " << channel << " :Leaving";
 // 	try
 // 	{
 // 		//
@@ -393,12 +363,12 @@ void		User::joinChannel(std::vector<std::string>& args)
 // 			throw(noSuchChannel());
 // 		if (chPtr->isUserInList(chPtr->getListPtrOrdinaryUsers(), this))
 // 		{
-// 			//broadcast msgstream
+// 			chPtr->broadcastMsg(RPY_leaveChannel(channel));
 // 			chPtr->removeUserFromList(chPtr->getListPtrOrdinaryUsers(), this);
 // 		}
 // 		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
 // 		{
-// 			//broadcast msgstream
+// 			chPtr->broadcastMsg(RPY_leaveChannel(channel));
 // 			chPtr->removeUserFromList(chPtr->getListPtrOperators(), this);
 // 		}
 // 		else
@@ -406,17 +376,13 @@ void		User::joinChannel(std::vector<std::string>& args)
 // 	}
 // 	catch(noSuchChannel &e)
 // 	{
-// 		//:master.ircgod.com 403 nick1 #miau :No such channel
-// 		std::ostringstream msg;
-// 		msg << ":" <</* _server->getServerName() <<*/ " 403 " << _nickName << " " << channel << " :No such channel";
-// 		//SEND ERROR MESSAGE!!!
+// 		(void)e;
+// 		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(channel));
 // 	}
 // 	catch(notOnTheChannel &e)
 // 	{
-// 		//:master.ircgod.com 442 nick1 #mychannel :You're not on that channel
-// 		std::ostringstream msg;
-// 		msg << ":" <</* _server->getServerName() <<*/ " 442 " << _nickName << " " << channel << " :You're not on that channel";
-// 		//SEND ERROR MESSAGE!!!
+// 		(void)e;
+// 		sendMsgToOwnClient(RPY_ERR442_youreNotOnThatChannel(channel));
 // 	}
 // }
 
