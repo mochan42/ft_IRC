@@ -58,9 +58,6 @@ class User
 		int			sendMsg(std::vector<std::string>& args);
 		int			sendPrivateMsg(std::vector<std::string>& args);
 
-		void		who(std::vector<std::string>& args);
-		void		getMode(std::vector<std::string>& args);
-
 		// bool		isOperator(channel& channel);
 
 		std::string	argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd);
@@ -68,16 +65,16 @@ class User
 //		*!* REPLY LIBRARY  *!*
 //		----------------------
 
-		void		RPY_welcomeToServer(void);
-		void 		RPY_newNick(std::string oldNick);
-		void 		RPY_pass(bool registered);
-		void 		RPY_createChannel(Channel* channel);
-		void 		RPY_joinChannel(Channel* channel);
-		void		RPY_who(Channel *channel);
-		void		RPY_getModeCreated(Channel *channel);
-		void		RPY_getModeJoined(Channel *channel);
+		std::string		RPY_welcomeToServer(void);
+		std::string 	RPY_newNick(std::string oldNick);
+		std::string 	RPY_pass(bool registered);
+		std::string 	RPY_createChannel(Channel* channel);
+		std::string 	RPY_joinChannel(Channel* channel);
+		std::string		RPY_who(Channel *channel);
+		std::string		RPY_getModeCreated(Channel *channel);
+		std::string		RPY_getModeJoined(Channel *channel);
 
-		void 		RPY_ERR_commandNotfound(std::string command);
+		std::string		RPY_ERR_commandNotfound(std::string command);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------

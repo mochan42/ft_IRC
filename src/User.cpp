@@ -93,7 +93,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 
 	std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 	if (command == "CAP")
-		RPY_welcomeToServer();
+		sendMsgToOwnClient(RPY_welcomeToServer());
 	else if (command == "NICK")
 		setNickName(args);
 	else if (command == "USER")
@@ -104,11 +104,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		setPw(args);
 	else if (command == "JOIN")
 		joinChannel(args);
-	else if (command == "MODE")
-	{
-		if (args.size() == 1)
-			getMode(args);
-	}
+	// else if (command == "MODE")
+	// 	getMode(args);
 	// else if (command == "WHO")
 	// 	who(args);		
 	// else if (command == "")
@@ -134,7 +131,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	// 	isOperator(args);
 	else
 	{
-		RPY_ERR_commandNotfound(command);
+		sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
 		std::cout << _replyMessage << std::endl;
 	}
 }
@@ -158,10 +155,10 @@ void		User::setPw(const std::vector<std::string>& args)
 	if (this->_server->verifyPassword(_pw))
 	{
 		_isRegistered = true;
-		RPY_pass(true);
+		sendMsgToOwnClient(RPY_pass(true));
 	}
 	else
-		RPY_pass(false);
+		sendMsgToOwnClient(RPY_pass(false));
 	std::cout << "User::setPw called. The _pw is now:  " << _pw << std::endl;
 }
 
@@ -169,7 +166,7 @@ void		User::setNickName(const std::vector<std::string>& args)
 {
 	std::string oldNick = _nickName;
 	_nickName = args[0];
-	RPY_newNick(oldNick);
+	sendMsgToOwnClient(RPY_newNick(oldNick));
 	std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
 }
 
@@ -230,14 +227,14 @@ void		User::joinChannel(std::vector<std::string>& args)
 			chptr = _server->getChannel(args[0]);
 			chptr->addUserToList(chptr->getListPtrOperators(), this);
 			_channelMode = true;
-			RPY_joinChannel(chptr);
+			sendMsgToOwnClient(RPY_joinChannel(chptr));
 		}
 		else
 		{ //join channel
 			//check if we are allowed to join (invite only)
 			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
 			_channelMode = false;
-			RPY_joinChannel(chptr);
+			sendMsgToOwnClient(RPY_joinChannel(chptr));
 		}
 	}
 	catch (badChannelMask &e)
@@ -488,30 +485,6 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 
 // //		*!* OTHERS  *!*
 // //		------------------------------------
-
-
-void	User::who(std::vector<std::string>& args)
-{
-	if (args[0][0] != '#')
-		throw (badChannelMask());
-	Channel *chptr = _server->getChannel(args[0]);
-	if (chptr == NULL)
-		return ;
-	RPY_who(chptr);
-}
-
-void	User::getMode(std::vector<std::string>& args)
-{
-	if (args[0][0] != '#')
-		throw (badChannelMask());
-	Channel *chptr = _server->getChannel(args[0]);
-	if (chptr == NULL)
-		return ;
-	if (_channelMode == true)
-		RPY_getModeCreated(chptr);
-	else
-		RPY_getModeJoined(chptr);
-}
 
 
 std::string	User::argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd)
