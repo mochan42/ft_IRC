@@ -45,7 +45,7 @@ User::~User()
  */
 int			User::sendMsgToOwnClient(std::string msg)
 {
-	std::string str = msg + "\r\n"; 
+	std::string str = msg + "\n";
 	try
 	{
 		if (send(this->_userFd, str.c_str(), str.length(), 0) < 0)
@@ -68,9 +68,10 @@ int			User::sendMsgToOwnClient(std::string msg)
  */
 int			User::sendMsgToTargetClient(std::string msg, int targetUserFd)
 {
+	std::string str = msg + "\n";
 	try
 	{
-		if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)
+		if (send(targetUserFd, str.c_str(), str.length(), 0) < 0)
 			throw SendToTargetCLientException();
 	}
 	catch(const std::exception & e)
@@ -461,59 +462,26 @@ void	User::sendNotification(std::vector<std::string>& args)
 {
 	if (args[0].at(0) == '#')
 	{
-		std::list<Channel *>::iterator iterChannel;
-		// for (iterChannel = _channelList.begin(); iterChannel != _channelList.end(); iterChannel++)
-		// {
-			// if (args[0] == (*iterChannel)->getChannelName())     // with or without # at beginn ?
-			// {
-					std::ostringstream msgstream;
-					std::vector<std::string>::iterator iterString = args.begin() + 1;
-					msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " NOTICE " << args[0] << " ";
-					for (; iterString != args.end(); ++iterString)
-						msgstream << *iterString << " ";
-					std::string msg = msgstream.str(); 
-					std::cout << msg << std::endl;
-				// (*iterChannel)->broadcastMsg(msg);     // send to all users in this channel but not to this user
-				// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /*(*iterChannel)->getChannelName() << */ "\'." << std::endl;
-			// 	break;
-			// }
-		// }
-		// if (iterChannel == _channelList.end())
-		// {
-		// 	std::ostringstream msgstream;
-		// 	msgstream << args[0] << " : No such Channel";
-		// 	std::string msg = msgstream.str();
-		// 	std::cout << msg << std::endl;
-		// 	this->sendMsgToOwnClient(msg);
-		// }
+		std::cout << "User::sendNotification called with Channel =      " << args[0] << std::endl;
+
+		Channel *chptr = _server->getChannel(args[0]);
+		if (chptr != NULL) 
+			chptr->broadcastMsg(RPY_ChannelNotification(args[1], chptr), std::make_pair(true, (User *) this));
+		// else
+			// execption Channel dont exists
 	}
 	else
 	{
-		std::list<User *>::iterator iterUser;	
-		// for (iterUser = _server.userList.begin(); iterUser != _server.userList.end(); iterUser++)
-		// {
-		// 	if (args[0] == (*iterUser)->getUserName())
-		// 	{
-				std::ostringstream msgstream;
-				std::vector<std::string>::iterator iterString = args.begin() + 1;
-				msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " NOTICE " << args[0] << " ";
-				for (; iterString != args.end(); ++iterString)
-				msgstream << *iterString << " ";
-				std::string msg = msgstream.str();
-				std::cout << msg << std::endl;
-		// 		this->sendMsgToTargetClient(msg, (*iterUser)->getFd());
+		std::cout << std::endl << std::endl << "User::sendNotification called with nickname of target:   <" << args[0] << ">" << std::endl;
 
-		// 		break;
-				// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to User \'" << /* args[2] << */ "\' with fd = " << /*args[3] << */ std::endl;
-		// 	}
-		// }
-		// if (iterUser == _server.userList.end())
+		User *target = _server->getUser(args[0]);
+		if (target != NULL)
+		{
+			sendMsgToTargetClient(RPY_PrivateNotification(args[1], target), target->getFd());
+		}
+		// else
 		// {
-		// 	std::ostringstream msgstream;
-		// 	msgstream << args[0] << " : No such user";
-		// 	std::string msg = msgstream.str();
-		// 	std::cout << msg << std::endl;
-		// 	this->sendMsgToOwnClient(msg);
+		// 		// 	message and exception that User is not found
 		// }
 	}
 }
@@ -529,33 +497,11 @@ int		User::sendChannelMsg(std::vector<std::string>& args)
 	std::cout << "User::sendChannelMsg called with Channel =      " << args[0] << std::endl;
 
 	Channel *chptr = _server->getChannel(args[0]);
-	if (chptr == NULL) 
-		(void) chptr;	// execption Channel dont exists
-	else
+	if (chptr != NULL)
 		chptr->broadcastMsg(RPY_ChannelMsg(args[1], chptr), std::make_pair(true, (User *) this));
-
-
-
-	// std::ostringstream msgstream;
-	// std::vector<std::string>::iterator iterString = args.begin() + 1;
-	// msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " PRIVMSG " << args[0] << " ";
-	// for (; iterString != args.end(); ++iterString)
-	// 	msgstream << *iterString << " ";
-	// std::string msg = msgstream.str(); 
-	// std::cout << msg << std::endl;
-			// (*iterChannel)->broadcastMsg(msg);     // send to all users in this channel but not to this user
-			// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /*(*iterChannel)->getChannelName() << */ "\'." << std::endl;
-		// 	break;
-		// }
-	// }
-	// if (iterChannel == _channelList.end())
-	// {
-	// 	std::ostringstream msgstream;
-	// 	msgstream << args[0] << " : No such Channel";
-	// 	std::string msg = msgstream.str();
-	// 	std::cout << msg << std::endl;
-	// 	this->sendMsgToOwnClient(msg);
-	// }
+	// else
+		// execption and message Channel dont exists
+		
 	return (0);
 }
 
@@ -568,30 +514,15 @@ int		User::sendChannelMsg(std::vector<std::string>& args)
 int		User::sendPrivateMsg(std::vector<std::string>& args)
 {
 	std::cout << std::endl << std::endl << "User::sendPrivateMsg called. The nickname of target is:   <" << args[0] << ">" << std::endl;
-	User *target = _server->getUser(args[0]);
 
+	User *target = _server->getUser(args[0]);
 	if (target != NULL)
 	{
-		std::cout << "User found at server !" << std::endl;
-		std::ostringstream msgstream;
-		std::vector<std::string>::iterator iterString = args.begin() + 1;
-		msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " PRIVMSG " << args[0] << " ";
-		for (; iterString != args.end(); ++iterString)
-		msgstream << *iterString << " ";
-		std::string msg = msgstream.str();
-		std::cout << msg << std::endl;
-		this->sendMsgToTargetClient(msg, target->getFd());
-		std::cout << "User " << this->getUserName() << " with fd = " << this->getFd() << " sends a message to User \'" << target->getUserName() <<  "\' with fd = " <<  target->getFd() << std::endl;
-		std::cout << "The message is: 	" << msg << std::endl;
-		// break;
+		sendMsgToTargetClient(RPY_PrivateMsg(args[1], target), target->getFd());
 	}
 	// else
 	// {
-	// 	std::ostringstream msgstream;
-	// 	msgstream << args[0] << " : No such user";
-	// 	std::string msg = msgstream.str();
-	// 	std::cout << msg << std::endl;
-	// 	this->sendMsgToOwnClient(msg);
+	// 		// 	message and exception that User is not found
 	// }
 	return (0);
 }

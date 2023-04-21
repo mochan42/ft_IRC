@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/21 18:38:24 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/22 00:31:34 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ void   Channel::setTopic(std::string topic)
 
 void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 {
-	std::string msg = msg_org + "\r\n";
+	std::string msg = msg_org + "\n";
 	int msgLen = msg.size();
 	int fd = 0;
 	std::list<User *>::iterator it;

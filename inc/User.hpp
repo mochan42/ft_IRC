@@ -69,37 +69,39 @@ class User
 		std::string 	RPY_newNick(std::string oldNick);
 		std::string 	RPY_pass(bool registered);
 		std::string		RPY_ChannelMsg(std::string message, Channel* channel);
+		std::string		RPY_PrivateMsg(std::string message, User* target);
+		std::string		RPY_ChannelNotification(std::string message, Channel* channel);
+		std::string		RPY_PrivateNotification(std::string message, User* target);
 		std::string		RPY_joinChannelBroadcast(Channel* channel);
 		std::string 	RPY_createChannel(Channel* channel);
 		std::string 	RPY_joinChannel(Channel* channel);
 		std::string		RPY_getModeCreated(Channel *channel);
 		std::string		RPY_getModeJoined(Channel *channel);
 
-		const char		*RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
-		const char		*RPY_inviteMessage(std::string otherNick, std::string channel);
-		const char		*RPY_kickedMessage(std::string otherNick, std::string channel);
-		const char		*RPY_leaveChannel(std::string channel);
-		const char		*RPY_332_channelTopic(std::string channel, std::string topic);
-		const char		*RPY_newTopic(std::string channel, std::string newTopic);
-		const char		*RPY_352_whoUser(std::string recipientNick, std::string channel, bool op);
-		const char		*RPY_315_endWhoList(std::string channel);
 
+		std::string		RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
+		std::string		RPY_inviteMessage(std::string otherNick, std::string channel);
+		std::string		RPY_kickedMessage(std::string otherNick, std::string channel);
+		std::string		RPY_leaveChannel(std::string channel);
+		std::string		RPY_332_channelTopic(std::string channel, std::string topic);
+		std::string		RPY_newTopic(std::string channel, std::string newTopic);
+		std::string		RPY_352_whoUser(std::string recipientNick, std::string channel, bool op);
+		std::string		RPY_315_endWhoList(std::string channel);
 
 
 
 		std::string 	RPY_ERR_commandNotfound(std::string command);
-
-		const char		*RPY_ERR462_alreadyRegistered();
-		const char 		*RPY_ERR401_noSuchNickChannel(std::string nickchannel);
-		const char 		*RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string channel);
-		const char		*RPY_ERR476_badChannelMask(std::string channel);
-		const char		*RPY_ERR475_canNotJoinK(std::string channel);
-		const char		*RPY_ERR473_canNotJoinI(std::string channel);
-		const char		*RPY_ERR471_canNotJoinL(std::string channel);
-		const char		*RPY_ERR482_notChannelOp(std::string channel);
-		const char		*RPY_ERR441_kickNotOnChannel(std::string otherNick, std::string channel);
-		const char		*RPY_ERR403_noSuchChannel(std::string channel);
-		const char		*RPY_ERR442_youreNotOnThatChannel(std::string channel);
+		std::string		RPY_ERR462_alreadyRegistered();
+		std::string 	RPY_ERR401_noSuchNickChannel(std::string nickchannel);
+		std::string 	RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string channel);
+		std::string		RPY_ERR476_badChannelMask(std::string channel);
+		std::string		RPY_ERR475_canNotJoinK(std::string channel);
+		std::string		RPY_ERR473_canNotJoinI(std::string channel);
+		std::string		RPY_ERR471_canNotJoinL(std::string channel);
+		std::string		RPY_ERR482_notChannelOp(std::string channel);
+		std::string		RPY_ERR441_kickNotOnChannel(std::string otherNick, std::string channel);
+		std::string		RPY_ERR403_noSuchChannel(std::string channel);
+		std::string		RPY_ERR442_youreNotOnThatChannel(std::string channel);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
