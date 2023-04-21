@@ -196,6 +196,25 @@ std::string		User::getRealName(void)
 //		----------------------------
 
 
+void		User::who(std::vector<std::string>& args)
+{
+	if (args.size() == 0)
+		return;
+	std::string channel = args[0];
+	Channel *channelPtr = _server->getChannel(channel);
+	if (channelPtr)
+	{
+		std::list<User *> *userList = channelPtr->getListPtrOperators();
+		std::list<User *>::iterator it = userList->begin();
+		while (it != userList->end())
+		{
+			sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel));
+			++it;
+		}
+	}
+	sendMsgToOwnClient(RPY_315_endWhoList(channel));
+}
+
 void		User::changeTopic(std::vector<std::string>& args)
 {
 	std::string channel = args[0];

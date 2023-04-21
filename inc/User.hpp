@@ -44,7 +44,7 @@ class User
 		int			sendMsgToTargetClient(std::string msg, int targetUserFd);
 		void		executeCommand(std::string command, std::vector<std::string>& args);
 
-
+		void		who(std::vector<std::string>& args);
 		void		changeTopic(std::vector<std::string>& args);
 		// channel&	createChannel(std::string channelName);
 		void 		inviteUser(std::vector<std::string>& args);
@@ -73,7 +73,9 @@ class User
 		const char		*RPY_leaveChannel(std::string channel);
 		const char		*RPY_332_channelTopic(std::string channel, std::string topic);
 		const char		*RPY_newTopic(std::string channel, std::string newTopic);
-		
+		const char		*RPY_352_whoUser(std::string ownNick, std::string channel);
+		const char		*RPY_315_endWhoList(std::string channel);
+
 		const char 		*RPY_ERR_commandNotfound(std::string command);
 		const char		*RPY_ERR462_alreadyRegistered();
 		const char 		*RPY_ERR401_noSuchNickChannel(std::string nickchannel);
