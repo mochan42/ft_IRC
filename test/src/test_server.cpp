@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 22:52:04 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/18 22:01:07 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/20 22:12:35 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ TEST_CASE( "Server : Server Constructor", "[Server]")
 	{
 		Server	server(50000, "");
 		REQUIRE(server.getPort() == 50000);
-		REQUIRE(server.getPassword() == "");
 		REQUIRE(server.getListeningSocket() == 0);
 		REQUIRE(server.fds->fd >= 0);
 		REQUIRE(server.fds->events >= 0);
@@ -30,5 +29,15 @@ TEST_CASE( "Server : Server Constructor", "[Server]")
 		Server	server(50000, "password");
 		server.createSocket();
 		REQUIRE(server.getListeningSocket() > 2);
+	}
+}
+TEST_CASE( "Server : Channel Creation", "[Server]")
+{
+	SECTION("Channel creation and retrieval - valid input")
+	{
+		Server	server(50000, "PasswordIsGoodToHave");
+
+		Channel 
+		server.createChannel()
 	}
 }

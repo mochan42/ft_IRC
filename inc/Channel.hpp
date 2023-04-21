@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/20 18:19:00 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/21 11:32:40 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ class Channel
         std::list<User *>	*_ordinaryUsers;			// without operators
 
     public:
-    	Channel(std::string name, std::string topic );	// Parametric constructor
+    	Channel(std::string name, std::string topic, User* user);	// Parametric constructor
     	~Channel(void);									// Destructor
     
     	/* Getters and Setters */

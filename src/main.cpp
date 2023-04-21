@@ -6,13 +6,14 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 17:20:54 by mochan            #+#    #+#             */
-/*   Updated: 2023/04/18 21:29:53 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 23:04:37 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include "../inc/Server.h"
 #include "../inc/User.hpp"
+#include "../inc/Channel.hpp"
 
 int main(int argc, char **argv)
 {
