@@ -95,7 +95,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	else if (command == "REAL")
 		setRealName(args);
 	else if (command == "PW")
-		setPw(args);
+		setServerPw(args);
 	// else if (command == "JOIN")
 	// 	joinChannel(args);
 	// else if (command == "")
@@ -142,7 +142,7 @@ std::string		User::getIP(void)
 	return (this->_ip);
 }
 
-void		User::setPw(const std::vector<std::string>& args)
+void		User::setServerPw(const std::vector<std::string>& args)
 {
 	_pw = args[0];
 	if (_pw == _server->getPassword())
@@ -194,10 +194,22 @@ std::string		User::getRealName(void)
 //		----------------------------
 
 
-// void		User::changeTopic(channel& currentChannel, std::string newTopic)
-// {
-
-// }
+void		User::changeTopic(std::vector<std::string>& args)
+{
+	std::string channel = args[0];
+	Channel *chnptr = _server->getChannel(channel);
+	if (!chnptr)
+	{
+		//>> :master.ircgod.com 401 floNick #gdsafdsfa :No such nick/channel
+		std::ostringstream msgadd;
+		msgadd << ":" << _server->getServerName() << " 401 " << _nickName << " " << channel << " :No such nick/channel";
+		sendMsgToOwnClient(msgadd.str());
+	}
+	if (args.size() == 1)
+	{
+		//WIP
+	}
+}
 
 
 void 		User::inviteUser(std::vector<std::string>& args)

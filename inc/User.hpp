@@ -31,7 +31,7 @@ class User
 
 		int			getFd(void);
 		std::string	getIP(void);
-		void		setPw(const std::vector<std::string>& args);
+		void		setServerPw(const std::vector<std::string>& args);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
 		void		setUserName(std::vector<std::string>& args);
@@ -44,7 +44,7 @@ class User
 		void		executeCommand(std::string command, std::vector<std::string>& args);
 
 
-		// void		changeTopic(channel& currentChannel, std::string newTopic);
+		void		changeTopic(std::vector<std::string>& args);
 		// channel&	createChannel(std::string channelName);
 		void 		inviteUser(std::vector<std::string>& args);
 		void		joinChannel(std::vector<std::string>& args);
