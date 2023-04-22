@@ -302,11 +302,6 @@ void	Server::pingClient(int client_socket)
 		return ;
 }
 
-void	Server::handlePongFromClient()
-{
-	
-}
-
 
 /* setup IRC server */
 void	Server::setupServer()
@@ -391,7 +386,6 @@ void	Server::setupServer()
         /* Use poll to wait for activity on any of the sockets */
 		int num_ready_fds = poll(this->fds, num_fds, -1);
 		int *ptrNum_ready_fds = &num_ready_fds;
-		num_ready_fds = 0;
         switch (num_ready_fds) // poll returns the number of elements in the fds array. -1 means waiting forever.
 		{
 			case -1:
