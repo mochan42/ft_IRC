@@ -32,7 +32,6 @@
 # include "User.hpp"
 # include "Channel.hpp"
 # include "Message.hpp"
-# include <netinet/ip_icmp.h> // for ping()
 
 
 #define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
