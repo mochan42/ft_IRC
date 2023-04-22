@@ -21,7 +21,7 @@ END_COLOR			:= \033[0;39m
 # **************************************************************************** #
 # SOURCES
 
-SRC_FILES			:= Server.cpp main.cpp User.cpp Message.cpp Channel.cpp \
+SRC_FILES			:= Server.cpp main.cpp User.cpp Message.cpp Channel.cpp replyLib.cpp \
 
 OBJ_FILES			:= ${SRC_FILES:.cpp=.o}
 

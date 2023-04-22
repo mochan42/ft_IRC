@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 17:32:53 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/22 19:21:46 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ class Channel
     	void				setChannelName(std::string name);
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
-    
+
     	/* Methods */
 		
 		/**
@@ -88,7 +88,9 @@ class Channel
 		 *
 		 * @param msg std::string
 		 */
-    	void	broadcastMsg(std::string msg);
+    	// void	broadcastMsg(std::string msg_org);
+		void 	broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser);
+
 
 
 		/**
@@ -153,7 +155,7 @@ class Channel
 		 * @param action 
 		 */
     	void	updateUserList(std::list<User *> *list_users, User *user, t_chn_action action);
-		
+
 
 		/**
 		 * @brief 
