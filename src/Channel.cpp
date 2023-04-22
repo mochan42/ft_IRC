@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 17:07:34 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/22 19:01:57 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,24 @@ std::list<User *>	*Channel::getListPtrOrdinaryUsers(void) const
 }
 
 
+unsigned int	Channel::getNbrofActiveUsers(void) const
+{
+	unsigned int nbrOfUsers = 0;
+	try
+	{
+		/* Ensure that there are no null pointers */
+		if (_operators != NULL && _ordinaryUsers != NULL)
+		{
+			nbrOfUsers = _operators->size() + _ordinaryUsers->size();
+		}
+		else
+			throw NullPointerException();
+	}
+	CHN_EXCEPTION_HANDLER();
+	return (nbrOfUsers);
+}
+
+
 void   Channel::setChannelName(std::string name)
 {
     _channelName = name;
@@ -91,6 +109,7 @@ void   Channel::setTopic(std::string topic)
 {
     _topic = topic;
 }
+
 
 t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 {

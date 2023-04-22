@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 17:32:53 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/22 18:47:40 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,11 @@ class Channel
     	std::list<User *>	*getListPtrInvitedUsers(void) const;
     	std::list<User *>	*getListPtrOperators(void) const;
     	std::list<User *>	*getListPtrOrdinaryUsers(void) const;
+		unsigned int		getNbrofActiveUsers(void) const;
     	void				setChannelName(std::string name);
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
+		
     
     	/* Methods */
 		

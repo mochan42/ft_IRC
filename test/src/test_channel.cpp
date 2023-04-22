@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 18:59:02 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 17:26:16 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/22 19:08:47 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,5 +161,49 @@ TEST_CASE( "Channel : ChannelCapacity", "[Channel][ChannelCapacity]")
         club.setChannelCapacity(0);
         REQUIRE(club.getChannelCapacity() != 0);
         REQUIRE(club.getChannelCapacity() == CHN_MAX_USERS);
+    }
+}
+
+TEST_CASE( "Channel : getNbrOfActiveUser", "[Channel][getNbrOfActiveUser]")
+{
+    SECTION("get the number of current user in channel : No user ")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        
+        club.removeUserFromList(club.getListPtrOperators(), &flex);
+        REQUIRE(club.getNbrofActiveUsers() == 0);
+    }
+    SECTION("get the number of current user in channel : 1 operator user ")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        
+        REQUIRE(club.getNbrofActiveUsers() == 1);
+    }
+    SECTION("get the number of current user in channel : 1 ordinary user ")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        club.demoteUser(flex.getNickName());
+        REQUIRE(club.getNbrofActiveUsers() == 1);
+    }
+    SECTION("get the number of current user in channel : (2users) 1 ordinary & 1 operator user ")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        User speeder(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        club.addUserToList(club.getListPtrOrdinaryUsers(), &speeder);
+        
+        /* flex (operator), speeder(ordinary) => 2 users */
+        REQUIRE(club.getNbrofActiveUsers() == 2);
     }
 }
