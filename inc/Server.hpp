@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 18:16:55 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/19 22:30:18 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ class Server
 		void					pingClient(int client_socket);
 		
 		// getters
-		//Channel*				getChannel(const std::string& channel) const;
+		Channel*				getChannel(const std::string& channel) const;
 		unsigned int			getPort(void) const;
 		const std::string		getPassword(void) const;
 		int						getListeningSocket(void) const;
@@ -88,6 +88,7 @@ class Server
 		std::string				getServerIP();
 
 		// setters
+		void					setListeningSocket (int n);
 		void					setPort(int inputPortNumber);
 		void					checkPassword(const std::string& password) const;
 		void					setServerIP(std::string setServerIP);
@@ -116,6 +117,5 @@ class Server
 int	checkIsDigit(char *s);
 int	checkOutOfRange(char *s);
 int	checkPort(char *port);
-
 
 #endif
