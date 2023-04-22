@@ -3,23 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/20 23:17:55 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/22 17:07:34 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 
 Channel::Channel( std::string name, std::string topic, User* user)
-: _channelCapacity(CHN_MAX_USERS),
-_invitedUsers(NULL), _operators(NULL), _bannedUsers(NULL), _ordinaryUsers(NULL)
+: _channelName(CHN_DEFAULT_NAME), _topic(CHN_DEFAULT_TOPIC), 
+  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
+  _operators(NULL), _ordinaryUsers(NULL)
 {
     COUT << "\nCall parametric constructor : Channel" << ENDL;
 	try
 	{
-		if (name == "" || topic == "")
+		if (name.size() == 0 || topic.size() == 0)
 			throw EmptyContentException();
 		else
 		{
@@ -27,15 +28,11 @@ _invitedUsers(NULL), _operators(NULL), _bannedUsers(NULL), _ordinaryUsers(NULL)
 			_topic = topic;
     		_invitedUsers = new std::list<User *>;
     		_operators = new std::list<User *>;
-    		_bannedUsers = new std::list<User *>;
     		_ordinaryUsers = new std::list<User *>;
-			this->addUserToList(this->_ordinaryUsers ,user);
+			this->addUserToList(this->_operators ,user);
 		}
 	}
-	catch(const std::exception & e)
-	{
-		std::cerr << e.what() << '\n';
-	}
+	CHN_EXCEPTION_HANDLER();
 }
 
 Channel::~Channel(void)
@@ -43,7 +40,6 @@ Channel::~Channel(void)
     COUT << "\nCall destructor : Channel" << ENDL;
 	deallocPtrs(_invitedUsers);
 	deallocPtrs(_operators);
-	deallocPtrs(_bannedUsers);
 	deallocPtrs(_ordinaryUsers);
 }
 
@@ -79,12 +75,6 @@ std::list<User *>	*Channel::getListPtrOperators(void) const
 }
 
 
-std::list<User *>	*Channel::getListPtrBannedUsers(void) const
-{
-    return (_bannedUsers);
-}
-
-
 std::list<User *>	*Channel::getListPtrOrdinaryUsers(void) const
 {
     return (_ordinaryUsers);
@@ -102,6 +92,25 @@ void   Channel::setTopic(std::string topic)
     _topic = topic;
 }
 
+t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
+{
+	t_chn_return returnCode = CHN_ERR_InvalidNbrOfUsers;
+	
+	try
+	{
+		if (NbrOfUsers >= CHN_MIN_USERS && (NbrOfUsers <= CHN_MAX_USERS))
+		{
+			_channelCapacity = NbrOfUsers;
+			returnCode = CHN_ERR_SUCCESS;
+		}
+		else
+			throw InvalidNbrOfUsersException();
+	}
+	CHN_EXCEPTION_HANDLER();
+	return (returnCode);
+}
+
+
 
 /*----------- Methods -------------------------------------*/
 
@@ -111,7 +120,6 @@ void Channel::broadcastMsg(std::string msg)
 	int fd = 0;
 	std::list<User *>::iterator it;
 	
-
 	try
 	{
 		if (msgLen == 0)
@@ -131,11 +139,7 @@ void Channel::broadcastMsg(std::string msg)
 			write(fd, msg.c_str(), msgLen);
 		}
 	}	
-	catch(const std::exception & e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
+	CHN_EXCEPTION_HANDLER();
 }
 
 
@@ -151,10 +155,7 @@ bool    Channel::isUserListEmpty(std::list<User *> *list_users)
 		}
 		result = (*list_users).empty();
 	}
-	catch(const std::exception & e)
-	{
-		std::cerr << e.what() << '\n';
-	}
+	CHN_EXCEPTION_HANDLER();
 	return (result);
 }
 
@@ -179,10 +180,7 @@ bool	Channel::isUserInList(std::list<User *> *list_users, User *user)
 			}
 		}
 	}
-	catch(const std::exception & e)
-	{
-		std::cerr << e.what() << '\n';
-	}
+	CHN_EXCEPTION_HANDLER();
 	return (result);
 }
 
@@ -236,10 +234,7 @@ void    Channel::updateUserList(std::list<User *> *list_users, User *user,
 			}
 		}
     }
-	catch(const std::exception & e)
-	{
-		std::cerr << e.what() << '\n';
-	}  
+	CHN_EXCEPTION_HANDLER();
 }
 
 
@@ -301,34 +296,42 @@ User	*Channel::isUserInChannel(std::string nickname)
 
 
 
-int	Channel::demoteUser(std::string nickname)
+t_chn_return	Channel::demoteUser(std::string nickname)
 {
-	int rc_code = -1; // does not exist
+	t_chn_return rc_code = CHN_ERR_UserDoesNotExist; // does not exist
 	User *user = NULL;
-	
-	user = fetchUserPtrFromList(_operators, nickname);
-	if (user != NULL)
+
+	try
 	{
-		rc_code = 0;
-		removeUserFromList(_operators, user);
-		addUserToList(_ordinaryUsers, user);
+		user = fetchUserPtrFromList(_operators, nickname);
+		if (user != NULL)
+		{
+			rc_code = CHN_ERR_SUCCESS;
+			removeUserFromList(_operators, user);
+			addUserToList(_ordinaryUsers, user);
+		}
 	}
+	CHN_EXCEPTION_HANDLER();
 	return (rc_code);
 }
 
 
 
-int	Channel::promoteUser(std::string nickname)
+t_chn_return	Channel::promoteUser(std::string nickname)
 {
-	int rc_code = -1; // does not exist
+	t_chn_return rc_code = CHN_ERR_UserDoesNotExist; // does not exist
 	User *user = NULL;
-	
-	user = fetchUserPtrFromList(_ordinaryUsers, nickname);
-	if (user != NULL)
+
+	try
 	{
-		rc_code = 0;
-		removeUserFromList(_ordinaryUsers, user);
-		addUserToList(_operators, user);
+		user = fetchUserPtrFromList(_ordinaryUsers, nickname);
+		if (user != NULL)
+		{
+			rc_code = CHN_ERR_SUCCESS;
+			removeUserFromList(_ordinaryUsers, user);
+			addUserToList(_operators, user);
+		}
 	}
+	CHN_EXCEPTION_HANDLER();
 	return (rc_code);
 }
