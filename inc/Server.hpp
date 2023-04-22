@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/19 22:30:18 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/20 22:30:14 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,11 +74,13 @@ class Server
 		
 		void					createChannel(const std::string& channel) const;
 		void					pingClient(int client_socket);
+		void					createChannel(const std::string& channel_name, const std::string& topic, User* user);
+		void					pingClient(void) const;
 		
 		// getters
 		Channel*				getChannel(const std::string& channel) const;
 		unsigned int			getPort(void) const;
-		const std::string		getPassword(void) const;
+		bool					verifyPassword(const std::string& password) const;
 		int						getListeningSocket(void) const;
 		User*					getUser(std::string nickName);
 		User*					getUserByFd(int client_socket);
@@ -88,10 +90,14 @@ class Server
 		// setters
 		void					setListeningSocket (int n);
 		void					setPort(int inputPortNumber);
+<<<<<<< HEAD
 		void					checkPassword(const std::string& password) const;
 		void					setServerIP(std::string setServerIP);
+=======
+>>>>>>> a7b84e3cc3b88b47fa0dab8a1f814f3ecb7adc33
 
 		// member functions
+		void					checkPassword(const std::string& password) const;
 		void					createSocket();
 		void					makeListeningSocketReusable();
 		void					setSocketToNonBlocking();

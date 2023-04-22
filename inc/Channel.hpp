@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/18 19:21:49 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/20 22:18:10 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ class Channel
         std::list<User *>	*_ordinaryUsers;			// without operators
 
     public:
-    	Channel(std::string name, std::string topic );	// Parametric constructor
+    	Channel(std::string name, std::string topic, User* user);	// Parametric constructor
     	~Channel(void);									// Destructor
     
     	/* Getters and Setters */
@@ -158,6 +158,69 @@ class Channel
 		 * @param list_users 
 		 */
 		void	deallocPtrs(std::list<User *> *list_users);
+
+
+		/**
+		 * @brief 
+		 * This methods returns the user pointer after searching a list of
+		 * user with the given nickname.
+		 * 
+		 * @param nickname 
+		 * @return User* 
+		 */
+		User	*fetchUserPtrFromList(std::list<User *> *user_list, \
+								      std::string nickname);
+
+
+		/**
+		 * @brief 
+		 * This methods checks if a user is in channel. The user is searched
+		 * using an iterator to iterate over all users in the channel and
+		 * checking for a matched with the nickname passed as argument.
+		 * 
+		 * @param nickname 
+		 * @return User* 
+		 */
+		User	*isUserInChannel(std::string nickname);
+
+
+		/**
+		 * @brief 
+		 * This method demotes a user from operator to ordinary user.
+		 * First the user pointer is retrieved from operator list using 
+		 * the nickname.
+		 * If found, the user is removed from operator list and added to
+		 * list of ordinary users.
+		 * It returns 0, if successful
+		 * It returns -1, on error
+		 * ? Note that an exeception would be raised if user is already
+		 * ? in the list during add operation
+		 * 
+		 * @param nickname 
+		 * @return int 
+		 */
+		int	demoteUser(std::string nickname);
+		 
+
+		
+		/**
+		 * @brief 
+		 * This method demotes a user from operator to ordinary user.
+		 * First the user pointer is retrieved from operator list using 
+		 * the nickname.
+		 * If found, the user is removed from operator list and added to
+		 * list of ordinary users.
+		 * It returns 0, if successful
+		 * It returns -1, on error
+		 * ? Note that an exeception would be raised if user is already
+		 * ? in the list during add operation
+		 * 
+		 * @param nickname 
+		 * @return int 
+		 */
+		int	promoteUser(std::string nickname);
+		
+
 
 		/* Nested class for execeptions */
 		 class NullPointerException : public std::exception
