@@ -6,12 +6,14 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 22:52:04 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/20 22:12:35 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/20 23:23:29 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../inc/catch.hpp"
 # include "../../inc/Server.h"
+# include "../../inc/Channel.hpp"
+# include "../../inc/User.hpp"
 
 TEST_CASE( "Server : Server Constructor", "[Server]")
 {
@@ -37,7 +39,11 @@ TEST_CASE( "Server : Channel Creation", "[Server]")
 	{
 		Server	server(50000, "PasswordIsGoodToHave");
 
-		Channel 
-		server.createChannel()
+		User	user(3, "127.0.0.0", &server);
+		server.createChannel("newChannel", "SpaceTravel", &user);
+		Channel	*channel = server.getChannel("newChannel");
+		REQUIRE(channel != NULL);
+		REQUIRE(channel->isUserInList(channel->getListPtrOrdinaryUsers(), &user) == true);
+		std::cout << channel->getTopic() << "\n";
 	}
 }
