@@ -80,6 +80,19 @@ int			User::sendMsgToTargetClient(std::string msg, int targetUserFd)
 	return (0);
 }
 
+int	User::getPort(void)
+{
+	return(this->_userPort);
+}
+
+void	User::setPort(int setUserPort)
+{
+	this->_userPort = setUserPort;
+}
+
+//		*!* Command execution  *!*
+//		---------------------------
+
 /**
  * @brief 
  * function to call the received command.

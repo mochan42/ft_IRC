@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/21 17:02:34 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/22 19:29:03 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _password(password), _errorFile("ErrorCodes.txt"), _operators(), _messages(), _serverName("ourIRCServer")
+    _port(port), _listeningSocket(0), _password(password), _errorFile("ErrorCodes.txt"), _serverName("ourIRCServer")
 {
 	for (int i = 0; i <= MAX_CONNECTIONS; i++)
 	{
@@ -31,10 +31,26 @@ Server::Server(unsigned int port, const std::string& password) :
 //======== DESTRUCTOR ===========================================================================
 Server::~Server()
 {
-	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); ++it)
+	if (!this->_channels.empty())
 	{
-		delete it->second;
-		this->_users.erase(it);
+		std::map<std::string, Channel*>::iterator begin_it = _channels.begin();
+		std::map<std::string, Channel*>::iterator end_it = _channels.end();
+		for (std::map<std::string, Channel*>::iterator it = begin_it; it != end_it; it++)
+		{
+			delete it->second;
+			this->_channels.erase(it);
+			if (it == end_it)
+				break;
+		}	
+	}
+	if (!this->_users.empty())
+	{
+		for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++)
+		{
+			if (it->second)
+				delete it->second;
+			this->_users.erase(it);
+		}	
 	}
     _messages.clear();
 	// delete[] _messages;
@@ -87,6 +103,16 @@ User* Server::getUser(std::string nickName)
     }
     std::cout << RED << "User " << nickName << " not found" << D << "\n";
     return (NULL);
+}
+
+void	Server::setServerIP(std::string setServerIP)
+{
+	this->_serverIP = setServerIP;
+}
+
+std::string	Server::getServerIP()
+{
+	return (this->_serverIP);
 }
 
 Channel*	Server::getChannel(const std::string& channel_name) const
@@ -352,6 +378,32 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 	}
 }
 
+User*	Server::getUserByFd(int client_socket)
+{
+	std::map<int, User*>::iterator it;
+	for(it = this->_users.begin(); it != this->_users.end(); it++)
+	{
+		if (it->first == client_socket)
+			return (it->second);
+	}
+	std::cout << "User : " << client_socket << " not found.\n";
+	return (NULL);
+}
+
+void	Server::pingClient(int client_socket)
+{
+    std::string	pingMessage = "PING";
+	
+	if (this->getUserByFd(client_socket))
+	{
+		send(client_socket, pingMessage.c_str(), pingMessage.length(), 0);
+		std::cout << "Server :" << this->getServerIP() << ":" << this->getPort() << "PING to client : " << this->getUserByFd(client_socket)->getIP() << ":" << this->getUserByFd(client_socket)->getPort() << "\n";
+	}
+	else
+		return ;
+}
+
+
 /* setup IRC server */
 void	Server::setupServer()
 {
@@ -376,7 +428,9 @@ void	Server::setupServer()
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(this->getPort());
 	hint.sin_addr.s_addr = htonl(INADDR_ANY); //  the server will listen on all available network interfaces, including the loopback interface (127.0.0.1)
-	std::cout << "IRC Server IP and port are <IP:Port> : " << inet_ntoa(hint.sin_addr) << ":" << this->getPort() << "\n";
+	std::string ourIRCServerIP = inet_ntoa(hint.sin_addr);
+	this->setServerIP(ourIRCServerIP);
+	std::cout << "IRC Server IP and port are <IP:Port> : " << this->getServerIP() << ":" << this->getPort() << "\n";
 
 	/* Making socket reusable... */
 	try
@@ -437,11 +491,14 @@ void	Server::setupServer()
 		{
 			case -1:
 			    std::cout << RED << "Error : polling for events" << D << "\n";
-				return ;
+				break;
 			case 0 :
-				continue;
+				std::cout << "HERE\n"; 
+				this->pingClient(this->fds[*ptrNum_fds].fd);
+				break;
 			default:
 				this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
+				break;
         }
     }
     close(this->getListeningSocket());
