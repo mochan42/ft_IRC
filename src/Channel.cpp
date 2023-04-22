@@ -6,33 +6,26 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 19:01:57 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/22 23:12:35 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 
-Channel::Channel( std::string name, std::string topic, User* user)
-: _channelName(CHN_DEFAULT_NAME), _topic(CHN_DEFAULT_TOPIC), 
-  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
-  _operators(NULL), _ordinaryUsers(NULL)
+Channel::Channel(std::string name, std::string topic, User *user)
+	: _channelName(CHN_DEFAULT_NAME), _topic(CHN_DEFAULT_TOPIC),
+	  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
+	  _operators(NULL), _ordinaryUsers(NULL), _mode(CHN_DEFAULT_MODE)
 {
-    COUT << "\nCall parametric constructor : Channel" << ENDL;
-	try
-	{
-		if (name.size() == 0 || topic.size() == 0)
-			throw EmptyContentException();
-		else
-		{
-			_channelName = name;
-			_topic = topic;
-    		_invitedUsers = new std::list<User *>;
-    		_operators = new std::list<User *>;
-    		_ordinaryUsers = new std::list<User *>;
-			this->addUserToList(this->_operators ,user);
-		}
-	}
-	CHN_EXCEPTION_HANDLER();
+	COUT << "\nCall parametric constructor : Channel" << ENDL;
+	if (name.size() > 0)
+		_channelName = name;
+	if (topic.size() > 0)
+		_topic = topic;
+	_invitedUsers = new std::list<User *>;
+	_operators = new std::list<User *>;
+	_ordinaryUsers = new std::list<User *>;
+	updateUserList(this->_operators, user, USR_ADD);
 }
 
 Channel::~Channel(void)
@@ -129,6 +122,40 @@ t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 	return (returnCode);
 }
 
+#if 0
+t_chn_return	Channel::setMode(uint8_t mode)
+{
+	t_chn_return returnCode = CHN_ERR_InvalidMode;
+	uint8_t maxNbrOfBits = (CHN_MODE_Max - 2);
+	uint8_t maxSumofBitsValue = pow(2, maxNbrOfBits) - 1;
+	uint8_t maxBitValue = pow(2, (maxNbrOfBits - 1));
+	uint8_t quotient = 0;
+	uint8_t	remainder = 0;
+	
+	try
+	{
+		if (mode > maxSumofBitsValue);
+			throw InvalidChannnelModeExeception();
+		else
+		{
+			if (mode / 8 == 1)
+				// do something
+			else
+			{
+				if 
+			}
+			
+			quotient = mode / maxBitValue;
+			if (quotient != 1 && rem)
+			mode = quotient;
+			setMode(mode);
+			_mode |= (1 << mode);
+		}
+	}
+	CHN_EXCEPTION_HANDLER();
+	return (returnCode);
+}
+#endif
 
 
 /*----------- Methods -------------------------------------*/
@@ -196,6 +223,7 @@ bool	Channel::isUserInList(std::list<User *> *list_users, User *user)
 			if (*it == user)
 			{
 				result = true;
+				break ;
 			}
 		}
 	}

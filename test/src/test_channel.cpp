@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 18:59:02 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 19:08:47 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/22 23:14:19 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,9 @@ TEST_CASE( "Channel : Channel Constructor", "[Channel]")
         REQUIRE(chnSports.getChannelName() == CHN_DEFAULT_NAME);
         REQUIRE(chnSports.getTopic() == CHN_DEFAULT_TOPIC);
         REQUIRE(chnSports.getChannelCapacity() == CHN_MAX_USERS);
-        REQUIRE(chnSports.getListPtrInvitedUsers() == NULL);
-        REQUIRE(chnSports.getListPtrOperators() == NULL);
-        REQUIRE(chnSports.getListPtrOrdinaryUsers() == NULL);
+        REQUIRE(chnSports.getListPtrInvitedUsers() != NULL);
+        REQUIRE(chnSports.getListPtrOperators() != NULL);
+        REQUIRE(chnSports.getListPtrOrdinaryUsers() != NULL);
     }
 }
 
@@ -56,7 +56,7 @@ TEST_CASE( "Channel : isUserInChannel", "[Channel]")
         Channel chnSports("Tennis", "Selena williams wins big", &flex);
      
         flex.setNickName(namelist);
-        chnSports.addUserToList(chnSports.getListPtrOrdinaryUsers(), &flex);
+        chnSports.updateUserList(chnSports.getListPtrOrdinaryUsers(), &flex, USR_ADD);
      
         REQUIRE(chnSports.isUserInChannel(flex.getNickName()) == &flex);
     }
@@ -73,8 +73,8 @@ TEST_CASE( "Channel : promoteUser", "[Channel]")
         Channel chnSports("Tennis", "Selena williams wins big", &flex);
      
         flex.setNickName(namelist);
-        chnSports.removeUserFromList(chnSports.getListPtrOperators(), &flex);
-        chnSports.addUserToList(chnSports.getListPtrOrdinaryUsers(), &flex);
+        chnSports.updateUserList(chnSports.getListPtrOperators(), &flex, USR_REMOVE);
+        chnSports.updateUserList(chnSports.getListPtrOrdinaryUsers(), &flex, USR_ADD);
         REQUIRE(chnSports.promoteUser("flex") == 0);
         REQUIRE(chnSports.isUserInChannel(flex.getNickName()) == &flex);
         REQUIRE(chnSports.isUserInList(chnSports.getListPtrOperators(), &flex) == true);
@@ -122,7 +122,7 @@ TEST_CASE( "Channel : demoteUser", "[Channel]")
         Channel chnSports("Tennis", "Selena williams wins big", &flex);
      
         flex.setNickName(namelist);
-        chnSports.removeUserFromList(chnSports.getListPtrOperators(), &flex);
+        chnSports.updateUserList(chnSports.getListPtrOperators(), &flex, USR_REMOVE);
         
         REQUIRE(chnSports.demoteUser("flex") == CHN_ERR_UserDoesNotExist);
         REQUIRE(chnSports.isUserInChannel(flex.getNickName()) != &flex);
@@ -173,7 +173,7 @@ TEST_CASE( "Channel : getNbrOfActiveUser", "[Channel][getNbrOfActiveUser]")
         Channel club("Bikers", "Trip to Madagascar", &flex);
         
         
-        club.removeUserFromList(club.getListPtrOperators(), &flex);
+        club.updateUserList(club.getListPtrOperators(), &flex, USR_REMOVE);
         REQUIRE(club.getNbrofActiveUsers() == 0);
     }
     SECTION("get the number of current user in channel : 1 operator user ")
@@ -201,9 +201,10 @@ TEST_CASE( "Channel : getNbrOfActiveUser", "[Channel][getNbrOfActiveUser]")
         User speeder(1, "127.0.0.1", &server);
         Channel club("Bikers", "Trip to Madagascar", &flex);
         
-        club.addUserToList(club.getListPtrOrdinaryUsers(), &speeder);
+        club.updateUserList(club.getListPtrOrdinaryUsers(), &speeder, USR_ADD);
         
         /* flex (operator), speeder(ordinary) => 2 users */
         REQUIRE(club.getNbrofActiveUsers() == 2);
     }
 }
+

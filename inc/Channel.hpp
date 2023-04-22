@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 18:47:40 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/22 22:38:20 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <list>
 # include <exception>
 # include <unistd.h>
+# include <cmath>
 # include "User.hpp"
 
 # define CHN_MAX_USERS (1024)
@@ -28,11 +29,13 @@
 # define CHN_TRUE (1)
 # define CHN_FALSE (0)
 # define CHN_DEFAULT_NAME ("Unknown")
-# define CHN_DEFAULT_TOPIC ("Undefined")
-# define CHN_EXCEPTION_HANDLER() catch(const std::exception &e) \
-{\
-	std::cerr << e.what() << '\n'; \
-}
+# define CHN_DEFAULT_TOPIC ("No topic is set")
+# define CHN_DEFAULT_MODE (0)
+# define CHN_EXCEPTION_HANDLER() 		\
+	catch(const std::exception &e) 		\
+	{\
+		std::cerr << e.what() << '\n'; \
+	}\
 
 typedef enum e_chn_action
 {
@@ -47,8 +50,19 @@ typedef enum e_chn_return
 	CHN_ERR_FAILED = -127,
 	CHN_ERR_InvalidNbrOfUsers,
 	CHN_ERR_UserDoesNotExist,
+	CHN_ERR_InvalidMode,
 	CHN_ERR_SUCCESS = 0,
 }	t_chn_return;
+
+typedef enum e_chn_mode
+{
+	CHN_MODE_Default,
+	CHN_MODE_Invite,
+	CHN_MODE_Protected,
+	CHN_MODE_AdminSetUserLimit,
+	CHN_MODE_AdminSetTopic,
+	CHN_MODE_Max
+}	t_chnMode;
 
 class User;
 
@@ -61,6 +75,32 @@ class Channel
         std::list<User *>	*_invitedUsers;
         std::list<User *>	*_operators;
         std::list<User *>	*_ordinaryUsers;			// without operators
+		uint8_t				_mode;
+		
+		/**	
+		 * ! This method call must be wrapped within try/catch. 
+		 * @brief 
+		 * This method adds a user to a list of users.
+		 * It checks if a user is already in the list before adding user.
+		 * An exception is thrown if user already exist in list of user.
+		 * Hence, a user cannot be added twice in a list.
+		 * @param list_users 
+		 * @param user 
+		 */
+		void	addUserToList(std::list<User *> *list_users, User *user);
+
+		
+		/**
+		 * ! This method call must be wrapped within try/catch.
+		 * @brief 
+		 * This method removes a user from a list of users.
+		 * It checks if a user is already in the list before removing user.
+		 * An exception is thrown if user is not found in list of user.
+		 * Hence, a user non-existent in list of user cannot be removed.
+		 * @param list_users 
+		 * @param user 
+		 */
+		void	removeUserFromList(std::list<User *> *list_users, User *user);
 
     public:
     	Channel(std::string name, std::string topic, User *user);	// Parametric constructor
@@ -77,6 +117,7 @@ class Channel
     	void				setChannelName(std::string name);
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
+		void				setMode(uint8_t mode);
 		
     
     	/* Methods */
@@ -119,30 +160,6 @@ class Channel
 		bool	isUserInList(std::list<User *> *list_users, User *user);
 
 
-		/**
-		 * ! This method call must be wrapped with try/catch
-		 * @brief 
-		 * This method adds a user to a list of users.
-		 * It checks if a user is already in the list before adding user.
-		 * An exception is thrown if user already exist in list of user.
-		 * Hence, a user cannot be added twice in a list.
-		 * @param list_users 
-		 * @param user 
-		 */
-		void	addUserToList(std::list<User *> *list_users, User *user);
-
-		
-		/**
-		 * ! This method call must be wrapped with try/catch
-		 * @brief 
-		 * This method removes a user from a list of users.
-		 * It checks if a user is already in the list before removing user.
-		 * An exception is thrown if user is not found in list of user.
-		 * Hence, a user non-existent in list of user cannot be removed.
-		 * @param list_users 
-		 * @param user 
-		 */
-		void	removeUserFromList(std::list<User *> *list_users, User *user);
 
 
 		/**
