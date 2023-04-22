@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 19:28:31 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/22 20:48:49 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,12 @@ Channel::Channel( std::string name, std::string topic, User* user)
     COUT << "\nCall parametric constructor : Channel" << ENDL;
 	try
 	{
-		if (name.size() == 0 || topic.size() == 0)
-			throw EmptyContentException();
-		else
-		{
-			_channelName = name;
-			_topic = topic;
-    		_invitedUsers = new std::list<User *>;
-    		_operators = new std::list<User *>;
-    		_ordinaryUsers = new std::list<User *>;
-			this->addUserToList(this->_operators ,user);
-		}
+		_channelName = name;
+		_topic = topic;
+		_invitedUsers = new std::list<User *>;
+		_operators = new std::list<User *>;
+		_ordinaryUsers = new std::list<User *>;
+		this->addUserToList(this->_operators ,user);
 	}
 	CHN_EXCEPTION_HANDLER();
 }
@@ -228,6 +223,7 @@ bool	Channel::isUserInList(std::list<User *> *list_users, User *user)
 			if (*it == user)
 			{
 				result = true;
+				break;
 			}
 		}
 	}

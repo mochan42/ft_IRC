@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/22 18:34:09 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/22 20:31:51 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ const char *User::RPY_341_userAddedtoInviteList(std::string otherNick, std::stri
 
 const char *User::RPY_kickedMessage(std::string otherNick, std::string channel)
 {
-	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " KICK " + channel + otherNick;
+	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " KICK " + channel + " " + otherNick;
 	return (_replyMessage.c_str());
 }
 

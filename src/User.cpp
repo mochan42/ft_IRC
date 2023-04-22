@@ -238,11 +238,18 @@ void		User::who(std::vector<std::string>& args)
 		Channel *channelPtr = _server->getChannel(channel);
 		if (channelPtr)
 		{
-			std::list<User *> *userList = channelPtr->getListPtrOperators();
-			std::list<User *>::iterator it = userList->begin();
-			while (it != userList->end())
+			std::list<User *> *opList = channelPtr->getListPtrOperators();
+			std::list<User *> *ordinaryList = channelPtr->getListPtrOrdinaryUsers();
+			std::list<User *>::iterator it = opList->begin();
+			while (it != opList->end())
 			{
-				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(channelPtr->getListPtrOperators(), *it)));
+				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(opList, *it)));
+				++it;
+			}
+			it = ordinaryList->begin();
+			while (it != ordinaryList->end())
+			{
+				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(ordinaryList, *it)));
 				++it;
 			}
 		}
@@ -295,7 +302,7 @@ void 		User::inviteUser(std::vector<std::string>& args)
 			sendMsgToOwnClient(RPY_ERR443_alreadyOnChannel(nick, channel));
 		else
 		{
-			chptr->addUserToList(chptr->getListPtrInvitedUsers(), user);
+			chptr->updateUserList(chptr->getListPtrInvitedUsers(), user, USR_ADD);
 			sendMsgToOwnClient(RPY_341_userAddedtoInviteList(nick, channel));
 			//!!!     write to other person:   !!!!
 			user->sendMsgToOwnClient(RPY_inviteMessage(nick, channel));
@@ -323,9 +330,8 @@ void		User::joinChannel(std::vector<std::string>& args)
 		{
 
 			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
-			_server->createChannel(args[0], "Topic", this);
-			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel
-			chptr->addUserToList(chptr->getListPtrOperators(), this);	
+			_server->createChannel(args[0], "", this);
+			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel			
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_createChannel(chptr));
 		}
@@ -345,7 +351,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 			// }
 			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
 			// 	throw (channelCapacity());
-			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
+			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
 		}
@@ -398,9 +404,9 @@ void		User::kickUser(std::vector<std::string>& args)
 		{
 			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel), std::make_pair(false, (User *) NULL));
 			if (channelPtr->isUserInList(channelPtr->getListPtrOperators(), tmpUser))
-				channelPtr->removeUserFromList(channelPtr->getListPtrOperators(), tmpUser);
+				channelPtr->updateUserList(channelPtr->getListPtrOperators(), tmpUser, USR_REMOVE);
 			if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
-				channelPtr->removeUserFromList(channelPtr->getListPtrOrdinaryUsers(), tmpUser);
+				channelPtr->updateUserList(channelPtr->getListPtrOrdinaryUsers(), tmpUser, USR_REMOVE);
 		}
 		else
 			throw (notOnTheChannel());
@@ -435,12 +441,12 @@ void		User::leaveChannel(std::vector<std::string>& args)
 		if (chPtr->isUserInList(chPtr->getListPtrOrdinaryUsers(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
-			chPtr->removeUserFromList(chPtr->getListPtrOrdinaryUsers(), this);
+			chPtr->updateUserList(chPtr->getListPtrOrdinaryUsers(), this, USR_REMOVE);
 		}
 		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
-			chPtr->removeUserFromList(chPtr->getListPtrOperators(), this);
+			chPtr->updateUserList(chPtr->getListPtrOperators(), this, USR_REMOVE);
 		}
 		else
 			throw(notOnTheChannel());

@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 19:21:46 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/22 20:09:29 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 # define CHN_TRUE (1)
 # define CHN_FALSE (0)
 # define CHN_DEFAULT_NAME ("Unknown")
-# define CHN_DEFAULT_TOPIC ("Undefined")
+# define CHN_DEFAULT_TOPIC ("No topic is set.")
 # define CHN_EXCEPTION_HANDLER() catch(const std::exception &e) \
 {\
 	std::cerr << e.what() << '\n'; \
@@ -61,6 +61,30 @@ class Channel
         std::list<User *>	*_invitedUsers;
         std::list<User *>	*_operators;
         std::list<User *>	*_ordinaryUsers;			// without operators
+
+		/**
+		 * ! This method call must be wrapped with try/catch
+		 * @brief 
+		 * This method adds a user to a list of users.
+		 * It checks if a user is already in the list before adding user.
+		 * An exception is thrown if user already exist in list of user.
+		 * Hence, a user cannot be added twice in a list.
+		 * @param list_users 
+		 * @param user 
+		 */
+		void	addUserToList(std::list<User *> *list_users, User *user);
+
+		/**
+		 * ! This method call must be wrapped with try/catch
+		 * @brief 
+		 * This method removes a user from a list of users.
+		 * It checks if a user is already in the list before removing user.
+		 * An exception is thrown if user is not found in list of user.
+		 * Hence, a user non-existent in list of user cannot be removed.
+		 * @param list_users 
+		 * @param user 
+		 */
+		void	removeUserFromList(std::list<User *> *list_users, User *user);
 
     public:
     	Channel(std::string name, std::string topic, User *user);	// Parametric constructor
@@ -117,32 +141,6 @@ class Channel
 		 * @return false 
 		 */
 		bool	isUserInList(std::list<User *> *list_users, User *user);
-
-
-		/**
-		 * ! This method call must be wrapped with try/catch
-		 * @brief 
-		 * This method adds a user to a list of users.
-		 * It checks if a user is already in the list before adding user.
-		 * An exception is thrown if user already exist in list of user.
-		 * Hence, a user cannot be added twice in a list.
-		 * @param list_users 
-		 * @param user 
-		 */
-		void	addUserToList(std::list<User *> *list_users, User *user);
-
-		
-		/**
-		 * ! This method call must be wrapped with try/catch
-		 * @brief 
-		 * This method removes a user from a list of users.
-		 * It checks if a user is already in the list before removing user.
-		 * An exception is thrown if user is not found in list of user.
-		 * Hence, a user non-existent in list of user cannot be removed.
-		 * @param list_users 
-		 * @param user 
-		 */
-		void	removeUserFromList(std::list<User *> *list_users, User *user);
 
 
 		/**
