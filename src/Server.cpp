@@ -84,7 +84,15 @@ User* Server::getUser(std::string nickName)
     return (NULL);
 }
 
+void	Server::setServerIP(std::string setServerIP)
+{
+	this->_serverIP = setServerIP;
+}
 
+std::string	Server::getServerIP()
+{
+	return (this->_serverIP);
+}
 
 //======== MEMBER FUNCTIONS =====================================================================
 
@@ -255,6 +263,37 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 	}
 }
 
+User*	Server::getUserByFd(int client_socket)
+{
+	std::map<int, User*>::iterator it;
+	for(it = this->_users.begin(); it != this->_users.end(); it++)
+	{
+		if (it->first == client_socket)
+			return (it->second);
+	}
+	std::cout << "User : " << client_socket << " not found.\n";
+	return (NULL);
+}
+
+void	Server::pingClient(int client_socket)
+{
+    std::string	pingMessage = "PING";
+	
+	if (this->getUserByFd(client_socket))
+	{
+		send(client_socket, pingMessage.c_str(), pingMessage.length(), 0);
+		std::cout << "Server :" << this->getServerIP() << ":" << this->getPort() << "PING to client : " << this->getUserByFd(client_socket)->getIP() << ":" << this->getUserByFd(client_socket)->getPort() << "\n";
+	}
+	else
+		return ;
+}
+
+void	Server::handlePongFromClient()
+{
+	
+}
+
+
 /* setup IRC server */
 void	Server::setupServer()
 {
@@ -279,7 +318,9 @@ void	Server::setupServer()
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(this->getPort());
 	hint.sin_addr.s_addr = htonl(INADDR_ANY); //  the server will listen on all available network interfaces, including the loopback interface (127.0.0.1)
-	std::cout << "IRC Server IP and port are <IP:Port> : " << inet_ntoa(hint.sin_addr) << ":" << this->getPort() << "\n";
+	std::string ourIRCServerIP = inet_ntoa(hint.sin_addr);
+	this->setServerIP(ourIRCServerIP);
+	std::cout << "IRC Server IP and port are <IP:Port> : " << this->getServerIP() << ":" << this->getPort() << "\n";
 
 	/* Making socket reusable... */
 	try
@@ -336,15 +377,19 @@ void	Server::setupServer()
         /* Use poll to wait for activity on any of the sockets */
 		int num_ready_fds = poll(this->fds, num_fds, -1);
 		int *ptrNum_ready_fds = &num_ready_fds;
+		num_ready_fds = 0;
         switch (num_ready_fds) // poll returns the number of elements in the fds array. -1 means waiting forever.
 		{
 			case -1:
 			    std::cout << RED << "Error : polling for events" << D << "\n";
-				return ;
+				break;
 			case 0 :
-				continue;
+				std::cout << "HERE\n"; 
+				this->pingClient(this->fds[*ptrNum_fds].fd);
+				break;
 			default:
 				this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
+				break;
         }
     }
     close(this->getListeningSocket());

@@ -75,6 +75,16 @@ std::string		User::getRealName(void)
 	return (this->_realName);
 }
 
+int	User::getPort(void)
+{
+	return(this->_userPort);
+}
+
+void	User::setPort(int setUserPort)
+{
+	this->_userPort = setUserPort;
+}
+
 //		*!* Command execution  *!*
 //		---------------------------
 

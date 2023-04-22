@@ -19,6 +19,7 @@ class User
 		std::string					_realName;
 		bool						_isRegistered;
 		std::list<Channel *>		_channelList;
+		int							_userPort;
 
 	public:
 					User(int fd, std::string ip/*, Server ircserver*/);
@@ -27,6 +28,8 @@ class User
 
 		int			getFd(void);
 		std::string	getIP(void);
+		int			getPort(void);
+		void		setPort(int setUserPort);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
 		void		setUserName(const std::vector<std::string>& args);

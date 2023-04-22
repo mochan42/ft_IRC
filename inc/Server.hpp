@@ -32,6 +32,7 @@
 # include "User.hpp"
 # include "Channel.hpp"
 # include "Message.hpp"
+# include <netinet/ip_icmp.h> // for ping()
 
 
 #define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
@@ -61,6 +62,7 @@ class Server
 		std::list<std::string>			_operators;
 		std::map<int, std::string>		_messages;
 		std::string						_serverName;
+		std::string						_serverIP;
 
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
@@ -72,7 +74,7 @@ class Server
 		// void			closeServer(void);
 		
 		void					createChannel(const std::string& channel) const;
-		void					pingClient(void) const;
+		void					pingClient(int client_socket);
 		
 		// getters
 		//Channel*				getChannel(const std::string& channel) const;
@@ -81,12 +83,14 @@ class Server
 		int						getListeningSocket(void) const;
 		void					setListeningSocket (int n);
 		User*					getUser(std::string nickName);
+		User*					getUserByFd(int client_socket);
 		std::string				getServerName();
-
+		std::string				getServerIP();
 
 		// setters
 		void					setPort(int inputPortNumber);
 		void					checkPassword(const std::string& password) const;
+		void					setServerIP(std::string setServerIP);
 
 		// member functions
 		void					createSocket();
