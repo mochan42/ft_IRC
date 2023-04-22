@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   replyLib.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/21 18:15:08 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/22 18:34:09 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ std::string User::RPY_welcomeToServer(void)
 
 std::string User::RPY_newNick(std::string oldNick)
 {
-	std::string	replyMessage = ":" + oldNick + "!" + this->getIP() + " NICK " + this->getNickName();
+	std::string	replyMessage = ":" + oldNick + "!" + _userName + "@" + _ip + " NICK " + _nickName;
 	return (replyMessage);
 }
 

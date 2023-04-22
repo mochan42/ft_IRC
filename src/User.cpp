@@ -107,16 +107,16 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		joinChannel(args);
 	// else if (command == "MODE")
 	// 	mode(args);
-	// else if (command == "WHO")
-	// 	who(args);		
+	else if (command == "WHO")
+		who(args);		
 	// else if (command == "")
 	// 	changeTopic(args);
-	// else if (command == "")
-	// 	inviteUser(args);
-	// else if (command == "KICK")
-	// 	kickUser(args);
-	// else if (command == "PART")
-	// 	leaveChannel(args);
+	else if (command == "INVITE")
+		inviteUser(args);
+	else if (command == "KICK")
+		kickUser(args);
+	else if (command == "PART")
+		leaveChannel(args);
 	// else if (command == "")
 	// 	modifyChannel(args);
 	else if (command == "NOTICE")
@@ -167,6 +167,8 @@ void		User::setNickName(const std::vector<std::string>& args)
 {
 	std::string oldNick = _nickName;
 	_nickName = args[0];
+	//check if the nick already exist
+	//Send to all Users who are in the channel with this user!!!
 	sendMsgToOwnClient(RPY_newNick(oldNick));
 	std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
 }
@@ -365,88 +367,96 @@ void		User::joinChannel(std::vector<std::string>& args)
  * Will kick a user from a channel and inform all other user on the channel about it.
  * @param args All arguments after the cmd
  */
-// void		User::kickUser(std::vector<std::string>& args)
-// {
-// 	std::string channel = args[0];
-// 	std::string nick = args[1];
-// 	std::string reason = argsToString(args.begin() + 2, args.end());
-// 	Channel *channelPtr;
-// 	User	*tmpUser;
+void		User::kickUser(std::vector<std::string>& args)
+{
+	std::string channel = args[0];
+	std::string nick = args[1];
+	std::string reason = argsToString(args.begin() + 2, args.end());
+	Channel *channelPtr;
+	User	*tmpUser;
 	
-// 	try
-// 	{
-// 		channelPtr = _server->searchChannel(channel);
-// 		if (!channelPtr->isUserInList(channelPtr->getListPtrOperators(), this))
-// 			throw (notAnOperator());
+	try
+	{
+		channelPtr = _server->getChannel(channel);
+		if (!channelPtr->isUserInList(channelPtr->getListPtrOperators(), this))
+			throw (notAnOperator());
 
-// 		if (tmpUser = channelPtr->isUserInChannel(nick))
-// 		{
-// 			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel));
-			
-// 			if (channelPtr->isUserInList(channelPtr->getListPtrOperators(), tmpUser))
-// 				channelPtr->removeUserFromList(channelPtr->getListPtrOperators(), tmpUser);
-// 			if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
-// 				channelPtr->removeUserFromList(channelPtr->getListPtrOrdinaryUsers(), tmpUser);
-// 		}
-// 		else
-// 			throw (notOnTheChannel());
-// 	}
-// 	catch (notAnOperator &e)
-// 	{
-// 		(void)e;
-// 		sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
-// 	}
-// 	catch (notOnTheChannel &e)
-// 	{
-// 		(void)e;
-// 		sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(nick, channel));
-// 	}
-// }
+		if ((tmpUser = channelPtr->isUserInChannel(nick)))
+		{
+			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel), std::make_pair(false, (User *) NULL));
+			if (channelPtr->isUserInList(channelPtr->getListPtrOperators(), tmpUser))
+				channelPtr->removeUserFromList(channelPtr->getListPtrOperators(), tmpUser);
+			if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
+				channelPtr->removeUserFromList(channelPtr->getListPtrOrdinaryUsers(), tmpUser);
+		}
+		else
+			throw (notOnTheChannel());
+	}
+	catch (notAnOperator &e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
+	}
+	catch (notOnTheChannel &e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(nick, channel));
+	}
+}
 
 /**
  * @brief 
  * Function to leave a channel and inform all user in the channel about it.
  * @param args All arguments after the cmd
  */
-// void		User::leaveChannel(std::vector<std::string>& args)
-// {
-// 	std::string	channel = args[0];
-// 	Channel		*chPtr;
+void		User::leaveChannel(std::vector<std::string>& args)
+{
+	std::string	channel = args[0];
+	Channel		*chPtr;
 
-// 	try
-// 	{
-// 		//
-// 		if (!(chPtr = _server->searchChannel(channel)))
-// 			throw(noSuchChannel());
-// 		if (chPtr->isUserInList(chPtr->getListPtrOrdinaryUsers(), this))
-// 		{
-// 			chPtr->broadcastMsg(RPY_leaveChannel(channel));
-// 			chPtr->removeUserFromList(chPtr->getListPtrOrdinaryUsers(), this);
-// 		}
-// 		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
-// 		{
-// 			chPtr->broadcastMsg(RPY_leaveChannel(channel));
-// 			chPtr->removeUserFromList(chPtr->getListPtrOperators(), this);
-// 		}
-// 		else
-// 			throw(notOnTheChannel());
-// 	}
-// 	catch(noSuchChannel &e)
-// 	{
-// 		(void)e;
-// 		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(channel));
-// 	}
-// 	catch(notOnTheChannel &e)
-// 	{
-// 		(void)e;
-// 		sendMsgToOwnClient(RPY_ERR442_youreNotOnThatChannel(channel));
-// 	}
-// }
+	try
+	{
+		//
+		if (!(chPtr = _server->getChannel(channel)))
+			throw(noSuchChannel());
+		if (chPtr->isUserInList(chPtr->getListPtrOrdinaryUsers(), this))
+		{
+			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
+			chPtr->removeUserFromList(chPtr->getListPtrOrdinaryUsers(), this);
+		}
+		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
+		{
+			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
+			chPtr->removeUserFromList(chPtr->getListPtrOperators(), this);
+		}
+		else
+			throw(notOnTheChannel());
+	}
+	catch(noSuchChannel &e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(channel));
+	}
+	catch(notOnTheChannel &e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR442_youreNotOnThatChannel(channel));
+	}
+}
 
 // void		User::modifyChannel(std::string channelName, std::string nickName, char mode)
 // {
 
 // }
+
+void	User::mode(std::vector<std::string>& args)
+{
+	std::string channel = args[0];
+	if (args.size() == 1)
+	{
+
+	}
+}
 
 // //		*!* MESSAGES  *!*
 // //		-----------------
