@@ -3,22 +3,27 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+         #
+#    By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/16 09:55:57 by cudoh             #+#    #+#              #
-#    Updated: 2023/04/20 23:04:00 by pmeising         ###   ########.fr        #
+#    Updated: 2023/04/22 17:41:44 by cudoh            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #SRCS:= main.cpp 
+FILE_TEST_LOG = test_log.txt
 DIR_SRCS_TEST = ./src/
 DIR_OBJS_TEST = ./obj/
+DIR_INC_TEST = ../inc
 DIR_SRCS_PROJ = ../src/
 DIR_OBJS_PROJ = ../obj/
+DIR_INC_PROJ = ./inc
 
 #SRC_FILES	:= $(shell ls ./src | xargs)
-SRC_FILES_TEST	:=	main.cpp test_server.cpp \
-#				main_user.cpp 
+SRC_FILES_TEST	:=	main.cpp			\
+					test_channel.cpp	\
+					test_server.cpp		
+#					main_user.cpp 
 
 # PROJECT FILES TO BE TESTED ARE LISTE HERE 
 SRC_FILES_PROJ	:= Channel.cpp User.cpp Server.cpp Message.cpp
@@ -47,7 +52,7 @@ NAME = test
 CC = g++
 STD_CPP = c++14
 CFLAGS = -Werror -Wall -Wextra -g -std=$(STD_CPP)
-INCLUDES = -I ./inc -I ../inc
+INCLUDES = -I$(DIR_INC_PROJ) -I$(DIR_INC_TEST)
 
 NAME : all
 all : $(NAME)
@@ -76,18 +81,29 @@ $(DIR_OBJS_PROJ)%.o : $(DIR_SRCS_PROJ)%.cpp
 	$(CC) -c $^ $(CFLAGS) $(INCLUDES) -o $@
 	@echo
 	
+# execute test cases
+execTest: $(NAME)
+	@echo
+	@echo "\033[1;33mExecuting test... \033[0m"
+	@echo
+	./$(NAME) -s [Channel] -o $(FILE_TEST_LOG)
+#	./$(NAME) -s [Server] -o $(FILE_TEST_LOG)
+	@cat $(FILE_TEST_LOG)
 	
+
+
 # remove all object files
 fclean:
 	rm -rf $(DIR_OBJS_TEST)
 	rm -rf $(DIR_OBJS_PROJ)
+	rm -f $(FILE_TEST_LOG)
 #	rm -rf *.o
 
-# remove final target files
+# remove final target files and test log file
 clean: fclean
 	rm -rf $(NAME)
 
 # recompile everything
 re: clean all
 
-.PHONY : all fclean clean re 
+.PHONY : all fclean clean re execTest

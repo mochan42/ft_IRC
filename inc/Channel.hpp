@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/20 22:18:10 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/22 17:32:53 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,17 @@
 # include "User.hpp"
 
 # define CHN_MAX_USERS (1024)
+# define CHN_MIN_USERS (3)
 # define COUT std::cout
 # define ENDL std::endl
 # define CHN_TRUE (1)
 # define CHN_FALSE (0)
+# define CHN_DEFAULT_NAME ("Unknown")
+# define CHN_DEFAULT_TOPIC ("Undefined")
+# define CHN_EXCEPTION_HANDLER() catch(const std::exception &e) \
+{\
+	std::cerr << e.what() << '\n'; \
+}
 
 typedef enum e_chn_action
 {
@@ -35,6 +42,14 @@ typedef enum e_chn_action
 	MAX_ACTION
 }	t_chn_action;
 
+typedef enum e_chn_return
+{
+	CHN_ERR_FAILED = -127,
+	CHN_ERR_InvalidNbrOfUsers,
+	CHN_ERR_UserDoesNotExist,
+	CHN_ERR_SUCCESS = 0,
+}	t_chn_return;
+
 class User;
 
 class Channel
@@ -42,14 +57,13 @@ class Channel
     private:
         std::string			_channelName;
         std::string			_topic;
-        const unsigned int	_channelCapacity;
+        unsigned int		_channelCapacity;
         std::list<User *>	*_invitedUsers;
         std::list<User *>	*_operators;
-        std::list<User *>	*_bannedUsers;
         std::list<User *>	*_ordinaryUsers;			// without operators
 
     public:
-    	Channel(std::string name, std::string topic, User* user);	// Parametric constructor
+    	Channel(std::string name, std::string topic, User *user);	// Parametric constructor
     	~Channel(void);									// Destructor
     
     	/* Getters and Setters */
@@ -58,9 +72,9 @@ class Channel
     	unsigned int		getChannelCapacity(void) const;
     	std::list<User *>	*getListPtrInvitedUsers(void) const;
     	std::list<User *>	*getListPtrOperators(void) const;
-    	std::list<User *>	*getListPtrBannedUsers(void) const;
     	std::list<User *>	*getListPtrOrdinaryUsers(void) const;
     	void				setChannelName(std::string name);
+    	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
     
     	/* Methods */
@@ -104,6 +118,7 @@ class Channel
 
 
 		/**
+		 * ! This method call must be wrapped with try/catch
 		 * @brief 
 		 * This method adds a user to a list of users.
 		 * It checks if a user is already in the list before adding user.
@@ -116,6 +131,7 @@ class Channel
 
 		
 		/**
+		 * ! This method call must be wrapped with try/catch
 		 * @brief 
 		 * This method removes a user from a list of users.
 		 * It checks if a user is already in the list before removing user.
@@ -197,15 +213,15 @@ class Channel
 		 * ? in the list during add operation
 		 * 
 		 * @param nickname 
-		 * @return int 
+		 * @return t_chn_return 
 		 */
-		int	demoteUser(std::string nickname);
+		t_chn_return	demoteUser(std::string nickname);
 		 
 
 		
 		/**
 		 * @brief 
-		 * This method demotes a user from operator to ordinary user.
+		 * This method promotes a user from ordinary user to operator.
 		 * First the user pointer is retrieved from operator list using 
 		 * the nickname.
 		 * If found, the user is removed from operator list and added to
@@ -216,9 +232,9 @@ class Channel
 		 * ? in the list during add operation
 		 * 
 		 * @param nickname 
-		 * @return int 
+		 * @return t_chn_return 
 		 */
-		int	promoteUser(std::string nickname);
+		t_chn_return	promoteUser(std::string nickname);
 		
 
 
@@ -243,7 +259,7 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("Error! User already exist in channel list");
+				return ("\nError! User already exist in channel list\n");
 			}
 		};
 
@@ -251,7 +267,7 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("Error! User is not found in channel list");
+				return ("\nError! User is not found in channel list\n");
 			}
 		};
 
@@ -259,10 +275,17 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("Error! String is empty");
+				return ("\nError! String is empty\n");
 			}
 		};
 		
+		class InvalidNbrOfUsersException : public std::exception
+		{
+			virtual char const *what() const throw()
+			{
+				return ("\nError! Invalid number of user specified.\n");
+			}
+		};
 };
 
 
