@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/22 19:29:03 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/23 11:22:34 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,30 +236,36 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 }
 
 /* Function to handle data from a client socket */
-void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
-{
-    int num_bytes = recv(client_socket, buffer, buffer_size, 0);
-	if (num_bytes < 0)
+	void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
 	{
-        std::cout << RED << "Error receiving data from client" << D  << "\n";
-        return;
-    }
-	else if (num_bytes == 0)
-	{
-        /* Client has disconnected */
-        std::cout << "Client disconnected\n";
-		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
-		delete this->_users.find(client_socket)->second;
-		this->_users.erase(client_socket);
-        close(client_socket);
-    }
-	else
-	{
-        /* Output the received message */
-		// Check if CTRL + D
-        buffer[num_bytes] = '\0';
-		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
-		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
+	    std::string input;
+	    while (true) {
+	        int num_bytes = recv(client_socket, buffer, buffer_size, 0);
+	        if (num_bytes < 0) {
+	            std::cout << RED << "Error receiving data from client" << D  << "\n";
+	            return;
+	        }
+	        else if (num_bytes == 0) {
+	            /* Client has disconnected */
+	            std::cout << "Client disconnected\n";
+	            // Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
+	            delete this->_users.find(client_socket)->second;
+	            this->_users.erase(client_socket);
+	            close(client_socket);
+	            break;
+	        }
+	        else {
+	            buffer[num_bytes] = '\0';
+	            input += std::string(buffer, 0, num_bytes);
+	            if (input.find("\n") != std::string::npos) {
+	                break;}
+				else{
+					std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
+	            }
+	        }
+	    }
+		this->_messages[client_socket] = input;
+    	std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
 		/* parse buffer */
 		// Create a Message instance using the buffer content
 		Message msg(this->_messages[client_socket]);
@@ -269,16 +275,17 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		std::vector<std::vector<std::string> > args = msg.getArguments();
 		
 		// Print the command and arguments for debugging purposes
-		for (unsigned int i = 0; i < command.size(); i++)
+		for (unsigned int i = 0; i < command.size(); i++){
 			std::cout << "Command: " << command[i] << "\n";
-   		//for debugging
-    	std::cout << "Parsed arguments: ";
-    	for (unsigned int i = 0; i < args.size(); i++)
-		{
-			for (unsigned int j = 0; j < args[i].size(); j++)
-				std::cout << args[i][j];
-		}
+	    	std::cout << "Parsed arguments: ";
+    		for (unsigned int j = 0; j < args[i].size(); j++)
+			{
+					std::cout << args[i][j] << std::endl;
+			}}
 		std::cout << "\n";
+
+		// Print the command and arguments for debugging purposes
+
 		/* client_socket execute cmd */
 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
 		if (user_it != _users.end()) {
@@ -295,7 +302,7 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
     	// Handle the case when the user is not found
 		}
     }
-}
+
 
 // /* Function to handle data from a client socket */
 // void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)

@@ -42,10 +42,17 @@ void Message::parse(const std::string& user_input) {
 
     // Split the input into lines
     size_t start = 0, end = 0;
-    while ((end = user_input.find("\r\n", start)) != std::string::npos) {
-        input_lines.push_back(user_input.substr(start, end - start));
-        start = end + 2;
+    while ((end = user_input.find_first_of("\r\n", start)) != std::string::npos) {
+    std::string line = user_input.substr(start, end - start);
+    if (end < user_input.length() && user_input[end] == '\r' && user_input[end+1] == '\n') {
+        end += 2;
+    } else if (end < user_input.length() && user_input[end] == '\n') {
+        end += 1;
     }
+    input_lines.push_back(line);
+    start = end;
+    }
+
 
     // Parse each line into a command and arguments
     for (size_t i = 0; i < input_lines.size(); i++) {
@@ -74,11 +81,11 @@ void Message::parse(const std::string& user_input) {
         args.push_back(arg_vec);
 
        // // Debug output to see the command and arguments as they are parsed
-       // std::cout << "Parsed command: " << command.back() << std::endl;
-       // std::cout << "Parsed arguments: ";
-       // for (std::vector<std::string>::const_iterator it = args.back().begin(); it != args.back().end(); ++it) {
-       //     std::cout << *it << " ";
-       // }
-       // std::cout << std::endl;
+       std::cout << "Parsed command: " << command.back() << std::endl;
+       std::cout << "Parsed arguments: ";
+       for (std::vector<std::string>::const_iterator it = args.back().begin(); it != args.back().end(); ++it) {
+           std::cout << *it << " ";
+       }
+       std::cout << std::endl;
     }
 }
