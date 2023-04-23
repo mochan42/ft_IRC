@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/23 12:30:20 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/23 12:43:32 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ Channel::Channel( std::string name, std::string topic, User* user)
     		_invitedUsers = new std::list<User *>;
     		_operators = new std::list<User *>;
     		_ordinaryUsers = new std::list<User *>;
-			this->addUserToList(this->_operators ,user);
+			(void) user;
+			// this->addUserToList(this->_operators ,user);
 		}
 	}
 	CHN_EXCEPTION_HANDLER();
