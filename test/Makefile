@@ -6,7 +6,7 @@
 #    By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/16 09:55:57 by cudoh             #+#    #+#              #
-#    Updated: 2023/04/23 14:11:00 by cudoh            ###   ########.fr        #
+#    Updated: 2023/04/23 21:57:06 by cudoh            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -86,7 +86,7 @@ execTest: $(NAME)
 	@echo
 	@echo "\033[1;33mExecuting test... \033[0m"
 	@echo
-	./$(NAME) -s [Channel] -o $(FILE_TEST_LOG)
+	./$(NAME) -s -x 5 [Channel] -o $(FILE_TEST_LOG)
 	cat $(FILE_TEST_LOG)
 #	./$(NAME) -s [Server] -o $(FILE_TEST_LOG)
 	

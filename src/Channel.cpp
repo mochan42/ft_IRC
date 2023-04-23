@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/23 15:57:04 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/23 21:17:27by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,68 +127,127 @@ t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 	return (returnCode);
 }
 
-#if 1
+
 t_chn_return	Channel::setMode(uint8_t mode)
 {
 	t_chn_return returnCode = CHN_ERR_InvalidMode;
-	uint8_t maxNbrOfBits = (CHN_MODE_Max - 1);
-	uint8_t maxSumofBitsValue = pow(2, maxNbrOfBits) - 1;
-	uint8_t maxBitValue = 0;
-	uint8_t quotient = 0;
-	uint8_t	remainder = 0;
-    uint8_t value = 1;
-	
-    //_mode = CHN_MODE_Default;          // reset mode to default
+
 	try
 	{
-		if (mode > maxSumofBitsValue) // for 4 bit : max sum of bit value is 15
-        {
-			throw InvalidChannelModeException();
-        }
-        else if (mode == CHN_MODE_Default)
-        {
-            _mode = CHN_MODE_Default;
-        }
-		else
+		switch (mode)
 		{
-            while (maxNbrOfBits > 0)
-            {
-                maxBitValue = pow(2, (maxNbrOfBits - 1));
-                quotient = mode / maxBitValue;
-                remainder = mode % maxBitValue;
-                if (quotient == 1)
-                {
-                    _mode = (_mode | (value << (maxNbrOfBits - 1)));
-                }
-                COUT << "m: " << (int)mode << ":" << (int)_mode << "NoB:" 
-                << (int) maxNbrOfBits << ", bitValue: " << (int)maxBitValue << ENDL;
-                mode = remainder;
-                maxNbrOfBits--;
-            }
+		case CHN_MODE_Default:
+		{
+			_mode = CHN_MODE_Default;
+			break;
 		}
-        returnCode = CHN_ERR_SUCCESS;
+		case CHN_MODE_Invite:
+		{
+			_mode |= (1 << (CHN_MODE_Invite - 1));
+			break;
+		}
+		case CHN_MODE_Protected:
+		{
+			_mode |= (1 << (CHN_MODE_Protected - 1));
+			break;
+		}
+		case CHN_MODE_AdminSetUserLimit:
+		{
+			_mode |= (1 << (CHN_MODE_AdminSetUserLimit - 1));
+			break;
+		}
+		case CHN_MODE_AdminSetTopic:
+		{
+			_mode |= (1 << (CHN_MODE_AdminSetTopic - 1));
+			break;
+		}
+		default:
+		{
+			if (mode < (pow(2, (CHN_MODE_Max - 1))))
+			{
+				_mode = mode;
+			}
+			else
+				throw InvalidChannelModeException();
+			break ;
+		}
+		}
+		returnCode = CHN_ERR_SUCCESS;
 	}
 	CHN_EXCEPTION_HANDLER();
 	return (returnCode);
 }
-#endif
 
 
 /*----------- Methods -------------------------------------*/
+
+bool	Channel::isModeSet(uint8_t	mode, t_chnOptionCtrl optCtrl)
+{
+	bool	returnCode = false;
+	try
+	{
+		switch (mode)
+		{
+		case CHN_MODE_Invite:
+		{
+			CHN__ISMODESET(CHN_MODE_Invite,optCtrl);
+#if 0
+			/* This code has been replaced with a macro CHN__ISMODESET
+			 * This approach has been adopted to perform code repetition
+			 * in an unclumsy way.
+			*/
+			if (optCtrl)
+			{
+				returnCode = (_mode == (1 << (CHN_MODE_Invite - 1))) ? true : false;
+				break ;
+			}
+			returnCode = _mode &(1 << (CHN_MODE_Invite -1));
+			break;
+#endif
+		}
+		case CHN_MODE_Protected:
+		{
+			CHN__ISMODESET(CHN_MODE_Protected,optCtrl);
+		}
+		case CHN_MODE_AdminSetUserLimit:
+		{
+			CHN__ISMODESET(CHN_MODE_AdminSetUserLimit,optCtrl);
+		}
+		case CHN_MODE_AdminSetTopic:
+		{
+			CHN__ISMODESET(CHN_MODE_AdminSetTopic,optCtrl);
+		}
+		default:
+		{
+			/* for default case: control option is Exclusive */
+			if (mode < (pow(2, (CHN_MODE_Max - 1))))
+			{
+				returnCode = (_mode == mode) ? true : false;
+			}
+			else
+				throw InvalidChannelModeException();
+			break ;
+		}
+		}
+	}
+	CHN_EXCEPTION_HANDLER();	
+	return (returnCode);
+	
+}
 
 void Channel::broadcastMsg(std::string msg)
 {
 	int msgLen = msg.size();
 	int fd = 0;
 	std::list<User *>::iterator it;
-	
+
 	try
 	{
 		if (msgLen == 0)
 			throw EmptyContentException();
 		if (_operators == NULL || _ordinaryUsers == NULL)
 			throw NullPointerException();
-		
+
 		/* iterate over operators and ordinary user lists to send msg */
 		for (it = _operators->begin(); it != _operators->end(); ++it)
 		{
@@ -200,87 +259,82 @@ void Channel::broadcastMsg(std::string msg)
 			fd = (*it)->getFd();
 			write(fd, msg.c_str(), msgLen);
 		}
-	}	
-	CHN_EXCEPTION_HANDLER();
-}
-
-
-bool    Channel::isUserListEmpty(std::list<User *> *list_users)
-{
-	bool result = false;
-
-	try
-	{
-		if (list_users == NULL)
-		{
-			throw NullPointerException();
-		}
-		result = (*list_users).empty();
 	}
 	CHN_EXCEPTION_HANDLER();
-	return (result);
-}
+	}
 
-
-bool	Channel::isUserInList(std::list<User *> *list_users, User *user)
-{
-	std::list<User *>::iterator it;
-	bool result = false;
-	
-	try
+	bool Channel::isUserListEmpty(std::list<User *> * list_users)
 	{
-		if (list_users == NULL || user == NULL)
+		bool result = false;
+
+		try
 		{
-			throw NullPointerException();
-		}
-	
-		for (it = list_users->begin(); it != list_users->end(); ++it)
-		{
-			if (*it == user)
+			if (list_users == NULL)
 			{
-				result = true;
-				break ;
+				throw NullPointerException();
+			}
+			result = (*list_users).empty();
+		}
+		CHN_EXCEPTION_HANDLER();
+		return (result);
+	}
+
+	bool Channel::isUserInList(std::list<User *> * list_users, User * user)
+	{
+		std::list<User *>::iterator it;
+		bool result = false;
+
+		try
+		{
+			if (list_users == NULL || user == NULL)
+			{
+				throw NullPointerException();
+			}
+
+			for (it = list_users->begin(); it != list_users->end(); ++it)
+			{
+				if (*it == user)
+				{
+					result = true;
+					break;
+				}
 			}
 		}
+		CHN_EXCEPTION_HANDLER();
+		return (result);
 	}
-	CHN_EXCEPTION_HANDLER();
-	return (result);
-}
 
-
-void	Channel::addUserToList(std::list<User *> *list_users, User *user)
-{
-	if (isUserInList(list_users, user) == false)
+	void Channel::addUserToList(std::list<User *> * list_users, User * user)
 	{
-		list_users->push_back(user);
-	}
-	else
-	{
-		throw UsrExistException();
-	}
-}
-
-
-void	Channel::removeUserFromList(std::list<User *> *list_users, User *user)
-{
-	if (isUserInList(list_users, user) == true)
-	{
-		list_users->remove(user);
-	}
-	else
-	{
-		throw UsrNotFoundException();
-	}
-}
-
-
-void    Channel::updateUserList(std::list<User *> *list_users, User *user,
-                                                      t_chn_action action)
-{
-    try
-    {
-		switch (action)
+		if (isUserInList(list_users, user) == false)
 		{
+			list_users->push_back(user);
+		}
+		else
+		{
+			throw UsrExistException();
+		}
+	}
+
+	void Channel::removeUserFromList(std::list<User *> * list_users, User * user)
+	{
+		if (isUserInList(list_users, user) == true)
+		{
+			list_users->remove(user);
+		}
+		else
+		{
+			throw UsrNotFoundException();
+		}
+	}
+
+	void Channel::updateUserList(std::list<User *> * list_users, User * user,
+								 t_chn_action action)
+	{
+		try
+		{
+			switch (action)
+			{
 		    case USR_ADD:
 			{
 				addUserToList(list_users, user);
