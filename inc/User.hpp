@@ -24,6 +24,7 @@ class User
 		bool						_usernameSet;
 		std::list<Channel *>		_channelList;
 		std::string					_replyMessage;
+		int							_userPort;
 
 	public:
 		User(int fd, std::string ip, Server *ircserver);
@@ -32,6 +33,8 @@ class User
 
 		int			getFd(void);
 		std::string	getIP(void);
+		int			getPort(void);
+		void		setPort(int setUserPort);
 		void		setServerPw(const std::vector<std::string>& args);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
@@ -52,7 +55,7 @@ class User
 		void		kickUser(std::vector<std::string>& args);
 		void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
-
+		void		mode(std::vector<std::string>& args);
 
 		void		sendNotification(std::vector<std::string>& args);	
 		int			sendChannelMsg(std::vector<std::string>& args);

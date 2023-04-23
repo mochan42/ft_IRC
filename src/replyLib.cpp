@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/22 01:09:50 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/23 12:29:24 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ std::string User::RPY_welcomeToServer(void)
 
 std::string User::RPY_newNick(std::string oldNick)
 {
-	std::string	replyMessage = ":" + oldNick + "!" + this->getIP() + " NICK " + this->getNickName();
+	std::string	replyMessage = ":" + oldNick + "!" + _userName + "@" + _ip + " NICK " + _nickName;
 	return (replyMessage);
 }
 

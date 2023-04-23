@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/21 12:43:35 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/22 19:37:22 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ class Server
 		std::list<std::string>			_operators;
 		std::map<int, std::string>		_messages;
 		std::string						_serverName;
+		std::string						_serverIP;
 
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
@@ -71,6 +72,8 @@ class Server
 		// void			startServer(void);
 		// void			closeServer(void);
 		
+		void					createChannel(const std::string& channel) const;
+		void					pingClient(int client_socket);
 		void					createChannel(const std::string& channel_name, const std::string& topic, User* user);
 		void					pingClient(void) const;
 		
@@ -80,12 +83,14 @@ class Server
 		bool					verifyPassword(const std::string& password) const;
 		int						getListeningSocket(void) const;
 		User*					getUser(std::string nickName);
+		User*					getUserByFd(int client_socket);
 		std::string				getServerName();
-
+		std::string				getServerIP();
 
 		// setters
 		void					setListeningSocket (int n);
 		void					setPort(int inputPortNumber);
+		void					setServerIP(std::string setServerIP);
 
 		// member functions
 		void					checkPassword(const std::string& password) const;
