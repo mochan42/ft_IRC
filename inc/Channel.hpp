@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
 /*   Updated: 2023/04/23 23:17:07 by cudoh            ###   ########.fr       */
@@ -120,6 +120,30 @@ class Channel
 		 */
 		void	removeUserFromList(std::list<User *> *list_users, User *user);
 
+		/**
+		 * ! This method call must be wrapped with try/catch
+		 * @brief 
+		 * This method adds a user to a list of users.
+		 * It checks if a user is already in the list before adding user.
+		 * An exception is thrown if user already exist in list of user.
+		 * Hence, a user cannot be added twice in a list.
+		 * @param list_users 
+		 * @param user 
+		 */
+		void	addUserToList(std::list<User *> *list_users, User *user);
+
+		/**
+		 * ! This method call must be wrapped with try/catch
+		 * @brief 
+		 * This method removes a user from a list of users.
+		 * It checks if a user is already in the list before removing user.
+		 * An exception is thrown if user is not found in list of user.
+		 * Hence, a user non-existent in list of user cannot be removed.
+		 * @param list_users 
+		 * @param user 
+		 */
+		void	removeUserFromList(std::list<User *> *list_users, User *user);
+
     public:
     	Channel(std::string name, std::string topic, User *user);	// Parametric constructor
     	~Channel(void);									// Destructor
@@ -137,7 +161,6 @@ class Channel
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
 		t_chn_return		setMode(uint8_t mode);
-		
     
     	/* Methods */
 		
@@ -152,7 +175,9 @@ class Channel
 		 *
 		 * @param msg std::string
 		 */
-    	void	broadcastMsg(std::string msg);
+    	// void	broadcastMsg(std::string msg_org);
+		void 	broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser);
+
 
 
 		/**
@@ -193,7 +218,7 @@ class Channel
 		 * @param action 
 		 */
     	void	updateUserList(std::list<User *> *list_users, User *user, t_chn_action action);
-		
+
 
 		/**
 		 * @brief 
