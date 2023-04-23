@@ -23,10 +23,16 @@ END_COLOR			:= \033[0;39m
 
 SRC_FILES			:= Server.cpp main.cpp User.cpp Message.cpp Channel.cpp replyLib.cpp \
 
+BOT_SRC_FILES		:= Bot.cpp startBot.cpp
+
 OBJ_FILES			:= ${SRC_FILES:.cpp=.o}
+BOT_OBJ_FILES		:= ${BOT_SRC_FILES:.cpp=.o}
 
 SRC					:= $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ					:= $(addprefix $(OBJ_DIR), $(OBJ_FILES))
+
+BOT_SRC				:= $(addprefix $(SRC_DIR), $(BOT_SRC_FILES))
+BOT_OBJ				:= $(addprefix $(OBJ_DIR), $(BOT_OBJ_FILES))
 
 # **************************************************************************** #
 # RULES
@@ -53,11 +59,16 @@ $(OBJ_DIR)%.o : $(SRC_DIR)%.cpp
 $(OBJ_DIR):
 	@mkdir $(OBJ_DIR)
 
+ircbot: $(OBJ_DIR) $(BOT_OBJ)
+	$(CC) $(CFLAGS) $(INCS) $(BOT_OBJ) -o $@
+	@echo "$(GREEN)ircbot compiled :)$(END_COLOR)"
+
 clean:
-	$(RM) $(OBJ)
+	$(RM) $(OBJ) $(BOT_OBJ)
 
 fclean: clean
 	$(RM) $(NAME)
+	$(RM) ircbot
 	$(RM) $(OBJ_DIR)
 
 re: fclean all
