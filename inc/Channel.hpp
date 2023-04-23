@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 20:09:29 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/23 10:35:39 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <list>
 # include <exception>
 # include <unistd.h>
+# include <cmath>
 # include "User.hpp"
 
 # define CHN_MAX_USERS (1024)
@@ -28,11 +29,13 @@
 # define CHN_TRUE (1)
 # define CHN_FALSE (0)
 # define CHN_DEFAULT_NAME ("Unknown")
-# define CHN_DEFAULT_TOPIC ("No topic is set.")
-# define CHN_EXCEPTION_HANDLER() catch(const std::exception &e) \
-{\
-	std::cerr << e.what() << '\n'; \
-}
+# define CHN_DEFAULT_TOPIC ("No topic is set")
+# define CHN_DEFAULT_MODE (0)
+# define CHN_EXCEPTION_HANDLER() 		\
+	catch(const std::exception &e) 		\
+	{\
+		std::cerr << e.what() << '\n'; \
+	}\
 
 typedef enum e_chn_action
 {
@@ -47,8 +50,19 @@ typedef enum e_chn_return
 	CHN_ERR_FAILED = -127,
 	CHN_ERR_InvalidNbrOfUsers,
 	CHN_ERR_UserDoesNotExist,
+	CHN_ERR_InvalidMode,
 	CHN_ERR_SUCCESS = 0,
 }	t_chn_return;
+
+typedef enum e_chn_mode
+{
+	CHN_MODE_Default,
+	CHN_MODE_Invite,            // _mode value = 1
+	CHN_MODE_Protected,         // _mode value = 2
+	CHN_MODE_AdminSetUserLimit, // _mode value = 4
+	CHN_MODE_AdminSetTopic,     // _mode value = 8
+	CHN_MODE_Max
+}	t_chnMode;
 
 class User;
 
@@ -61,6 +75,32 @@ class Channel
         std::list<User *>	*_invitedUsers;
         std::list<User *>	*_operators;
         std::list<User *>	*_ordinaryUsers;			// without operators
+		uint8_t				_mode;
+		
+		/**	
+		 * ! This method call must be wrapped within try/catch. 
+		 * @brief 
+		 * This method adds a user to a list of users.
+		 * It checks if a user is already in the list before adding user.
+		 * An exception is thrown if user already exist in list of user.
+		 * Hence, a user cannot be added twice in a list.
+		 * @param list_users 
+		 * @param user 
+		 */
+		void	addUserToList(std::list<User *> *list_users, User *user);
+
+		
+		/**
+		 * ! This method call must be wrapped within try/catch.
+		 * @brief 
+		 * This method removes a user from a list of users.
+		 * It checks if a user is already in the list before removing user.
+		 * An exception is thrown if user is not found in list of user.
+		 * Hence, a user non-existent in list of user cannot be removed.
+		 * @param list_users 
+		 * @param user 
+		 */
+		void	removeUserFromList(std::list<User *> *list_users, User *user);
 
 		/**
 		 * ! This method call must be wrapped with try/catch
@@ -97,10 +137,13 @@ class Channel
     	std::list<User *>	*getListPtrInvitedUsers(void) const;
     	std::list<User *>	*getListPtrOperators(void) const;
     	std::list<User *>	*getListPtrOrdinaryUsers(void) const;
+		unsigned int		getNbrofActiveUsers(void) const;
+        uint8_t             getMode(void) const;
     	void				setChannelName(std::string name);
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
-
+		t_chn_return		setMode(uint8_t mode);
+    
     	/* Methods */
 		
 		/**
@@ -141,6 +184,8 @@ class Channel
 		 * @return false 
 		 */
 		bool	isUserInList(std::list<User *> *list_users, User *user);
+
+
 
 
 		/**
@@ -243,7 +288,7 @@ class Channel
         {
             virtual char const *what() const throw()
             {
-                return ("Error: null pointer\n");
+                return ("\nError: null pointer : channel class\n");
             }
         };
 
@@ -251,7 +296,7 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("Error! Invalid channel action"); 
+				return ("\nError! Invalid channel action : channel class\n"); 
 			}
 		};
 
@@ -259,7 +304,7 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("\nError! User already exist in channel list\n");
+				return ("\nError! User already exist in channel list : channel class\n");
 			}
 		};
 
@@ -267,7 +312,7 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("\nError! User is not found in channel list\n");
+				return ("\nError! User is not found in channel list : channel class\n");
 			}
 		};
 
@@ -283,7 +328,15 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("\nError! Invalid number of user specified.\n");
+				return ("\nError! Invalid number of user specified : channel class.\n");
+			}
+		};
+
+		class InvalidChannelModeException : public std::exception
+		{
+			virtual char const *what() const throw()
+			{
+				return ("\nError! Invalid channel mode give : Channel class\n");
 			}
 		};
 };

@@ -90,6 +90,7 @@ class Server
 		// setters
 		void					setListeningSocket (int n);
 		void					setPort(int inputPortNumber);
+	//	void					checkPassword(const std::string& password) const;
 		void					setServerIP(std::string setServerIP);
 
 		// member functions

@@ -5,29 +5,26 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 20:48:49 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/23 15:57:04 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 
-Channel::Channel( std::string name, std::string topic, User* user)
-: _channelName(CHN_DEFAULT_NAME), _topic(CHN_DEFAULT_TOPIC), 
-  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
-  _operators(NULL), _ordinaryUsers(NULL)
+Channel::Channel(std::string name, std::string topic, User *user)
+	: _channelName(CHN_DEFAULT_NAME), _topic(CHN_DEFAULT_TOPIC),
+	  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
+	  _operators(NULL), _ordinaryUsers(NULL), _mode(CHN_DEFAULT_MODE)
 {
-    COUT << "\nCall parametric constructor : Channel" << ENDL;
-	try
-	{
+	COUT << "\nCall parametric constructor : Channel" << ENDL;
+	if (name.size() > 0)
 		_channelName = name;
+	if (topic.size() > 0)
 		_topic = topic;
-		_invitedUsers = new std::list<User *>;
-		_operators = new std::list<User *>;
-		_ordinaryUsers = new std::list<User *>;
-		this->addUserToList(this->_operators ,user);
-	}
-	CHN_EXCEPTION_HANDLER();
+	_invitedUsers = new std::list<User *>;
+	_operators = new std::list<User *>;
+	_ordinaryUsers = new std::list<User *>;
+	updateUserList(this->_operators, user, USR_ADD);
 }
 
 Channel::~Channel(void)
@@ -76,6 +73,29 @@ std::list<User *>	*Channel::getListPtrOrdinaryUsers(void) const
 }
 
 
+unsigned int	Channel::getNbrofActiveUsers(void) const
+{
+	unsigned int nbrOfUsers = 0;
+	try
+	{
+		/* Ensure that there are no null pointers */
+		if (_operators != NULL && _ordinaryUsers != NULL)
+		{
+			nbrOfUsers = _operators->size() + _ordinaryUsers->size();
+		}
+		else
+			throw NullPointerException();
+	}
+	CHN_EXCEPTION_HANDLER();
+	return (nbrOfUsers);
+}
+
+uint8_t Channel::getMode(void) const
+{
+    return (_mode);
+}
+
+
 void   Channel::setChannelName(std::string name)
 {
     _channelName = name;
@@ -86,6 +106,7 @@ void   Channel::setTopic(std::string topic)
 {
     _topic = topic;
 }
+
 
 t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 {
@@ -105,6 +126,51 @@ t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 	return (returnCode);
 }
 
+#if 1
+t_chn_return	Channel::setMode(uint8_t mode)
+{
+	t_chn_return returnCode = CHN_ERR_InvalidMode;
+	uint8_t maxNbrOfBits = (CHN_MODE_Max - 1);
+	uint8_t maxSumofBitsValue = pow(2, maxNbrOfBits) - 1;
+	uint8_t maxBitValue = 0;
+	uint8_t quotient = 0;
+	uint8_t	remainder = 0;
+    uint8_t value = 1;
+	
+    //_mode = CHN_MODE_Default;          // reset mode to default
+	try
+	{
+		if (mode > maxSumofBitsValue) // for 4 bit : max sum of bit value is 15
+        {
+			throw InvalidChannelModeException();
+        }
+        else if (mode == CHN_MODE_Default)
+        {
+            _mode = CHN_MODE_Default;
+        }
+		else
+		{
+            while (maxNbrOfBits > 0)
+            {
+                maxBitValue = pow(2, (maxNbrOfBits - 1));
+                quotient = mode / maxBitValue;
+                remainder = mode % maxBitValue;
+                if (quotient == 1)
+                {
+                    _mode = (_mode | (value << (maxNbrOfBits - 1)));
+                }
+                COUT << "m: " << (int)mode << ":" << (int)_mode << "NoB:" 
+                << (int) maxNbrOfBits << ", bitValue: " << (int)maxBitValue << ENDL;
+                mode = remainder;
+                maxNbrOfBits--;
+            }
+		}
+        returnCode = CHN_ERR_SUCCESS;
+	}
+	CHN_EXCEPTION_HANDLER();
+	return (returnCode);
+}
+#endif
 
 
 /*----------- Methods -------------------------------------*/
@@ -223,7 +289,7 @@ bool	Channel::isUserInList(std::list<User *> *list_users, User *user)
 			if (*it == user)
 			{
 				result = true;
-				break;
+				break ;
 			}
 		}
 	}
