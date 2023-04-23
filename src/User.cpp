@@ -118,8 +118,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		setServerPw(args);
 	else if (command == "JOIN")
 		joinChannel(args);
-	// else if (command == "MODE")
-	// 	mode(args);
+	else if (command == "MODE")
+	 	mode(args);
 	else if (command == "WHO")
 		who(args);		
 	// else if (command == "")
@@ -467,14 +467,100 @@ void		User::leaveChannel(std::vector<std::string>& args)
 // {
 
 // }
+void 	User::setInviteOnly(const std::string& channel){
+		std::cout << "set Channel " << channel <<" to invite only, if enough rights."<< std::endl;
+		}
+
+void 	User::remoInviteOnly(const std::string& channel){
+		std::cout << "remove Channel " << channel <<" from invite only, if enough rights."<< std::endl;
+		}
+
+void 	User::setTopicRestrictions(const std::string& channel){
+		std::cout << "set to Channel " << channel <<" topic restrictions, if enough rights."<< std::endl;
+		}
+
+void 	User::removeTopicRestrictions(const std::string& channel){
+		std::cout << "remove from Channel " << channel <<" topic restrictions, if enough rights."<< std::endl;
+		}
+
+void 	User::setChannelKey(const std::string& channel, const std::string& key){
+		std::cout << "set to Channel " << channel <<" password " << key << ", if enough rights."<< std::endl;
+		}
+
+void 	User::removeChannelKey(const std::string& channel){
+		std::cout << "remove from Channel " << channel <<" password, if enough rights."<< std::endl;
+		}
+
+void 	User::giveChanopPrivileges(const std::string& channel, const std::string& username){
+		std::cout << "Give user " << username << " chanop rights on Channel " << channel <<", if enough rights."<< std::endl;
+		}
+
+void 	User::removeChanopPrivileges(const std::string& channel, const std::string& username){
+		std::cout << "Remove user " << username << " chanop rights on Channel " << channel <<", if enough rights."<< std::endl;
+		}
+
+void 	User::setUserLimit(const std::string& channel, int limit){
+		std::cout << "Set userlimit on Channel " << channel <<" to " << limit << ", if enough rights."<< std::endl;
+		}
+
+void 	User::removeUserLimit(const std::string& channel){
+		std::cout << "Remove userlimit on Channel " << channel <<", if enough rights."<< std::endl;
+		}
+
 
 void	User::mode(std::vector<std::string>& args)
 {
-	std::string channel = args[0];
-	if (args.size() == 1)
-	{
+ 	modeParser parser(args);
+	std::vector<std::pair<std::string, std::string> > flagArgsPairs = parser.getflagArgsPairs();
+    for (size_t i = 0; i < flagArgsPairs.size(); ++i) {
+        std::string flag = flagArgsPairs[i].first;
+        std::string arguments = flagArgsPairs[i].second;
+        std::string channel = parser.getChannel();
 
-	}
+        switch (flag[1]) {
+            case 'i': //Set/remove Invite-only channel
+                if (flag[0] == '+') {
+                    setInviteOnly(channel);
+                } else {
+                    remoInviteOnly(channel);
+                }
+                break;
+			case 't': //Set/remove the restrictions of the TOPIC command to channel operators
+                if (flag[0] == '+') {
+                    setTopicRestrictions(channel);
+                } else {
+                    removeTopicRestrictions(channel);
+                }
+                break;
+			
+			case 'k': //Set/remove the channel key (password)
+                if (flag[0] == '+') {
+                    setChannelKey(channel, arguments);
+                } else {
+                    removeChannelKey(channel);
+                }
+                break;
+			
+			case 'o': //Give/take channel operator privilege
+                if (flag[0] == '+') {
+                    giveChanopPrivileges(channel, arguments);
+                } else {
+                    removeChanopPrivileges(channel, arguments);
+                }
+                break;
+			
+			case 'l': //Set/remove the user limit to channel
+                if (flag[0] == '+') {
+                    setUserLimit(channel, std::atoi(arguments.c_str()));
+                } else {
+                    removeUserLimit(channel);
+                }
+                break;	
+            
+            default:
+                std::cout << "Unknown mode: " << flag << std::endl;
+        }
+    }
 }
 
 // //		*!* MESSAGES  *!*

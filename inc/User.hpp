@@ -61,6 +61,17 @@ class User
 		int			sendChannelMsg(std::vector<std::string>& args);
 		int			sendPrivateMsg(std::vector<std::string>& args);
 
+		void 		setInviteOnly(const std::string& channel);
+		void 		remoInviteOnly(const std::string& channel);
+		void 		setTopicRestrictions(const std::string& channel);
+		void 		removeTopicRestrictions(const std::string& channel);
+		void 		setChannelKey(const std::string& channel, const std::string& key);
+		void 		removeChannelKey(const std::string& channel);
+		void 		giveChanopPrivileges(const std::string& channel, const std::string& username);
+		void 		removeChanopPrivileges(const std::string& channel, const std::string& username);
+		void 		setUserLimit(const std::string& channel, int limit);
+		void 		removeUserLimit(const std::string& channel);
+
 		// bool		isOperator(channel& channel);
 
 		std::string	argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd);
