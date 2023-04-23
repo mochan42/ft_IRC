@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <utility>
 
 class Message {
 public:
@@ -23,6 +24,31 @@ private:
     std::vector<std::vector<std::string> > args;
 
     void parse(const std::string& user_input);
+};
+
+class modeParser {
+public:
+    // Constructors
+    explicit modeParser(const std::vector<std::string>& args);
+
+    // Copy constructor
+    modeParser(const modeParser& other);
+
+    // Assignment operator
+    modeParser& operator=(const modeParser& other);
+
+    // Destructor
+    ~modeParser();
+
+    // Getters
+    std::string getChannel() const;
+    std::vector<std::pair<std::string, std::string> > getflagArgsPairs() const;
+
+private:
+    void parseCommand(const std::vector<std::string>& args);
+
+    std::string channel;
+    std::vector<std::pair<std::string, std::string> > flagArgsPairs;
 };
 
 #endif

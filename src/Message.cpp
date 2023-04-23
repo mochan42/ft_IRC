@@ -89,3 +89,59 @@ void Message::parse(const std::string& user_input) {
        std::cout << std::endl;
     }
 }
+
+// Constructors
+modeParser::modeParser(const std::vector<std::string>& args) {
+    parseCommand(args);
+}
+
+// Copy constructor
+modeParser::modeParser(const modeParser& other) : channel(other.channel), flagArgsPairs(other.flagArgsPairs) {
+}
+
+// Assignment operator
+modeParser& modeParser::operator=(const modeParser& other) {
+    if (this != &other) {
+        channel = other.channel;
+        flagArgsPairs = other.flagArgsPairs;
+    }
+    return *this;
+}
+
+// Destructor
+modeParser::~modeParser() {
+}
+
+// Getters
+std::string modeParser::getChannel() const {
+    return channel;
+}
+
+std::vector<std::pair<std::string, std::string> > modeParser::getflagArgsPairs() const {
+    return flagArgsPairs;
+}
+
+//Parses all flags into pairs with username they belong to, in case of multiple commands applied for same user
+// one pair for each flag is used.
+// in case the flag is l the second half of the pair will be std::string with limit stored.
+void modeParser::parseCommand(const std::vector<std::string>& args) {
+    std::vector<std::string>::const_iterator it = args.begin();
+
+    if (it != args.end()) {
+        channel = *it++;
+    }
+
+    while (it != args.end()) {
+        std::string modePart = *it++;
+        char sign = modePart[0];
+        std::string user = "";
+        if (it != args.end()) {
+            user = *it++;
+        }
+        for (size_t i = 1; i < modePart.size(); ++i) {
+            std::string flag(1, sign);
+            flag += modePart[i];
+            flagArgsPairs.push_back(std::make_pair(flag, user));
+        }
+    }
+}
