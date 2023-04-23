@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 18:59:02 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 23:14:19 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/23 13:56:48 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,6 @@ TEST_CASE( "Channel : Channel Constructor", "[Channel]")
         REQUIRE(chnSports.getListPtrOrdinaryUsers() != NULL);
     }
 }
-
-
 TEST_CASE( "Channel : isUserInChannel", "[Channel]")
 {
     SECTION("Add user to empty list")
@@ -207,4 +205,61 @@ TEST_CASE( "Channel : getNbrOfActiveUser", "[Channel][getNbrOfActiveUser]")
         REQUIRE(club.getNbrofActiveUsers() == 2);
     }
 }
+
+
+TEST_CASE( "Channel : setMode", "[Channel][Mode]")
+{
+    SECTION("set mode to default : full channel features")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        club.setMode(CHN_MODE_Invite);
+        REQUIRE(club.getMode() == CHN_MODE_Invite);
+        club.setMode(CHN_MODE_Default);
+        REQUIRE(club.getMode() == CHN_MODE_Default);
+    }
+    SECTION("set mode to invite : Invite only channel")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        // Invite is on bit 1(0) : value should be 1
+        club.setMode(CHN_MODE_Invite);
+        REQUIRE(club.getMode() == 1);
+    }
+    SECTION("set mode to password protected : channel is protected with password")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        // Invite is on bit 2(1) : value should be 2
+        club.setMode(CHN_MODE_Protected);
+        REQUIRE(club.getMode() == 2);
+    }
+    SECTION("set mode to AdminSetUserLimit : Set channel capacity adjustable by operator only" )
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        // adminSetUserLimit is on bit 3(2) : value should be 4 
+        club.setMode(CHN_MODE_AdminSetUserLimit);
+        REQUIRE(club.getMode() == 4);
+    }
+    SECTION("set mode to AdminSetTopic : Set channel topic adjustable by operator only" )
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        // adminSetTopic is on bit 4(3) : value should be 8 
+        club.setMode(CHN_MODE_AdminSetTopic);
+        REQUIRE(club.getMode() == 8);
+    }
+}
+
 

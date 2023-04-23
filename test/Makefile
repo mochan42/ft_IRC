@@ -6,7 +6,7 @@
 #    By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/16 09:55:57 by cudoh             #+#    #+#              #
-#    Updated: 2023/04/22 17:41:44 by cudoh            ###   ########.fr        #
+#    Updated: 2023/04/23 14:11:00 by cudoh            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,7 +51,7 @@ NAME = test
 
 CC = g++
 STD_CPP = c++14
-CFLAGS = -Werror -Wall -Wextra -g -std=$(STD_CPP)
+CFLAGS = -Werror -Wall -Wextra -g -std=$(STD_CPP) -lm
 INCLUDES = -I$(DIR_INC_PROJ) -I$(DIR_INC_TEST)
 
 NAME : all
@@ -87,8 +87,8 @@ execTest: $(NAME)
 	@echo "\033[1;33mExecuting test... \033[0m"
 	@echo
 	./$(NAME) -s [Channel] -o $(FILE_TEST_LOG)
+	cat $(FILE_TEST_LOG)
 #	./$(NAME) -s [Server] -o $(FILE_TEST_LOG)
-	@cat $(FILE_TEST_LOG)
 	
 
 

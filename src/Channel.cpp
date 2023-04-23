@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 23:12:35 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/23 15:57:04 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,11 @@ unsigned int	Channel::getNbrofActiveUsers(void) const
 	return (nbrOfUsers);
 }
 
+uint8_t Channel::getMode(void) const
+{
+    return (_mode);
+}
+
 
 void   Channel::setChannelName(std::string name)
 {
@@ -122,35 +127,46 @@ t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 	return (returnCode);
 }
 
-#if 0
+#if 1
 t_chn_return	Channel::setMode(uint8_t mode)
 {
 	t_chn_return returnCode = CHN_ERR_InvalidMode;
-	uint8_t maxNbrOfBits = (CHN_MODE_Max - 2);
+	uint8_t maxNbrOfBits = (CHN_MODE_Max - 1);
 	uint8_t maxSumofBitsValue = pow(2, maxNbrOfBits) - 1;
-	uint8_t maxBitValue = pow(2, (maxNbrOfBits - 1));
+	uint8_t maxBitValue = 0;
 	uint8_t quotient = 0;
 	uint8_t	remainder = 0;
+    uint8_t value = 1;
 	
+    //_mode = CHN_MODE_Default;          // reset mode to default
 	try
 	{
-		if (mode > maxSumofBitsValue);
-			throw InvalidChannnelModeExeception();
+		if (mode > maxSumofBitsValue) // for 4 bit : max sum of bit value is 15
+        {
+			throw InvalidChannelModeException();
+        }
+        else if (mode == CHN_MODE_Default)
+        {
+            _mode = CHN_MODE_Default;
+        }
 		else
 		{
-			if (mode / 8 == 1)
-				// do something
-			else
-			{
-				if 
-			}
-			
-			quotient = mode / maxBitValue;
-			if (quotient != 1 && rem)
-			mode = quotient;
-			setMode(mode);
-			_mode |= (1 << mode);
+            while (maxNbrOfBits > 0)
+            {
+                maxBitValue = pow(2, (maxNbrOfBits - 1));
+                quotient = mode / maxBitValue;
+                remainder = mode % maxBitValue;
+                if (quotient == 1)
+                {
+                    _mode = (_mode | (value << (maxNbrOfBits - 1)));
+                }
+                COUT << "m: " << (int)mode << ":" << (int)_mode << "NoB:" 
+                << (int) maxNbrOfBits << ", bitValue: " << (int)maxBitValue << ENDL;
+                mode = remainder;
+                maxNbrOfBits--;
+            }
 		}
+        returnCode = CHN_ERR_SUCCESS;
 	}
 	CHN_EXCEPTION_HANDLER();
 	return (returnCode);

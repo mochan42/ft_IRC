@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/22 22:38:20 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/23 10:35:39 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,10 @@ typedef enum e_chn_return
 typedef enum e_chn_mode
 {
 	CHN_MODE_Default,
-	CHN_MODE_Invite,
-	CHN_MODE_Protected,
-	CHN_MODE_AdminSetUserLimit,
-	CHN_MODE_AdminSetTopic,
+	CHN_MODE_Invite,            // _mode value = 1
+	CHN_MODE_Protected,         // _mode value = 2
+	CHN_MODE_AdminSetUserLimit, // _mode value = 4
+	CHN_MODE_AdminSetTopic,     // _mode value = 8
 	CHN_MODE_Max
 }	t_chnMode;
 
@@ -114,10 +114,11 @@ class Channel
     	std::list<User *>	*getListPtrOperators(void) const;
     	std::list<User *>	*getListPtrOrdinaryUsers(void) const;
 		unsigned int		getNbrofActiveUsers(void) const;
+        uint8_t             getMode(void) const;
     	void				setChannelName(std::string name);
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
-		void				setMode(uint8_t mode);
+		t_chn_return		setMode(uint8_t mode);
 		
     
     	/* Methods */
@@ -262,7 +263,7 @@ class Channel
         {
             virtual char const *what() const throw()
             {
-                return ("Error: null pointer\n");
+                return ("\nError: null pointer : channel class\n");
             }
         };
 
@@ -270,7 +271,7 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("Error! Invalid channel action"); 
+				return ("\nError! Invalid channel action : channel class\n"); 
 			}
 		};
 
@@ -278,7 +279,7 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("\nError! User already exist in channel list\n");
+				return ("\nError! User already exist in channel list : channel class\n");
 			}
 		};
 
@@ -286,7 +287,7 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("\nError! User is not found in channel list\n");
+				return ("\nError! User is not found in channel list : channel class\n");
 			}
 		};
 
@@ -302,7 +303,15 @@ class Channel
 		{
 			virtual char const *what() const throw()
 			{
-				return ("\nError! Invalid number of user specified.\n");
+				return ("\nError! Invalid number of user specified : channel class.\n");
+			}
+		};
+
+		class InvalidChannelModeException : public std::exception
+		{
+			virtual char const *what() const throw()
+			{
+				return ("\nError! Invalid channel mode give : Channel class\n");
 			}
 		};
 };
