@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/23 10:35:39 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/23 23:17:07 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,16 @@
 		std::cerr << e.what() << '\n'; \
 	}\
 
+# define CHN__ISMODESET(mode,optCtrl) ({						\
+	if ((optCtrl)) 												\
+	{															\
+		returnCode = (_mode == (1 << ((mode) - (1)))) ? 1 : 0;	\
+		break ;													\
+	}															\
+	returnCode = _mode &(1 << ((mode) - (1)));					\
+	break;														\
+	})															\
+
 typedef enum e_chn_action
 {
 	USR_ADD = 0,
@@ -44,6 +54,14 @@ typedef enum e_chn_action
 	/*Max*/
 	MAX_ACTION
 }	t_chn_action;
+
+
+typedef enum e_chnOptionCtrl
+{
+	CHN_OPT_CTRL_NotExclusive,
+	CHN_OPT_CTRL_Exclusive
+}	t_chnOptionCtrl;
+
 
 typedef enum e_chn_return
 {
@@ -145,6 +163,8 @@ class Channel
 		t_chn_return		setMode(uint8_t mode);
     
     	/* Methods */
+		
+		bool				 isModeSet(uint8_t mode, t_chnOptionCtrl optCtrl);
 		
 		/**
 		 * @brief 

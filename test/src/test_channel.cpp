@@ -6,11 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 18:59:02 by cudoh             #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2023/04/22 19:31:30 by fsemke           ###   ########.fr       */
-=======
-/*   Updated: 2023/04/23 13:56:48 by cudoh            ###   ########.fr       */
->>>>>>> channel_cudoh_04
+/*   Updated: 2023/04/23 22:31:28 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,6 +260,129 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
         club.setMode(CHN_MODE_AdminSetTopic);
         REQUIRE(club.getMode() == 8);
     }
+    SECTION("set all mode : Expected outcome is 15 (0x0F)" )
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+         
+        club.setMode(CHN_MODE_Invite); club.setMode(CHN_MODE_Protected); club.setMode(CHN_MODE_AdminSetUserLimit);
+        club.setMode(CHN_MODE_AdminSetTopic);
+        REQUIRE(club.getMode() == 0x0F);
+    }
+    SECTION("set all mode : Expected outcome is 15 (0x0F)" )
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+         
+        REQUIRE(club.setMode(CHN_MODE_Invite) == CHN_ERR_SUCCESS);
+        REQUIRE(club.setMode(CHN_MODE_Protected) == CHN_ERR_SUCCESS);
+        REQUIRE(club.setMode(CHN_MODE_AdminSetUserLimit) == CHN_ERR_SUCCESS);
+        REQUIRE(club.setMode(CHN_MODE_AdminSetTopic) == CHN_ERR_SUCCESS);
+        REQUIRE(club.getMode() == 0x0F);
+    }
+    SECTION("set mode without defined constants: " )
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+         
+        REQUIRE(club.setMode(15) == CHN_ERR_SUCCESS);
+        REQUIRE(club.getMode() == 0x0F);
+        club.setMode(CHN_MODE_Default);
+        REQUIRE(club.setMode(5) == CHN_ERR_SUCCESS);
+        REQUIRE(club.getMode() == 5);
+        club.setMode(CHN_MODE_Default);
+        REQUIRE(club.setMode(7) == CHN_ERR_SUCCESS);
+        REQUIRE(club.getMode() == 7);        
+        REQUIRE(club.setMode(10) == CHN_ERR_SUCCESS);
+        REQUIRE(club.getMode() == 10);        
+    }
+    SECTION("set mode : wrong inputs " )
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+
+        club.setMode(CHN_MODE_Default);
+        REQUIRE(club.setMode(16) == CHN_ERR_InvalidMode);
+    } 
 }
 
 
+TEST_CASE( "Channel : isModeSet", "[Channel][Mode]")
+{
+    SECTION("check mode exclusively : check if only a mode is set")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        club.setMode(CHN_MODE_Default);
+        REQUIRE(club.isModeSet(CHN_MODE_Default, CHN_OPT_CTRL_Exclusive) == true);
+        club.setMode(CHN_MODE_Invite);
+        REQUIRE(club.isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_Exclusive) == true);
+        
+        /* Reset mode */
+        club.setMode(CHN_MODE_Default); 
+        club.setMode(CHN_MODE_Protected);
+        REQUIRE(club.isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_Exclusive) == true);
+        
+        /* Reset mode */
+        club.setMode(CHN_MODE_Default); 
+        club.setMode(CHN_MODE_AdminSetUserLimit);
+        REQUIRE(club.isModeSet(CHN_MODE_AdminSetUserLimit, CHN_OPT_CTRL_Exclusive) == true);
+        
+        /* Reset mode */
+        club.setMode(CHN_MODE_Default); 
+        club.setMode(CHN_MODE_AdminSetTopic);
+        COUT << (int)(club.getMode()) << ENDL;
+        REQUIRE(club.isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_Exclusive) == true);
+    }
+    SECTION("check mode non-exclusive : check if mode is set regardless of other modes")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+        
+        club.setMode(15);   /* set all modes */
+        REQUIRE(club.isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == true);
+        REQUIRE(club.isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive) == true);
+        REQUIRE(club.isModeSet(CHN_MODE_AdminSetUserLimit, CHN_OPT_CTRL_NotExclusive) == true);
+        REQUIRE(club.isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive) == true);
+        
+
+    }
+    SECTION("check mode exclusive : check if only a mode is set regardless of other modes")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+
+        /* check that they fail if option control is set to exclusive*/
+        club.setMode(15);   /* set all modes */
+        REQUIRE(club.isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_Exclusive) != true);
+        REQUIRE(club.isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_Exclusive) != true);
+        REQUIRE(club.isModeSet(CHN_MODE_AdminSetUserLimit, CHN_OPT_CTRL_Exclusive) != true);
+        REQUIRE(club.isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_Exclusive) != true);
+    }
+    SECTION("check mode exclusive and non exclusive : Invalid mode inputs ")
+    {
+        Server server(5566, "default");
+        User flex(1, "127.0.0.1", &server);
+        Channel club("Bikers", "Trip to Madagascar", &flex);
+
+        /* check that they fail if option control is set to exclusive*/
+        club.setMode(15);   /* set all modes */
+        REQUIRE(club.isModeSet(16, CHN_OPT_CTRL_Exclusive) != true);
+        REQUIRE(club.isModeSet(0, CHN_OPT_CTRL_Exclusive) != true);
+        REQUIRE(club.isModeSet(9, CHN_OPT_CTRL_Exclusive) != true);
+        REQUIRE(club.isModeSet(12, CHN_OPT_CTRL_Exclusive) != true);
+        REQUIRE(club.isModeSet(16, CHN_OPT_CTRL_NotExclusive) != true);
+        REQUIRE(club.isModeSet(0, CHN_OPT_CTRL_NotExclusive) != true);
+        REQUIRE(club.isModeSet(9, CHN_OPT_CTRL_NotExclusive) != true);
+        REQUIRE(club.isModeSet(12, CHN_OPT_CTRL_NotExclusive) != true);
+        REQUIRE(club.isModeSet(15, CHN_OPT_CTRL_NotExclusive) == true);
+    }
+}
