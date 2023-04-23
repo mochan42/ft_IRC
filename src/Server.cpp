@@ -6,7 +6,7 @@
 /*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/23 11:46:48 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/23 11:50:57 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,7 +280,7 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 	    	std::cout << "Parsed arguments: ";
     		for (unsigned int j = 0; j < args[i].size(); j++)
 			{
-					std::cout << args[i][j] << std::endl;
+					std::cout << j << "- " << args[i][j];
 			}}
 		std::cout << "\n";
 
