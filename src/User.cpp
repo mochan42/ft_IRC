@@ -204,7 +204,6 @@ void		User::setUserName(std::vector<std::string>& args)
 		_userName = args[0];
 		_realName = argsToString(args.begin() + 3, args.end());
 		_usernameSet = true;
-		//Welcome Message could be send here
 	}
 	std::cout << "User::setUserName called. The _UserName is now:  " << this->getUserName() << std::endl;
 }
@@ -354,28 +353,25 @@ void		User::joinChannel(std::vector<std::string>& args)
 		}
 		else //join channel
 		{
-			// if (boolean ChannelKey == 1)
+			// if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
 			// {
-			// 	if (!args[1] || chptr->password != args[1])
+			// 	if (args.size() <= 1 || chptr->checkPassword(args[1]))
 			// 		throw (cannotJoinChannelPW());
 			// }
-			// if (boolean isInviteOnly == 1)
+			// if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
 			// {
 			// 	if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
 			// 		throw (cannotJoinChannelIn());
 			// 	else
 			// 		chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
 			// }
-			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
+			// if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
 			// 	throw (channelCapacity());
 			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, false), std::make_pair(false, (User *) NULL));
 			
 		}
-		// std::ostringstream msgadd;
-		// msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
-		// chptr->broadcastMsg(msgadd.str());
 	}
 	catch (badChannelMask &e)
 	{
