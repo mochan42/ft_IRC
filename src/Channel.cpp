@@ -235,7 +235,7 @@ bool	Channel::isModeSet(uint8_t	mode, t_chnOptionCtrl optCtrl)
 	
 }
 
-void Channel::broadcastMsg(std::string msg)
+// void Channel::broadcastMsg(std::string msg)
 
 // void Channel::broadcastMsg(std::string msg_org)
 // {

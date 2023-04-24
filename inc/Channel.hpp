@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/23 23:17:07 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/24 09:31:22 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,34 +106,9 @@ class Channel
 		 * @param user 
 		 */
 		void	addUserToList(std::list<User *> *list_users, User *user);
-
 		
 		/**
 		 * ! This method call must be wrapped within try/catch.
-		 * @brief 
-		 * This method removes a user from a list of users.
-		 * It checks if a user is already in the list before removing user.
-		 * An exception is thrown if user is not found in list of user.
-		 * Hence, a user non-existent in list of user cannot be removed.
-		 * @param list_users 
-		 * @param user 
-		 */
-		void	removeUserFromList(std::list<User *> *list_users, User *user);
-
-		/**
-		 * ! This method call must be wrapped with try/catch
-		 * @brief 
-		 * This method adds a user to a list of users.
-		 * It checks if a user is already in the list before adding user.
-		 * An exception is thrown if user already exist in list of user.
-		 * Hence, a user cannot be added twice in a list.
-		 * @param list_users 
-		 * @param user 
-		 */
-		void	addUserToList(std::list<User *> *list_users, User *user);
-
-		/**
-		 * ! This method call must be wrapped with try/catch
 		 * @brief 
 		 * This method removes a user from a list of users.
 		 * It checks if a user is already in the list before removing user.
