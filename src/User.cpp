@@ -239,20 +239,33 @@ void		User::who(std::vector<std::string>& args)
 		Channel *channelPtr = _server->getChannel(channel);
 		if (channelPtr)
 		{
-			std::list<User *> *opList = channelPtr->getListPtrOperators();
-			std::list<User *> *ordinaryList = channelPtr->getListPtrOrdinaryUsers();
-			std::list<User *>::iterator it = opList->begin();
-			while (it != opList->end())
-			{
-				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(opList, *it)));
-				++it;
-			}
-			it = ordinaryList->begin();
-			while (it != ordinaryList->end())
-			{
-				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(ordinaryList, *it)));
-				++it;
-			}
+			sendMsgToOwnClient(RPY_Who(channelPtr));
+			// std::list<User *> *opList = channelPtr->getListPtrOperators();
+			// std::list<User *> *ordinaryList = channelPtr->getListPtrOrdinaryUsers();
+			// std::list<User *>::iterator it = opList->begin();
+			// while (it != opList->end())
+			// {
+			// 	sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(opList, *it)));
+			// 	++it;
+			// }
+			// it = ordinaryList->begin();
+			// while (it != ordinaryList->end())
+			// {
+			// 	sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(ordinaryList, *it)));
+			// 	++it;
+			// }
+
+			// while (it != opList->end())
+			// {
+			// 	sendMsgToOwnClient(RPY_352_whoUser(*it, channel, true));
+			// 	++it;
+			// }
+			// it = ordinaryList->begin();
+			// while (it != ordinaryList->end())
+			// {
+			// 	sendMsgToOwnClient(RPY_352_whoUser(*it, channel, false));
+			// 	++it;
+			// }
 		}
 		sendMsgToOwnClient(RPY_315_endWhoList(channel));
 	}
@@ -262,7 +275,7 @@ void		User::who(std::vector<std::string>& args)
 		User *userptr = _server->getUser(user);
 
 		if (userptr)
-			sendMsgToOwnClient(userptr->RPY_352_whoUser(_nickName, "*", false));
+			sendMsgToOwnClient(userptr->RPY_352_whoUser(userptr, "*", false));
 		sendMsgToOwnClient(RPY_315_endWhoList(user));
 	}
 }
@@ -333,7 +346,8 @@ void		User::joinChannel(std::vector<std::string>& args)
 			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
 			_server->createChannel(args[0], "", this);
 			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel			
-			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
+
+			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, true), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_createChannel(chptr));
 		}
 		else //join channel
@@ -353,8 +367,9 @@ void		User::joinChannel(std::vector<std::string>& args)
 			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
 			// 	throw (channelCapacity());
 			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
-			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
+			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, false), std::make_pair(false, (User *) NULL));
+			
 		}
 		// std::ostringstream msgadd;
 		// msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
