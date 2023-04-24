@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/24 12:04:06 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/24 12:30:16 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 std::string User::RPY_welcomeToServer(void)
 {
 	std::string	replyMessage = "\n\nWelcome to " + _server->getServerName() + "!\n\n" + "The server is still under construction by Triinu, Monine, Philipp, Chiemezie, Florian and Ferenc.\n\n	\
-	The following commands are now integrated:\n" + "/NICK\n/USER\n/PW\n/JOIN\n/PRIVMSG #Channel\n/PRIVMSG UserNickname\n/NOTICE #Channel\n/NOTICE UserNickname\n/PART\n/INVITE\n" + 	\
+	The following commands are now integrated:\n" + "/NICK\n/USER\n/PASS\n/JOIN\n/PRIVMSG #Channel\n/PRIVMSG UserNickname\n/NOTICE #Channel\n/NOTICE UserNickname\n/PART\n/INVITE\n/KICK\n" + 	\
 	"\nHave a good time on the server.";
 	return (replyMessage);
 }
