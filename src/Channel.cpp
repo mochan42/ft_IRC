@@ -6,34 +6,26 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/23 12:43:32 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/24 09:37:38 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 
-Channel::Channel( std::string name, std::string topic, User* user)
-: _channelName(CHN_DEFAULT_NAME), _topic(CHN_DEFAULT_TOPIC), 
-  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
-  _operators(NULL), _ordinaryUsers(NULL)
+Channel::Channel(std::string name, std::string topic, User *user)
+	: _channelName(CHN_DEFAULT_NAME), _topic(CHN_DEFAULT_TOPIC),
+	  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
+	  _operators(NULL), _ordinaryUsers(NULL), _mode(CHN_DEFAULT_MODE)
 {
-    COUT << "\nCall parametric constructor : Channel" << ENDL;
-	try
-	{
-		if (name.size() == 0 || topic.size() == 0)
-			throw EmptyContentException();
-		else
-		{
-			_channelName = name;
-			_topic = topic;
-    		_invitedUsers = new std::list<User *>;
-    		_operators = new std::list<User *>;
-    		_ordinaryUsers = new std::list<User *>;
-			(void) user;
-			// this->addUserToList(this->_operators ,user);
-		}
-	}
-	CHN_EXCEPTION_HANDLER();
+	COUT << "\nCall parametric constructor : Channel" << ENDL;
+	if (name.size() > 0)
+		_channelName = name;
+	if (topic.size() > 0)
+		_topic = topic;
+	_invitedUsers = new std::list<User *>;
+	_operators = new std::list<User *>;
+	_ordinaryUsers = new std::list<User *>;
+	updateUserList(this->_operators, user, USR_ADD);
 }
 
 Channel::~Channel(void)
@@ -82,6 +74,29 @@ std::list<User *>	*Channel::getListPtrOrdinaryUsers(void) const
 }
 
 
+unsigned int	Channel::getNbrofActiveUsers(void) const
+{
+	unsigned int nbrOfUsers = 0;
+	try
+	{
+		/* Ensure that there are no null pointers */
+		if (_operators != NULL && _ordinaryUsers != NULL)
+		{
+			nbrOfUsers = _operators->size() + _ordinaryUsers->size();
+		}
+		else
+			throw NullPointerException();
+	}
+	CHN_EXCEPTION_HANDLER();
+	return (nbrOfUsers);
+}
+
+uint8_t Channel::getMode(void) const
+{
+    return (_mode);
+}
+
+
 void   Channel::setChannelName(std::string name)
 {
     _channelName = name;
@@ -92,6 +107,7 @@ void   Channel::setTopic(std::string topic)
 {
     _topic = topic;
 }
+
 
 t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 {
@@ -112,8 +128,114 @@ t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 }
 
 
+t_chn_return	Channel::setMode(uint8_t mode)
+{
+	t_chn_return returnCode = CHN_ERR_InvalidMode;
+
+	try
+	{
+		switch (mode)
+		{
+		case CHN_MODE_Default:
+		{
+			_mode = CHN_MODE_Default;
+			break;
+		}
+		case CHN_MODE_Invite:
+		{
+			_mode |= (1 << (CHN_MODE_Invite - 1));
+			break;
+		}
+		case CHN_MODE_Protected:
+		{
+			_mode |= (1 << (CHN_MODE_Protected - 1));
+			break;
+		}
+		case CHN_MODE_AdminSetUserLimit:
+		{
+			_mode |= (1 << (CHN_MODE_AdminSetUserLimit - 1));
+			break;
+		}
+		case CHN_MODE_AdminSetTopic:
+		{
+			_mode |= (1 << (CHN_MODE_AdminSetTopic - 1));
+			break;
+		}
+		default:
+		{
+			if (mode < (pow(2, (CHN_MODE_Max - 1))))
+			{
+				_mode = mode;
+			}
+			else
+				throw InvalidChannelModeException();
+			break ;
+		}
+		}
+		returnCode = CHN_ERR_SUCCESS;
+	}
+	CHN_EXCEPTION_HANDLER();
+	return (returnCode);
+}
+
 
 /*----------- Methods -------------------------------------*/
+
+bool	Channel::isModeSet(uint8_t	mode, t_chnOptionCtrl optCtrl)
+{
+	bool	returnCode = false;
+	try
+	{
+		switch (mode)
+		{
+		case CHN_MODE_Invite:
+		{
+			CHN__ISMODESET(CHN_MODE_Invite,optCtrl);
+#if 0
+			/* This code has been replaced with a macro CHN__ISMODESET
+			 * This approach has been adopted to perform code repetition
+			 * in an unclumsy way.
+			*/
+			if (optCtrl)
+			{
+				returnCode = (_mode == (1 << (CHN_MODE_Invite - 1))) ? true : false;
+				break ;
+			}
+			returnCode = _mode &(1 << (CHN_MODE_Invite -1));
+			break;
+#endif
+		}
+		case CHN_MODE_Protected:
+		{
+			CHN__ISMODESET(CHN_MODE_Protected,optCtrl);
+		}
+		case CHN_MODE_AdminSetUserLimit:
+		{
+			CHN__ISMODESET(CHN_MODE_AdminSetUserLimit,optCtrl);
+		}
+		case CHN_MODE_AdminSetTopic:
+		{
+			CHN__ISMODESET(CHN_MODE_AdminSetTopic,optCtrl);
+		}
+		default:
+		{
+			/* for default case: control option is Exclusive */
+			if (mode < (pow(2, (CHN_MODE_Max - 1))))
+			{
+				returnCode = (_mode == mode) ? true : false;
+			}
+			else
+				throw InvalidChannelModeException();
+			break ;
+		}
+		}
+	}
+	CHN_EXCEPTION_HANDLER();	
+	return (returnCode);
+	
+}
+
+// void Channel::broadcastMsg(std::string msg)
 
 // void Channel::broadcastMsg(std::string msg_org)
 // {
@@ -161,14 +283,14 @@ void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 	int msgLen = msg.size();
 	int fd = 0;
 	std::list<User *>::iterator it;
-	
+
 	try
 	{
 		if (msgLen <= 2)
 			throw EmptyContentException();
 		if (_operators == NULL || _ordinaryUsers == NULL)
 			throw NullPointerException();
-		
+
 		/* iterate over operators and ordinary user lists to send msg */
 		for (it = _operators->begin(); it != _operators->end(); ++it)
 		{
@@ -190,86 +312,82 @@ void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
 			// 	throw SendToTargetCLientException();
 		}
-	}	
-	CHN_EXCEPTION_HANDLER();
-}
-
-
-bool    Channel::isUserListEmpty(std::list<User *> *list_users)
-{
-	bool result = false;
-
-	try
-	{
-		if (list_users == NULL)
-		{
-			throw NullPointerException();
-		}
-		result = (*list_users).empty();
 	}
 	CHN_EXCEPTION_HANDLER();
-	return (result);
-}
+	}
 
-
-bool	Channel::isUserInList(std::list<User *> *list_users, User *user)
-{
-	std::list<User *>::iterator it;
-	bool result = false;
-	
-	try
+	bool Channel::isUserListEmpty(std::list<User *> * list_users)
 	{
-		if (list_users == NULL || user == NULL)
+		bool result = false;
+
+		try
 		{
-			throw NullPointerException();
-		}
-	
-		for (it = list_users->begin(); it != list_users->end(); ++it)
-		{
-			if (*it == user)
+			if (list_users == NULL)
 			{
-				result = true;
+				throw NullPointerException();
+			}
+			result = (*list_users).empty();
+		}
+		CHN_EXCEPTION_HANDLER();
+		return (result);
+	}
+
+	bool Channel::isUserInList(std::list<User *> * list_users, User * user)
+	{
+		std::list<User *>::iterator it;
+		bool result = false;
+
+		try
+		{
+			if (list_users == NULL || user == NULL)
+			{
+				throw NullPointerException();
+			}
+
+			for (it = list_users->begin(); it != list_users->end(); ++it)
+			{
+				if (*it == user)
+				{
+					result = true;
+					break;
+				}
 			}
 		}
+		CHN_EXCEPTION_HANDLER();
+		return (result);
 	}
-	CHN_EXCEPTION_HANDLER();
-	return (result);
-}
 
-
-void	Channel::addUserToList(std::list<User *> *list_users, User *user)
-{
-	if (isUserInList(list_users, user) == false)
+	void Channel::addUserToList(std::list<User *> * list_users, User * user)
 	{
-		list_users->push_back(user);
-	}
-	else
-	{
-		throw UsrExistException();
-	}
-}
-
-
-void	Channel::removeUserFromList(std::list<User *> *list_users, User *user)
-{
-	if (isUserInList(list_users, user) == true)
-	{
-		list_users->remove(user);
-	}
-	else
-	{
-		throw UsrNotFoundException();
-	}
-}
-
-
-void    Channel::updateUserList(std::list<User *> *list_users, User *user,
-                                                      t_chn_action action)
-{
-    try
-    {
-		switch (action)
+		if (isUserInList(list_users, user) == false)
 		{
+			list_users->push_back(user);
+		}
+		else
+		{
+			throw UsrExistException();
+		}
+	}
+
+	void Channel::removeUserFromList(std::list<User *> * list_users, User * user)
+	{
+		if (isUserInList(list_users, user) == true)
+		{
+			list_users->remove(user);
+		}
+		else
+		{
+			throw UsrNotFoundException();
+		}
+	}
+
+	void Channel::updateUserList(std::list<User *> * list_users, User * user,
+								 t_chn_action action)
+	{
+		try
+		{
+			switch (action)
+			{
 		    case USR_ADD:
 			{
 				addUserToList(list_users, user);

@@ -119,8 +119,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		setServerPw(args);
 	else if (command == "JOIN")
 		joinChannel(args);
-	// else if (command == "MODE")
-	// 	mode(args);
+	else if (command == "MODE")
+	 	mode(args);
 	else if (command == "WHO")
 		who(args);		
 	// else if (command == "")
@@ -239,11 +239,18 @@ void		User::who(std::vector<std::string>& args)
 		Channel *channelPtr = _server->getChannel(channel);
 		if (channelPtr)
 		{
-			std::list<User *> *userList = channelPtr->getListPtrOperators();
-			std::list<User *>::iterator it = userList->begin();
-			while (it != userList->end())
+			std::list<User *> *opList = channelPtr->getListPtrOperators();
+			std::list<User *> *ordinaryList = channelPtr->getListPtrOrdinaryUsers();
+			std::list<User *>::iterator it = opList->begin();
+			while (it != opList->end())
 			{
-				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(channelPtr->getListPtrOperators(), *it)));
+				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(opList, *it)));
+				++it;
+			}
+			it = ordinaryList->begin();
+			while (it != ordinaryList->end())
+			{
+				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(ordinaryList, *it)));
 				++it;
 			}
 		}
@@ -296,7 +303,7 @@ void 		User::inviteUser(std::vector<std::string>& args)
 			sendMsgToOwnClient(RPY_ERR443_alreadyOnChannel(nick, channel));
 		else
 		{
-			chptr->addUserToList(chptr->getListPtrInvitedUsers(), user);
+			chptr->updateUserList(chptr->getListPtrInvitedUsers(), user, USR_ADD);
 			sendMsgToOwnClient(RPY_341_userAddedtoInviteList(nick, channel));
 			//!!!     write to other person:   !!!!
 			user->sendMsgToOwnClient(RPY_inviteMessage(nick, channel));
@@ -324,9 +331,8 @@ void		User::joinChannel(std::vector<std::string>& args)
 		{
 
 			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
-			_server->createChannel(args[0], "Topic", this);
-			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel
-			chptr->addUserToList(chptr->getListPtrOperators(), this);	
+			_server->createChannel(args[0], "", this);
+			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel			
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_createChannel(chptr));
 		}
@@ -346,7 +352,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 			// }
 			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
 			// 	throw (channelCapacity());
-			chptr->addUserToList(chptr->getListPtrOrdinaryUsers(), this);
+			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
 		}
@@ -399,9 +405,9 @@ void		User::kickUser(std::vector<std::string>& args)
 		{
 			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel), std::make_pair(false, (User *) NULL));
 			if (channelPtr->isUserInList(channelPtr->getListPtrOperators(), tmpUser))
-				channelPtr->removeUserFromList(channelPtr->getListPtrOperators(), tmpUser);
+				channelPtr->updateUserList(channelPtr->getListPtrOperators(), tmpUser, USR_REMOVE);
 			if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
-				channelPtr->removeUserFromList(channelPtr->getListPtrOrdinaryUsers(), tmpUser);
+				channelPtr->updateUserList(channelPtr->getListPtrOrdinaryUsers(), tmpUser, USR_REMOVE);
 		}
 		else
 			throw (notOnTheChannel());
@@ -436,12 +442,12 @@ void		User::leaveChannel(std::vector<std::string>& args)
 		if (chPtr->isUserInList(chPtr->getListPtrOrdinaryUsers(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
-			chPtr->removeUserFromList(chPtr->getListPtrOrdinaryUsers(), this);
+			chPtr->updateUserList(chPtr->getListPtrOrdinaryUsers(), this, USR_REMOVE);
 		}
 		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
-			chPtr->removeUserFromList(chPtr->getListPtrOperators(), this);
+			chPtr->updateUserList(chPtr->getListPtrOperators(), this, USR_REMOVE);
 		}
 		else
 			throw(notOnTheChannel());
@@ -462,14 +468,100 @@ void		User::leaveChannel(std::vector<std::string>& args)
 // {
 
 // }
+void 	User::setInviteOnly(const std::string& channel){
+		std::cout << "set Channel " << channel <<" to invite only, if enough rights."<< std::endl;
+		}
+
+void 	User::remoInviteOnly(const std::string& channel){
+		std::cout << "remove Channel " << channel <<" from invite only, if enough rights."<< std::endl;
+		}
+
+void 	User::setTopicRestrictions(const std::string& channel){
+		std::cout << "set to Channel " << channel <<" topic restrictions, if enough rights."<< std::endl;
+		}
+
+void 	User::removeTopicRestrictions(const std::string& channel){
+		std::cout << "remove from Channel " << channel <<" topic restrictions, if enough rights."<< std::endl;
+		}
+
+void 	User::setChannelKey(const std::string& channel, const std::string& key){
+		std::cout << "set to Channel " << channel <<" password " << key << ", if enough rights."<< std::endl;
+		}
+
+void 	User::removeChannelKey(const std::string& channel){
+		std::cout << "remove from Channel " << channel <<" password, if enough rights."<< std::endl;
+		}
+
+void 	User::giveChanopPrivileges(const std::string& channel, const std::string& username){
+		std::cout << "Give user " << username << " chanop rights on Channel " << channel <<", if enough rights."<< std::endl;
+		}
+
+void 	User::removeChanopPrivileges(const std::string& channel, const std::string& username){
+		std::cout << "Remove user " << username << " chanop rights on Channel " << channel <<", if enough rights."<< std::endl;
+		}
+
+void 	User::setUserLimit(const std::string& channel, int limit){
+		std::cout << "Set userlimit on Channel " << channel <<" to " << limit << ", if enough rights."<< std::endl;
+		}
+
+void 	User::removeUserLimit(const std::string& channel){
+		std::cout << "Remove userlimit on Channel " << channel <<", if enough rights."<< std::endl;
+		}
+
 
 void	User::mode(std::vector<std::string>& args)
 {
-	std::string channel = args[0];
-	if (args.size() == 1)
-	{
+ 	modeParser parser(args);
+	std::vector<std::pair<std::string, std::string> > flagArgsPairs = parser.getflagArgsPairs();
+    for (size_t i = 0; i < flagArgsPairs.size(); ++i) {
+        std::string flag = flagArgsPairs[i].first;
+        std::string arguments = flagArgsPairs[i].second;
+        std::string channel = parser.getChannel();
 
-	}
+        switch (flag[1]) {
+            case 'i': //Set/remove Invite-only channel
+                if (flag[0] == '+') {
+                    setInviteOnly(channel);
+                } else {
+                    remoInviteOnly(channel);
+                }
+                break;
+			case 't': //Set/remove the restrictions of the TOPIC command to channel operators
+                if (flag[0] == '+') {
+                    setTopicRestrictions(channel);
+                } else {
+                    removeTopicRestrictions(channel);
+                }
+                break;
+			
+			case 'k': //Set/remove the channel key (password)
+                if (flag[0] == '+') {
+                    setChannelKey(channel, arguments);
+                } else {
+                    removeChannelKey(channel);
+                }
+                break;
+			
+			case 'o': //Give/take channel operator privilege
+                if (flag[0] == '+') {
+                    giveChanopPrivileges(channel, arguments);
+                } else {
+                    removeChanopPrivileges(channel, arguments);
+                }
+                break;
+			
+			case 'l': //Set/remove the user limit to channel
+                if (flag[0] == '+') {
+                    setUserLimit(channel, std::atoi(arguments.c_str()));
+                } else {
+                    removeUserLimit(channel);
+                }
+                break;	
+            
+            default:
+                std::cout << "Unknown mode: " << flag << std::endl;
+        }
+    }
 }
 
 // //		*!* MESSAGES  *!*

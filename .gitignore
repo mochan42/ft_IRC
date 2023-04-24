@@ -1,4 +1,5 @@
 *.txt
+*.swp
 obj
 *.o
 a.out
