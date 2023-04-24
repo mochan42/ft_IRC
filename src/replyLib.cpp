@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/24 12:30:16 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/24 13:31:58 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ std::string User::RPY_createChannel(Channel* channel)
 	return (replyMessage);
 }
 
-std::string 	User::RPY_Who(Channel* channel)
+std::string 	User::RPY_who(Channel* channel)
 {
 	std::string replyMessage = ":" + _server->getServerName() + " 353 " + this->getNickName() + " = " + channel->getChannelName() + " :";
 	std::list<User *> *listOper = channel->getListPtrOperators();

@@ -239,10 +239,12 @@ void		User::who(std::vector<std::string>& args)
 		Channel *channelPtr = _server->getChannel(channel);
 		if (channelPtr)
 		{
-			sendMsgToOwnClient(RPY_Who(channelPtr));
+			sendMsgToOwnClient(RPY_who(channelPtr));
 			// std::list<User *> *opList = channelPtr->getListPtrOperators();
 			// std::list<User *> *ordinaryList = channelPtr->getListPtrOrdinaryUsers();
 			// std::list<User *>::iterator it = opList->begin();
+
+
 			// while (it != opList->end())
 			// {
 			// 	sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(opList, *it)));
@@ -255,9 +257,9 @@ void		User::who(std::vector<std::string>& args)
 			// 	++it;
 			// }
 
-			// while (it != opList->end())
+			// while (it != opList->end())											// same loop like the above, but with RPY_352 with pointer instead of string, only one should be used
 			// {
-			// 	sendMsgToOwnClient(RPY_352_whoUser(*it, channel, true));
+			// 	sendMsgToOwnClient(RPY_352_whoUser(*it, channel, true));						
 			// 	++it;
 			// }
 			// it = ordinaryList->begin();

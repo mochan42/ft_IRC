@@ -88,7 +88,7 @@ class User
 		std::string		RPY_PrivateNotification(std::string message, User* target);
 		std::string		RPY_joinChannelBroadcast(Channel* channel, bool op);
 		std::string 	RPY_createChannel(Channel* channel);
-		std::string 	RPY_Who(Channel* channel);
+		std::string 	RPY_who(Channel* channel);
 		std::string 	RPY_joinChannel(Channel* channel);
 		std::string		RPY_getModeCreated(Channel *channel);
 		std::string		RPY_getModeJoined(Channel *channel);
