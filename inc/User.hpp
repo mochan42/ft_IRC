@@ -88,12 +88,11 @@ class User
 		std::string		RPY_PrivateNotification(std::string message, User* target);
 		std::string		RPY_joinChannelBroadcast(Channel* channel, bool op);
 		std::string 	RPY_createChannel(Channel* channel);
-		std::string 	RPY_who(Channel* channel);
+		std::string 	RPY_joinWho(Channel* channel);
 		std::string 	RPY_joinChannel(Channel* channel);
 		std::string		RPY_getModeCreated(Channel *channel);
 		std::string		RPY_getModeJoined(Channel *channel);
-
-
+		
 		std::string		RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
 		std::string		RPY_inviteMessage(std::string otherNick, std::string channel);
 		std::string		RPY_kickedMessage(std::string otherNick, std::string channel);
@@ -101,10 +100,7 @@ class User
 		std::string		RPY_332_channelTopic(std::string channel, std::string topic);
 		std::string		RPY_newTopic(std::string channel, std::string newTopic);
 		std::string		RPY_352_whoUser(User *user, std::string channel, bool op);
-		// std::string		RPY_352_whoUser(std::string recipientNick, std::string channel, bool op);
 		std::string		RPY_315_endWhoList(std::string channel);
-
-
 
 		std::string 	RPY_ERR_commandNotfound(std::string command);
 		std::string		RPY_ERR462_alreadyRegistered();

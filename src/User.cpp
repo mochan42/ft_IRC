@@ -238,35 +238,21 @@ void		User::who(std::vector<std::string>& args)
 		Channel *channelPtr = _server->getChannel(channel);
 		if (channelPtr)
 		{
-			sendMsgToOwnClient(RPY_who(channelPtr));
-			// std::list<User *> *opList = channelPtr->getListPtrOperators();
-			// std::list<User *> *ordinaryList = channelPtr->getListPtrOrdinaryUsers();
-			// std::list<User *>::iterator it = opList->begin();
+			std::list<User *> *opList = channelPtr->getListPtrOperators();
+			std::list<User *> *ordinaryList = channelPtr->getListPtrOrdinaryUsers();
+			std::list<User *>::iterator it = opList->begin();
 
-
-			// while (it != opList->end())
-			// {
-			// 	sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(opList, *it)));
-			// 	++it;
-			// }
-			// it = ordinaryList->begin();
-			// while (it != ordinaryList->end())
-			// {
-			// 	sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(ordinaryList, *it)));
-			// 	++it;
-			// }
-
-			// while (it != opList->end())											// same loop like the above, but with RPY_352 with pointer instead of string, only one should be used
-			// {
-			// 	sendMsgToOwnClient(RPY_352_whoUser(*it, channel, true));						
-			// 	++it;
-			// }
-			// it = ordinaryList->begin();
-			// while (it != ordinaryList->end())
-			// {
-			// 	sendMsgToOwnClient(RPY_352_whoUser(*it, channel, false));
-			// 	++it;
-			// }
+			while (it != opList->end())
+			{
+				sendMsgToOwnClient(RPY_352_whoUser(*it, channel, true));						
+				++it;
+			}
+			it = ordinaryList->begin();
+			while (it != ordinaryList->end())
+			{
+				sendMsgToOwnClient(RPY_352_whoUser(*it, channel, false));
+				++it;
+			}
 		}
 		sendMsgToOwnClient(RPY_315_endWhoList(channel));
 	}
@@ -350,27 +336,30 @@ void		User::joinChannel(std::vector<std::string>& args)
 
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, true), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_createChannel(chptr));
+			sendMsgToOwnClient(RPY_joinWho(chptr));
+			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
 		}
 		else //join channel
 		{
-			// if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
-			// {
-			// 	if (args.size() <= 1 || chptr->checkPassword(args[1]))
-			// 		throw (cannotJoinChannelPW());
-			// }
-			// if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
-			// {
-			// 	if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
-			// 		throw (cannotJoinChannelIn());
-			// 	else
-			// 		chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
-			// }
-			// if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
-			// 	throw (channelCapacity());
+			if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+			{
+				if (args.size() <= 1 || chptr->checkPassword(args[1]))
+					throw (cannotJoinChannelPW());
+			}
+			if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
+			{
+				if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
+					throw (cannotJoinChannelIn());
+				else
+					chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
+			}
+			if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
+				throw (channelCapacity());
 			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, false), std::make_pair(false, (User *) NULL));
-			
+			sendMsgToOwnClient(RPY_joinWho(chptr));	
+			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
 		}
 	}
 	catch (badChannelMask &e)
