@@ -136,8 +136,6 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		kickUser(args);
 	else if (command == "PART")
 		leaveChannel(args);
-	// else if (command == "")
-	// 	modifyChannel(args);
 	else if (command == "NOTICE")
 		sendNotification(args);
 	else if (command == "PRIVMSG")
@@ -147,8 +145,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		else
 			sendPrivateMsg(args);
 	}
-	// else if (command == "")
-	// 	isOperator(args);
+	else if (command == "QUIT")
+		quitServer(args);
 	else
 	{
 		sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
@@ -343,6 +341,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 			sendMsgToOwnClient(RPY_createChannel(chptr));
 			sendMsgToOwnClient(RPY_353_joinWho(chptr));
 			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
+			_channelList.push_back(chptr);
 		}
 		else //join channel
 		{
@@ -365,6 +364,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, false), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_353_joinWho(chptr));	
 			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
+			_channelList.push_back(chptr);
 		}
 	}
 	catch (badChannelMask &e)
@@ -388,6 +388,17 @@ void		User::joinChannel(std::vector<std::string>& args)
 		sendMsgToOwnClient(RPY_ERR471_canNotJoinL(args[0]));
 	}
 }
+
+void		User::removeChannelFromList(Channel* channel)
+{
+	std::list<Channel *>::iterator iter = _channelList.begin();
+	while (iter != _channelList.end())
+	{
+		if (channel->getChannelName() == (*iter)->getChannelName())
+			_channelList.erase(iter);
+	}
+}
+
 
 /**
  * @brief 
@@ -415,6 +426,7 @@ void		User::kickUser(std::vector<std::string>& args)
 				channelPtr->updateUserList(channelPtr->getListPtrOperators(), tmpUser, USR_REMOVE);
 			if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
 				channelPtr->updateUserList(channelPtr->getListPtrOrdinaryUsers(), tmpUser, USR_REMOVE);
+			tmpUser->removeChannelFromList(channelPtr);
 		}
 		else
 			throw (notOnTheChannel());
@@ -443,18 +455,20 @@ void		User::leaveChannel(std::vector<std::string>& args)
 
 	try
 	{
-		//
+		
 		if (!(chPtr = _server->getChannel(channel)))
 			throw(noSuchChannel());
 		if (chPtr->isUserInList(chPtr->getListPtrOrdinaryUsers(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
 			chPtr->updateUserList(chPtr->getListPtrOrdinaryUsers(), this, USR_REMOVE);
+			// removeChannelFromList(chPtr);
 		}
 		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
 			chPtr->updateUserList(chPtr->getListPtrOperators(), this, USR_REMOVE);
+			// removeChannelFromList(chPtr);
 		}
 		else
 			throw(notOnTheChannel());
@@ -570,6 +584,34 @@ void	User::mode(std::vector<std::string>& args)
         }
     }
 }
+
+void		User::quitServer(std::vector<std::string>& args)
+{
+	
+	if (_channelList.size() > 0)
+	{
+		(void) args;
+		std::list<Channel *>::iterator iter = _channelList.begin();
+
+		while (iter != _channelList.end())
+		{
+			if ((*iter)->isUserInList((*iter)->getListPtrInvitedUsers(), this))
+				(*iter)->updateUserList((*iter)->getListPtrInvitedUsers(), this, USR_REMOVE);
+			if ((*iter)->isUserInList((*iter)->getListPtrOperators(), this))
+			{
+				(*iter)->broadcastMsg(RPY_leaveChannel((*iter)->getChannelName()), std::make_pair(false, (User *) NULL));
+				(*iter)->updateUserList((*iter)->getListPtrOrdinaryUsers(), this, USR_REMOVE);
+			}
+			if ((*iter)->isUserInList((*iter)->getListPtrOrdinaryUsers(), this))
+			{
+				(*iter)->broadcastMsg(RPY_leaveChannel((*iter)->getChannelName()), std::make_pair(false, (User *) NULL));
+				(*iter)->updateUserList((*iter)->getListPtrOrdinaryUsers(), this, USR_REMOVE);
+			}
+			iter++;
+		}
+	}
+}
+
 
 // //		*!* MESSAGES  *!*
 // //		-----------------

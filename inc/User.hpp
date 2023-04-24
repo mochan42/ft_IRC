@@ -54,6 +54,8 @@ class User
 		void		joinChannel(std::vector<std::string>& args);
 		void		kickUser(std::vector<std::string>& args);
 		void		leaveChannel(std::vector<std::string>& args);
+		void		removeChannelFromList(Channel* channel);
+		void		quitServer(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 		void		mode(std::vector<std::string>& args);
 

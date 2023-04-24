@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/23 11:50:57 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/24 19:29:44 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,6 +206,11 @@ void	Server::listenToClients()
 		std::cout << GREEN << "Listening Socket started listening to IRC clients..." << D << "\n";
 }
 
+void	Server::deleteUser(User *userPtr)
+{
+	delete userPtr;
+}
+
 
 /* Function to handle new client connections */
 void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds)
@@ -248,6 +253,7 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 	        else if (num_bytes == 0) {
 	            /* Client has disconnected */
 	            std::cout << "Client disconnected\n";
+
 	            // Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
 	            delete this->_users.find(client_socket)->second;
 	            this->_users.erase(client_socket);
