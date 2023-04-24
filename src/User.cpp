@@ -94,6 +94,7 @@ void	User::setPort(int setUserPort)
 //		*!* Command execution  *!*
 //		---------------------------
 
+
 /**
  * @brief 
  * function to call the received command.
@@ -105,6 +106,12 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 {
 	for (size_t i = 0; i < command.length(); i++)
 			command[i] = std::toupper(command[i]);
+
+	if (_isRegistered == false && (command == "PRIVMSG" || command == "REAL" || command == "JOIN" || command == "MODE" || command == "WHO" || command == "INVITE" || command == "KICK" || command == "PART" || command == "NOTICE"))
+	{
+		sendMsgToOwnClient(RPY_ERR451_notRegistered());
+		return ;
+	}
 
 	std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 	if (command == "CAP")
@@ -122,9 +129,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	else if (command == "MODE")
 	 	mode(args);
 	else if (command == "WHO")
-		who(args);		
-	// else if (command == "")
-	// 	changeTopic(args);
+		who(args);
 	else if (command == "INVITE")
 		inviteUser(args);
 	else if (command == "KICK")
@@ -336,7 +341,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, true), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_createChannel(chptr));
-			sendMsgToOwnClient(RPY_joinWho(chptr));
+			sendMsgToOwnClient(RPY_353_joinWho(chptr));
 			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
 		}
 		else //join channel
@@ -358,7 +363,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, false), std::make_pair(false, (User *) NULL));
-			sendMsgToOwnClient(RPY_joinWho(chptr));	
+			sendMsgToOwnClient(RPY_353_joinWho(chptr));	
 			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
 		}
 	}

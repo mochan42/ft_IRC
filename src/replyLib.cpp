@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/24 13:56:11 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/24 16:05:23 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ std::string User::RPY_createChannel(Channel* channel)
 	return (replyMessage);
 }
 
-std::string 	User::RPY_joinWho(Channel* channel)
+std::string 	User::RPY_353_joinWho(Channel* channel)
 {
 	std::string replyMessage = ":" + _server->getServerName() + " 353 " + this->getNickName() + " = " + channel->getChannelName() + " :";
 	std::list<User *> *listOper = channel->getListPtrOperators();
@@ -178,6 +178,12 @@ std::string	User::RPY_ERR_commandNotfound(std::string command)
 std::string User::RPY_ERR462_alreadyRegistered()
 {
 	_replyMessage = ":" + _server->getServerName() + " 462 " + _nickName + " :Unauthorized command (already registered)";
+	return (_replyMessage.c_str());
+}
+
+std::string		User::RPY_ERR451_notRegistered()
+{
+	_replyMessage = ":" + _server->getServerName() + " 451 " + _nickName + " :You have not registered";
 	return (_replyMessage.c_str());
 }
 
