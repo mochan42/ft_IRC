@@ -108,6 +108,11 @@ void   Channel::setTopic(std::string topic)
     _topic = topic;
 }
 
+void	Channel::setPassword(std::string pw)
+{
+	_password = pw;
+}
+
 
 t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 {
@@ -188,51 +193,50 @@ bool	Channel::isModeSet(uint8_t	mode, t_chnOptionCtrl optCtrl)
 	{
 		switch (mode)
 		{
-		case CHN_MODE_Invite:
-		{
-			CHN__ISMODESET(CHN_MODE_Invite,optCtrl);
-#if 0
-			/* This code has been replaced with a macro CHN__ISMODESET
-			 * This approach has been adopted to perform code repetition
-			 * in an unclumsy way.
-			*/
-			if (optCtrl)
+			case CHN_MODE_Invite:
 			{
-				returnCode = (_mode == (1 << (CHN_MODE_Invite - 1))) ? true : false;
+				CHN__ISMODESET(CHN_MODE_Invite,optCtrl);
+	#if 0
+				/* This code has been replaced with a macro CHN__ISMODESET
+				* This approach has been adopted to perform code repetition
+				* in an unclumsy way.
+				*/
+				if (optCtrl)
+				{
+					returnCode = (_mode == (1 << (CHN_MODE_Invite - 1))) ? true : false;
+					break ;
+				}
+				returnCode = _mode &(1 << (CHN_MODE_Invite -1));
+				break;
+	#endif
+			}
+			case CHN_MODE_Protected:
+			{
+				CHN__ISMODESET(CHN_MODE_Protected,optCtrl);
+			}
+			case CHN_MODE_AdminSetUserLimit:
+			{
+				CHN__ISMODESET(CHN_MODE_AdminSetUserLimit,optCtrl);
+			}
+			case CHN_MODE_AdminSetTopic:
+			{
+				CHN__ISMODESET(CHN_MODE_AdminSetTopic,optCtrl);
+			}
+			default:
+			{
+				/* for default case: control option is Exclusive */
+				if (mode < (pow(2, (CHN_MODE_Max - 1))))
+				{
+					returnCode = (_mode == mode) ? true : false;
+				}
+				else
+					throw InvalidChannelModeException();
 				break ;
 			}
-			returnCode = _mode &(1 << (CHN_MODE_Invite -1));
-			break;
-#endif
-		}
-		case CHN_MODE_Protected:
-		{
-			CHN__ISMODESET(CHN_MODE_Protected,optCtrl);
-		}
-		case CHN_MODE_AdminSetUserLimit:
-		{
-			CHN__ISMODESET(CHN_MODE_AdminSetUserLimit,optCtrl);
-		}
-		case CHN_MODE_AdminSetTopic:
-		{
-			CHN__ISMODESET(CHN_MODE_AdminSetTopic,optCtrl);
-		}
-		default:
-		{
-			/* for default case: control option is Exclusive */
-			if (mode < (pow(2, (CHN_MODE_Max - 1))))
-			{
-				returnCode = (_mode == mode) ? true : false;
-			}
-			else
-				throw InvalidChannelModeException();
-			break ;
-		}
 		}
 	}
 	CHN_EXCEPTION_HANDLER();	
 	return (returnCode);
-	
 }
 
 // void Channel::broadcastMsg(std::string msg)
@@ -504,4 +508,27 @@ t_chn_return	Channel::promoteUser(std::string nickname)
 	}
 	CHN_EXCEPTION_HANDLER();
 	return (rc_code);
+}
+
+
+
+bool			Channel::checkPassword(std::string pw)
+{
+	if (pw == _password)
+		return (true);
+	else
+		return (false);
+}
+
+bool			Channel::remPassword(std::string pw)
+{
+	if (pw == _password)
+	{
+		_password = "";
+		if (this->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+			this->setMode(CHN_MODE_Protected);
+		return (true);
+	}
+	else
+		return (false);
 }

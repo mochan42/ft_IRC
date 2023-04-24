@@ -203,7 +203,6 @@ void		User::setUserName(std::vector<std::string>& args)
 		_userName = args[0];
 		_realName = argsToString(args.begin() + 3, args.end());
 		_usernameSet = true;
-		//Welcome Message could be send here
 	}
 	std::cout << "User::setUserName called. The _UserName is now:  " << this->getUserName() << std::endl;
 }
@@ -331,33 +330,30 @@ void		User::joinChannel(std::vector<std::string>& args)
 
 			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
 			_server->createChannel(args[0], "", this);
-			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel			
+			chptr = _server->getChannel(args[0]);		// only necessary because no return of channel			
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_createChannel(chptr));
 		}
 		else //join channel
 		{
-			// if (boolean ChannelKey == 1)
+			// if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
 			// {
-			// 	if (!args[1] || chptr->password != args[1])
+			// 	if (args.size() <= 1 || chptr->checkPassword(args[1]))
 			// 		throw (cannotJoinChannelPW());
 			// }
-			// if (boolean isInviteOnly == 1)
+			// if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
 			// {
 			// 	if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
 			// 		throw (cannotJoinChannelIn());
 			// 	else
 			// 		chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
 			// }
-			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
+			// if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
 			// 	throw (channelCapacity());
 			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
 		}
-		// std::ostringstream msgadd;
-		// msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
-		// chptr->broadcastMsg(msgadd.str());
 	}
 	catch (badChannelMask &e)
 	{
