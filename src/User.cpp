@@ -336,20 +336,20 @@ void		User::joinChannel(std::vector<std::string>& args)
 		}
 		else //join channel
 		{
-			// if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
-			// {
-			// 	if (args.size() <= 1 || chptr->checkPassword(args[1]))
-			// 		throw (cannotJoinChannelPW());
-			// }
-			// if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
-			// {
-			// 	if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
-			// 		throw (cannotJoinChannelIn());
-			// 	else
-			// 		chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
-			// }
-			// if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
-			// 	throw (channelCapacity());
+			if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+			{
+				if (args.size() <= 1 || chptr->checkPassword(args[1]))
+					throw (cannotJoinChannelPW());
+			}
+			if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
+			{
+				if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
+					throw (cannotJoinChannelIn());
+				else
+					chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
+			}
+			if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
+				throw (channelCapacity());
 			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
