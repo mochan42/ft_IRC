@@ -214,6 +214,14 @@ void		User::setNickName(const std::vector<std::string>& args)
 						newUserList.push_back(*it);
 					}
 				}
+				userList = (*channelIt)->getListPtrOrdinaryUsers();
+				for(std::list<User *>::iterator it = userList->begin(); it != userList->end(); ++it)
+				{
+					if (isUserInList(newUserList.begin(), newUserList.end(), *it) == false)
+					{
+						newUserList.push_back(*it);
+					}
+				}
 			}
 			//Send all Users the message
 			for (std::vector<User *>::iterator it = newUserList.begin(); it != newUserList.end(); ++it)
