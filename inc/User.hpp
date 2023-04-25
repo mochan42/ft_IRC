@@ -22,7 +22,7 @@ class User
 		std::string					_realName;
 		bool						_isRegistered;
 		bool						_usernameSet;
-		std::list<Channel *>		_channelList;
+		std::vector<Channel *>		_channelList;
 		std::string					_replyMessage;
 		int							_userPort;
 
@@ -54,9 +54,9 @@ class User
 		void		joinChannel(std::vector<std::string>& args);
 		void		kickUser(std::vector<std::string>& args);
 		void		leaveChannel(std::vector<std::string>& args);
-		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 		void		mode(std::vector<std::string>& args);
 		void		printMode(std::string channel, Channel *ptr);
+		void		removeFromChannelList(Channel *ptr);
 
 		void		sendNotification(std::vector<std::string>& args);	
 		int			sendChannelMsg(std::vector<std::string>& args);
@@ -96,7 +96,7 @@ class User
 		
 		std::string		RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
 		std::string		RPY_inviteMessage(std::string otherNick, std::string channel);
-		std::string		RPY_kickedMessage(std::string otherNick, std::string channel);
+		std::string		RPY_kickedMessage(std::string otherNick, std::string channel, std::string reason);
 		std::string		RPY_leaveChannel(std::string channel);
 		std::string		RPY_332_channelTopic(std::string channel, std::string topic);
 		std::string		RPY_newTopic(std::string channel, std::string newTopic);

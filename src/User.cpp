@@ -11,7 +11,7 @@ User::User(int fd, std::string ip, Server *ircserver)
 	this->_userName = "";
 	this->_nickName = "";
 	this->_realName = "";
-	this->_channelList = std::list<Channel*>();
+	this->_channelList = std::vector<Channel*>();
 	this->_isRegistered = false;
 	this->_usernameSet = false;
 	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
@@ -331,13 +331,17 @@ void		User::joinChannel(std::vector<std::string>& args)
 		{
 
 			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
-			_server->createChannel(args[0], "", this);
-			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel			
-
+			chptr = _server->createChannel(args[0], "", this);	
+			if (!chptr)
+			{
+				std::cerr << "Error while creating channel"<< std::endl;
+				return;
+			}
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, true), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_createChannel(chptr));
 			sendMsgToOwnClient(RPY_joinWho(chptr));
 			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
+			_channelList.push_back(chptr);
 		}
 		else //join channel
 		{
@@ -360,6 +364,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, false), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_joinWho(chptr));	
 			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
+			_channelList.push_back(chptr);
 		}
 	}
 	catch (badChannelMask &e)
@@ -393,7 +398,9 @@ void		User::kickUser(std::vector<std::string>& args)
 {
 	std::string channel = args[0];
 	std::string nick = args[1];
-	std::string reason = argsToString(args.begin() + 2, args.end());
+	std::string	reason = "";
+	if (args.size() > 2)
+		reason = argsToString(args.begin() + 2, args.end());
 	Channel *channelPtr;
 	User	*tmpUser;
 	
@@ -405,11 +412,12 @@ void		User::kickUser(std::vector<std::string>& args)
 
 		if ((tmpUser = channelPtr->isUserInChannel(nick)))
 		{
-			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel), std::make_pair(false, (User *) NULL));
+			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel, reason), std::make_pair(false, (User *) NULL));
 			if (channelPtr->isUserInList(channelPtr->getListPtrOperators(), tmpUser))
 				channelPtr->updateUserList(channelPtr->getListPtrOperators(), tmpUser, USR_REMOVE);
 			if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
 				channelPtr->updateUserList(channelPtr->getListPtrOrdinaryUsers(), tmpUser, USR_REMOVE);
+			this->removeFromChannelList(channelPtr);
 		}
 		else
 			throw (notOnTheChannel());
@@ -445,11 +453,13 @@ void		User::leaveChannel(std::vector<std::string>& args)
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
 			chPtr->updateUserList(chPtr->getListPtrOrdinaryUsers(), this, USR_REMOVE);
+			this->removeFromChannelList(chPtr);
 		}
 		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
 			chPtr->updateUserList(chPtr->getListPtrOperators(), this, USR_REMOVE);
+			this->removeFromChannelList(chPtr);
 		}
 		else
 			throw(notOnTheChannel());
@@ -466,10 +476,6 @@ void		User::leaveChannel(std::vector<std::string>& args)
 	}
 }
 
-// void		User::modifyChannel(std::string channelName, std::string nickName, char mode)
-// {
-
-// }
 void 	User::setInviteOnly(const std::string& channel){
 		std::cout << "set Channel " << channel <<" to invite only, if enough rights."<< std::endl;
 		}
@@ -667,8 +673,6 @@ void	User::mode(std::vector<std::string>& args)
 				std::cout << "Unknown mode: " << flag << std::endl;
 		}
 	}
-	//update mode broadcast message
-	//>> :Nick5!otherUser@5A4661:D5E5BB:82D7FE:9BC798:IP MODE #test -k pw
 	if (!executedArgs.empty()) //Create the broadcast message
 	{
 		std::string createdFlags;
@@ -831,4 +835,18 @@ std::string	User::argsToString(std::vector<std::string>::iterator iterBegin, std
 			msgstream << " ";
 	}
 	return (msgstream.str());
+}
+
+void	User::removeFromChannelList(Channel *ptr)
+{
+	std::vector<Channel *>::iterator it = _channelList.begin();
+
+	for (;it != _channelList.end(); ++it)
+	{
+		if (ptr == *it)
+		{
+			_channelList.erase(it);
+			break;
+		}
+	}
 }

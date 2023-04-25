@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/23 11:50:57 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/25 16:15:07 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,14 +125,16 @@ Channel*	Server::getChannel(const std::string& channel_name) const
 	return (NULL);
 }
 
-void	Server::createChannel(const std::string& channel_name, const std::string& topic, User* user)
+Channel*	Server::createChannel(const std::string& channel_name, const std::string& topic, User* user)
 {
 	std::map<std::string, Channel*>::iterator	it = this->_channels.find(channel_name);
 	if (it == this->_channels.end())
 	{
 		Channel	*channel = new Channel(channel_name, topic, user);
 		this->_channels[channel_name] = channel;
+		return (channel);
 	}
+	return (NULL);
 }
 
 //======== MEMBER FUNCTIONS =====================================================================
