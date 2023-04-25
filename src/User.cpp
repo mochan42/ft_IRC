@@ -109,9 +109,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 
 	std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 	if (command == "CAP")
-	{
-
-	}
+	{}
 	else if (command == "NICK")
 		setNickName(args);
 	else if (command == "USER")
@@ -126,16 +124,14 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	 	mode(args);
 	else if (command == "WHO")
 		who(args);		
-	// else if (command == "")
-	// 	changeTopic(args);
+	else if (command == "TOPIC")
+		changeTopic(args);
 	else if (command == "INVITE")
 		inviteUser(args);
 	else if (command == "KICK")
 		kickUser(args);
 	else if (command == "PART")
 		leaveChannel(args);
-	// else if (command == "")
-	// 	modifyChannel(args);
 	else if (command == "NOTICE")
 		sendNotification(args);
 	else if (command == "PRIVMSG")
@@ -325,17 +321,26 @@ void		User::changeTopic(std::vector<std::string>& args)
 	std::string channel = args[0];
 	Channel *chnptr = _server->getChannel(channel);
 	if (!chnptr)
+	{
 		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(channel));
+		return;
+	}
 	if (args.size() == 1)
 	{
 		sendMsgToOwnClient(RPY_332_channelTopic(channel, chnptr->getTopic()));
+		return;
 	}
-	else
+	if (chnptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive))
 	{
-		std::string newTopic = argsToString(args.begin() + 1, args.end());
-		chnptr->setTopic(newTopic);
-		chnptr->broadcastMsg(RPY_newTopic(channel, newTopic), std::make_pair(false, (User *) NULL));
+		if (!chnptr->isUserInList(chnptr->getListPtrOperators(), this))
+		{
+			sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
+			return;
+		}
 	}
+	std::string newTopic = argsToString(args.begin() + 1, args.end());
+	chnptr->setTopic(newTopic);
+	chnptr->broadcastMsg(RPY_newTopic(channel, newTopic), std::make_pair(false, (User *) NULL));
 }
 
 
@@ -679,18 +684,25 @@ void	User::mode(std::vector<std::string>& args)
 						sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(arguments));
 						break;
 					}
-					if (chptr->isUserInList(chptr->getListPtrOperators(), userptr))
-						break;
-					if (!chptr->isUserInList(chptr->getListPtrOrdinaryUsers(), userptr))
-					{
-						sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(arguments, channel));
-						break;
-					}
 					if (flag[0] == '+') {
+						if (chptr->isUserInList(chptr->getListPtrOperators(), userptr))
+							break;
+						if (!chptr->isUserInList(chptr->getListPtrOrdinaryUsers(), userptr))
+						{
+							sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(arguments, channel));
+							break;
+						}
 						chptr->promoteUser(arguments);
 						executedArgs.push_back(flagArgsPairs[i]);
 						giveChanopPrivileges(channel, arguments);
 					} else if (flag[0] == '-') {
+						if (chptr->isUserInList(chptr->getListPtrOrdinaryUsers(), userptr))
+							break;
+						if (!chptr->isUserInList(chptr->getListPtrOperators(), userptr))
+						{
+							sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(arguments, channel));
+							break;
+						}
 						chptr->demoteUser(arguments);
 						executedArgs.push_back(flagArgsPairs[i]);
 						removeChanopPrivileges(channel, arguments);
