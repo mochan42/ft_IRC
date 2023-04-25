@@ -56,6 +56,7 @@ class User
 		void		leaveChannel(std::vector<std::string>& args);
 		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
 		void		mode(std::vector<std::string>& args);
+		void		printMode(std::string channel, Channel *ptr);
 
 		void		sendNotification(std::vector<std::string>& args);	
 		int			sendChannelMsg(std::vector<std::string>& args);
@@ -101,6 +102,7 @@ class User
 		std::string		RPY_newTopic(std::string channel, std::string newTopic);
 		std::string		RPY_352_whoUser(User *user, std::string channel, bool op);
 		std::string		RPY_315_endWhoList(std::string channel);
+		std::string		RPY_324_printMode(std::string channel, std::string flags);
 
 		std::string 	RPY_ERR_commandNotfound(std::string command);
 		std::string		RPY_ERR462_alreadyRegistered();
@@ -114,6 +116,8 @@ class User
 		std::string		RPY_ERR441_kickNotOnChannel(std::string otherNick, std::string channel);
 		std::string		RPY_ERR403_noSuchChannel(std::string channel);
 		std::string		RPY_ERR442_youreNotOnThatChannel(std::string channel);
+		std::string		RPY_ERR467_keyAlreadySet(std::string channel);
+		std::string		RPY_ERR461_notEnoughParameters(std::string flag);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
@@ -198,6 +202,24 @@ class User
 				virtual const char *what() const throw()
 				{
 					return ("Cannot join channel (+l)");
+				}
+		};
+
+		class keyAlreadySet : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Channel key already set");
+				}
+		};
+
+		class noSuchNickChannel : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("No such nick");
 				}
 		};
 };

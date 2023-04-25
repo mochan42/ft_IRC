@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/24 13:10:25 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/25 12:59:22 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ typedef enum e_chn_mode
 	CHN_MODE_Default,
 	CHN_MODE_Invite,            // _mode value = 1
 	CHN_MODE_Protected,         // _mode value = 2
-	CHN_MODE_AdminSetUserLimit, // _mode value = 4
+	CHN_MODE_CustomUserLimit, // _mode value = 4
 	CHN_MODE_AdminSetTopic,     // _mode value = 8
 	CHN_MODE_Max
 }	t_chnMode;
@@ -133,6 +133,7 @@ class Channel
     	std::list<User *>	*getListPtrOrdinaryUsers(void) const;
 		unsigned int		getNbrofActiveUsers(void) const;
         uint8_t             getMode(void) const;
+		std::string			getPassword(void) const;
     	void				setChannelName(std::string name);
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);

@@ -515,55 +515,220 @@ void	User::mode(std::vector<std::string>& args)
 {
  	modeParser parser(args);
 	std::vector<std::pair<std::string, std::string> > flagArgsPairs = parser.getflagArgsPairs();
-    for (size_t i = 0; i < flagArgsPairs.size(); ++i) {
-        std::string flag = flagArgsPairs[i].first;
-        std::string arguments = flagArgsPairs[i].second;
-        std::string channel = parser.getChannel();
+	std::vector<std::pair<std::string, std::string> > executedArgs;
+	std::string channel = parser.getChannel();
+	Channel *chptr = _server->getChannel(channel);
 
-        switch (flag[1]) {
-            case 'i': //Set/remove Invite-only channel
-                if (flag[0] == '+') {
-                    setInviteOnly(channel);
-                } else {
-                    remoInviteOnly(channel);
-                }
-                break;
+	for (size_t i = 0; i < flagArgsPairs.size(); ++i)
+		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
+
+
+
+	if (!chptr)
+	{
+		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(parser.getChannel()));
+		return;
+	}
+	User *usr = _server->getUser(_nickName);
+	if (!usr)
+		return;
+	if (flagArgsPairs.size() == 0)
+		printMode(channel, chptr);
+	if (!chptr->isUserInList(chptr->getListPtrOperators(), usr))
+	{
+		sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
+		return;
+	}
+
+	for (size_t i = 0; i < flagArgsPairs.size(); ++i) {
+		std::string flag = flagArgsPairs[i].first;
+		std::string arguments = flagArgsPairs[i].second;
+
+		//Test Output:
+		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
+
+		switch (flag[1]) {
+			case 'i': //Set/remove Invite-only channel
+				if (flag[0] == '+') {
+					if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == false)
+					{
+						chptr->setMode(CHN_MODE_Invite);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					setInviteOnly(channel);
+				} else if (flag[0] == '-') {
+					if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == true)
+					{
+						chptr->setMode(CHN_MODE_Invite);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					remoInviteOnly(channel);
+				}
+				break;
+
 			case 't': //Set/remove the restrictions of the TOPIC command to channel operators
-                if (flag[0] == '+') {
-                    setTopicRestrictions(channel);
-                } else {
-                    removeTopicRestrictions(channel);
-                }
-                break;
+				if (flag[0] == '+') {
+					if (chptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive) == false)
+					{
+						chptr->setMode(CHN_MODE_AdminSetTopic);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					setTopicRestrictions(channel);
+				} else if (flag[0] == '-') {
+					if (chptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive) == true)
+					{
+						chptr->setMode(CHN_MODE_AdminSetTopic);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					removeTopicRestrictions(channel);
+				}
+				break;
 			
 			case 'k': //Set/remove the channel key (password)
-                if (flag[0] == '+') {
-                    setChannelKey(channel, arguments);
-                } else {
-                    removeChannelKey(channel);
-                }
-                break;
+				if (flag[0] == '+') {
+					if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive) == true)
+					{
+						sendMsgToOwnClient(RPY_ERR467_keyAlreadySet(channel));
+						break;
+					}
+					else
+					{
+						chptr->setMode(CHN_MODE_Protected);
+						chptr->setPassword(arguments);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					setChannelKey(channel, arguments);
+				} else if (flag[0] == '-') {
+					if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive) == true)
+					{
+						if (chptr->remPassword(arguments) == false)
+						{
+							sendMsgToOwnClient(RPY_ERR467_keyAlreadySet(channel));
+							break;
+						}
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					removeChannelKey(channel);
+				}
+				break;
 			
 			case 'o': //Give/take channel operator privilege
-                if (flag[0] == '+') {
-                    giveChanopPrivileges(channel, arguments);
-                } else {
-                    removeChanopPrivileges(channel, arguments);
-                }
-                break;
-			
+				{
+					User *userptr = _server->getUser(arguments);
+					if (!userptr)
+					{
+						sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(arguments));
+						break;
+					}
+					if (chptr->isUserInList(chptr->getListPtrOperators(), userptr))
+						break;
+					if (!chptr->isUserInList(chptr->getListPtrOrdinaryUsers(), userptr))
+					{
+						sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(arguments, channel));
+						break;
+					}
+					if (flag[0] == '+') {
+						chptr->promoteUser(arguments);
+						executedArgs.push_back(flagArgsPairs[i]);
+						giveChanopPrivileges(channel, arguments);
+					} else if (flag[0] == '-') {
+						chptr->demoteUser(arguments);
+						executedArgs.push_back(flagArgsPairs[i]);
+						removeChanopPrivileges(channel, arguments);
+					}
+				}
+				break;
+
 			case 'l': //Set/remove the user limit to channel
-                if (flag[0] == '+') {
-                    setUserLimit(channel, std::atoi(arguments.c_str()));
-                } else {
-                    removeUserLimit(channel);
-                }
-                break;	
-            
-            default:
-                std::cout << "Unknown mode: " << flag << std::endl;
-        }
-    }
+				if (flag[0] == '+') {
+					if (arguments == "")
+					{
+						sendMsgToOwnClient(RPY_ERR461_notEnoughParameters(flag));
+						break;
+					}
+					if (chptr->setChannelCapacity(std::atoi(arguments.c_str())) != 0)
+					{
+						break;
+					}
+					if (chptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive) == false)
+						chptr->setMode(CHN_MODE_CustomUserLimit);
+					executedArgs.push_back(flagArgsPairs[i]);
+					setUserLimit(channel, std::atoi(arguments.c_str()));
+				} else if (flag[0] == '-') {
+					if (chptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive) == true)
+						chptr->setMode(CHN_MODE_CustomUserLimit);
+					executedArgs.push_back(flagArgsPairs[i]);
+					removeUserLimit(channel);
+				}
+				break;	
+			
+			default:
+
+				std::cout << "Unknown mode: " << flag << std::endl;
+		}
+	}
+	//update mode broadcast message
+	//>> :Nick5!otherUser@5A4661:D5E5BB:82D7FE:9BC798:IP MODE #test -k pw
+	if (!executedArgs.empty()) //Create the broadcast message
+	{
+		std::string createdFlags;
+		std::string createdArgs;
+		int			first = 1;
+
+		for (size_t i = 0; i < executedArgs.size(); ++i)
+		{
+			std::string f = flagArgsPairs[i].first;
+			std::string a = flagArgsPairs[i].second;
+			if (first == 1)
+			{
+				createdFlags = flagArgsPairs[i].first;
+				createdArgs = flagArgsPairs[i].second;
+				first = 0;
+			}
+			else if (flagArgsPairs[i].first[0] == flagArgsPairs[i - 1].first[0])
+			{
+				createdFlags += flagArgsPairs[i].first[1];
+				createdArgs += " " + flagArgsPairs[i].second;
+			}
+			else
+			{
+				createdFlags += flagArgsPairs[i].first;
+				createdArgs += " " + flagArgsPairs[i].second;
+			}
+		}
+		std::string message;
+		message = ":" + _nickName + "!" + _userName + "@" + _ip + " MODE " + channel  + " " + createdFlags + " " + createdArgs;
+		chptr->broadcastMsg(message, std::make_pair(false, (User *) NULL));
+	}
+}
+
+void	User::printMode(std::string channel, Channel *ptr)
+{
+	std::string	combined;
+	std::string flags = "+n";
+	std::string args;
+	if (ptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
+		flags += "i";
+	if (ptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive))
+	{
+		flags += "l";
+		std::ostringstream msgstream;
+		msgstream << ptr->getChannelCapacity();
+		args += msgstream.str() + " ";
+	}
+	if (ptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+	{
+		flags += "k";
+		args += ptr->getPassword() + " ";
+	}
+	if (ptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive))
+	{
+		flags += "t";
+		args += ptr->getTopic();
+	}
+	combined = flags + " " + args;
+	//>> :master.ircgod.com 324 nick2 #test +n
+	sendMsgToOwnClient(RPY_324_printMode(channel, combined));
 }
 
 // //		*!* MESSAGES  *!*

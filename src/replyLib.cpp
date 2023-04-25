@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   replyLib.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/24 13:56:11 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/25 12:31:52 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,12 @@ std::string User::RPY_newTopic(std::string channel, std::string newTopic)
 	return (_replyMessage.c_str());
 }
 
+std::string User::RPY_324_printMode(std::string channel, std::string flags)
+{
+	_replyMessage = ":" + _server->getServerName() + " 324 " + _nickName + " " + channel + " " + flags;
+	return (_replyMessage.c_str());
+}
+
 
 
 std::string User::RPY_352_whoUser(User *user, std::string channel, bool op)
@@ -238,5 +244,17 @@ std::string User::RPY_ERR403_noSuchChannel(std::string channel)
 std::string User::RPY_ERR442_youreNotOnThatChannel(std::string channel)
 {
 	_replyMessage = ":" + _server->getServerName() + " 442 " + _nickName + " " + channel + " :You're not on that channel";
+	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_ERR467_keyAlreadySet(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 467 " + _nickName + " " + channel  + " :Channel key already set";
+	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_ERR461_notEnoughParameters(std::string flag)
+{
+	_replyMessage = ":" + _server->getServerName() + " 461 " + _nickName + " MODE " + flag  + " :Not enough parameters";
 	return (_replyMessage.c_str());
 }
