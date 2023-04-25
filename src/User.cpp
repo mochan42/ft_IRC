@@ -14,6 +14,7 @@ User::User(int fd, std::string ip, Server *ircserver)
 	this->_channelList = std::vector<Channel*>();
 	this->_isRegistered = false;
 	this->_usernameSet = false;
+	this->_welcomeMes = false;
 	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
 }
 
@@ -108,7 +109,9 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 
 	std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 	if (command == "CAP")
-		sendMsgToOwnClient(RPY_welcomeToServer());
+	{
+
+	}
 	else if (command == "NICK")
 		setNickName(args);
 	else if (command == "USER")
@@ -180,11 +183,53 @@ void		User::setServerPw(const std::vector<std::string>& args)
 void		User::setNickName(const std::vector<std::string>& args)
 {
 	std::string oldNick = _nickName;
-	_nickName = args[0];
-	//check if the nick already exist
-	//Send to all Users who are in the channel with this user!!!
-	sendMsgToOwnClient(RPY_newNick(oldNick));
-	std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
+	std::string newNick = args[0];
+
+	try
+	{
+		if (_server->getUser(newNick))
+			throw (nickInUse()); //>> :master.ircgod.com 433 * Nick5 :Nickname is already in use
+		if (!_welcomeMes)
+		{
+			_nickName = newNick;
+			sendMsgToOwnClient(RPY_welcomeToServer());
+			_welcomeMes = true;
+			return;
+		}
+		_nickName = newNick;
+		//Send to all Users who are in the channel with this user!!!
+		//create a list with all users from all channels:
+		if (!_channelList.empty())
+		{
+			std::vector<User *> newUserList;
+			std::vector<Channel *>::iterator channelIt = _channelList.begin();
+			std::list<User *> *userList;
+			for (; channelIt != _channelList.end(); ++channelIt)
+			{
+				userList = (*channelIt)->getListPtrOperators();
+				for(std::list<User *>::iterator it = userList->begin(); it != userList->end(); ++it)
+				{
+					if (isUserInList(newUserList.begin(), newUserList.end(), *it) == false)
+					{
+						newUserList.push_back(*it);
+					}
+				}
+			}
+			//Send all Users the message
+			for (std::vector<User *>::iterator it = newUserList.begin(); it != newUserList.end(); ++it)
+			{
+				(*it)->sendMsgToOwnClient(RPY_newNick(oldNick));
+			}
+		}
+		else
+			sendMsgToOwnClient(RPY_newNick(oldNick));
+		std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
+	}
+	catch (nickInUse &e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR433_nickInUse(newNick));
+	}
 }
 
 std::string	User::getNickName(void)
@@ -849,4 +894,15 @@ void	User::removeFromChannelList(Channel *ptr)
 			break;
 		}
 	}
+}
+
+bool	User::isUserInList(std::vector<User *>::iterator begin, std::vector<User *>::iterator end, User *user)
+{
+	std::vector<User *>::iterator it = begin;
+	for (; it != end; ++it)
+	{
+		if (*it == user)
+			return (true);
+	}
+	return (false);
 }

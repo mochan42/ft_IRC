@@ -7,6 +7,7 @@
 # include <sstream>
 # include <vector>
 # include <poll.h>
+# include <algorithm>
 
 class Server;
 
@@ -22,6 +23,7 @@ class User
 		std::string					_realName;
 		bool						_isRegistered;
 		bool						_usernameSet;
+		bool						_welcomeMes;
 		std::vector<Channel *>		_channelList;
 		std::string					_replyMessage;
 		int							_userPort;
@@ -72,6 +74,7 @@ class User
 		void 		removeChanopPrivileges(const std::string& channel, const std::string& username);
 		void 		setUserLimit(const std::string& channel, int limit);
 		void 		removeUserLimit(const std::string& channel);
+		bool		isUserInList(std::vector<User *>::iterator begin, std::vector<User *>::iterator end, User *user);
 
 		// bool		isOperator(channel& channel);
 
@@ -118,6 +121,7 @@ class User
 		std::string		RPY_ERR442_youreNotOnThatChannel(std::string channel);
 		std::string		RPY_ERR467_keyAlreadySet(std::string channel);
 		std::string		RPY_ERR461_notEnoughParameters(std::string flag);
+		std::string		RPY_ERR433_nickInUse(std::string nick);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
@@ -220,6 +224,15 @@ class User
 				virtual const char *what() const throw()
 				{
 					return ("No such nick");
+				}
+		};
+
+		class nickInUse : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Nickname is already in use");
 				}
 		};
 };

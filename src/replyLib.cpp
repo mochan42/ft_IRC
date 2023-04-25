@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/25 17:00:17 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/25 18:52:15 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 
 std::string User::RPY_welcomeToServer(void)
 {
-	std::string	replyMessage = "\n\nWelcome to " + _server->getServerName() + "!\n\n" + "The server is still under construction by Triinu, Monine, Philipp, Chiemezie, Florian and Ferenc.\n\n	\
+	std::string	replyMessage = ":" + _server->getServerName() + " 001 " + _nickName.c_str() + " :Welcome to " + _server->getServerName() + " " + _nickName + "\n\n" \
+	+ "The server is still under construction by Triinu, Monine, Philipp, Chiemezie, Florian and Ferenc.\n\n	\
 	The following commands are now integrated:\n" + "/NICK\n/USER\n/PASS\n/JOIN\n/PRIVMSG #Channel\n/PRIVMSG UserNickname\n/NOTICE #Channel\n/NOTICE UserNickname\n/PART\n/INVITE\n/KICK\n" + 	\
 	"\nHave a good time on the server.";
 	return (replyMessage);
@@ -201,6 +202,12 @@ std::string User::RPY_ERR401_noSuchNickChannel(std::string nickchannel)
 std::string User::RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string channel)
 {
 	_replyMessage = ":" + _server->getServerName() + " 443 " + _nickName + " " + otherNick + " " + channel + " :User is already on that channel";
+	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_ERR433_nickInUse(std::string nick)
+{
+	_replyMessage = ":" + _server->getServerName() + " 433 * " + nick + " :Nickname is already in use";
 	return (_replyMessage.c_str());
 }
 
