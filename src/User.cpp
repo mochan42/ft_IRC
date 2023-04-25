@@ -11,9 +11,10 @@ User::User(int fd, std::string ip, Server *ircserver)
 	this->_userName = "";
 	this->_nickName = "";
 	this->_realName = "";
-	this->_channelList = std::list<Channel*>();
+	this->_channelList = std::vector<Channel*>();
 	this->_isRegistered = false;
 	this->_usernameSet = false;
+	this->_welcomeMes = false;
 	std::cout << "User with fd = " << this->getFd() << " connected with server." << std::endl;
 }
 
@@ -45,7 +46,7 @@ User::~User()
  */
 int			User::sendMsgToOwnClient(std::string msg)
 {
-	std::string str = msg + "\r\n"; 
+	std::string str = msg + "\n";
 	try
 	{
 		if (send(this->_userFd, str.c_str(), str.length(), 0) < 0)
@@ -68,9 +69,10 @@ int			User::sendMsgToOwnClient(std::string msg)
  */
 int			User::sendMsgToTargetClient(std::string msg, int targetUserFd)
 {
+	std::string str = msg + "\n";
 	try
 	{
-		if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)
+		if (send(targetUserFd, str.c_str(), str.length(), 0) < 0)
 			throw SendToTargetCLientException();
 	}
 	catch(const std::exception & e)
@@ -107,7 +109,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 
 	std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 	if (command == "CAP")
-		sendMsgToOwnClient(RPY_welcomeToServer());
+	{}
 	else if (command == "NICK")
 		setNickName(args);
 	else if (command == "USER")
@@ -122,16 +124,14 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	 	mode(args);
 	else if (command == "WHO")
 		who(args);		
-	// else if (command == "")
-	// 	changeTopic(args);
+	else if (command == "TOPIC")
+		changeTopic(args);
 	else if (command == "INVITE")
 		inviteUser(args);
 	else if (command == "KICK")
 		kickUser(args);
 	else if (command == "PART")
 		leaveChannel(args);
-	// else if (command == "")
-	// 	modifyChannel(args);
 	else if (command == "NOTICE")
 		sendNotification(args);
 	else if (command == "PRIVMSG")
@@ -179,11 +179,61 @@ void		User::setServerPw(const std::vector<std::string>& args)
 void		User::setNickName(const std::vector<std::string>& args)
 {
 	std::string oldNick = _nickName;
-	_nickName = args[0];
-	//check if the nick already exist
-	//Send to all Users who are in the channel with this user!!!
-	sendMsgToOwnClient(RPY_newNick(oldNick));
-	std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
+	std::string newNick = args[0];
+
+	try
+	{
+		if (_server->getUser(newNick))
+			throw (nickInUse()); //>> :master.ircgod.com 433 * Nick5 :Nickname is already in use
+		if (!_welcomeMes)
+		{
+			_nickName = newNick;
+			sendMsgToOwnClient(RPY_welcomeToServer());
+			_welcomeMes = true;
+			return;
+		}
+		_nickName = newNick;
+		//Send to all Users who are in the channel with this user!!!
+		//create a list with all users from all channels:
+		if (!_channelList.empty())
+		{
+			std::vector<User *> newUserList;
+			std::vector<Channel *>::iterator channelIt = _channelList.begin();
+			std::list<User *> *userList;
+			for (; channelIt != _channelList.end(); ++channelIt)
+			{
+				userList = (*channelIt)->getListPtrOperators();
+				for(std::list<User *>::iterator it = userList->begin(); it != userList->end(); ++it)
+				{
+					if (isUserInList(newUserList.begin(), newUserList.end(), *it) == false)
+					{
+						newUserList.push_back(*it);
+					}
+				}
+				userList = (*channelIt)->getListPtrOrdinaryUsers();
+				for(std::list<User *>::iterator it = userList->begin(); it != userList->end(); ++it)
+				{
+					if (isUserInList(newUserList.begin(), newUserList.end(), *it) == false)
+					{
+						newUserList.push_back(*it);
+					}
+				}
+			}
+			//Send all Users the message
+			for (std::vector<User *>::iterator it = newUserList.begin(); it != newUserList.end(); ++it)
+			{
+				(*it)->sendMsgToOwnClient(RPY_newNick(oldNick));
+			}
+		}
+		else
+			sendMsgToOwnClient(RPY_newNick(oldNick));
+		std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
+	}
+	catch (nickInUse &e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR433_nickInUse(newNick));
+	}
 }
 
 std::string	User::getNickName(void)
@@ -203,7 +253,6 @@ void		User::setUserName(std::vector<std::string>& args)
 		_userName = args[0];
 		_realName = argsToString(args.begin() + 3, args.end());
 		_usernameSet = true;
-		//Welcome Message could be send here
 	}
 	std::cout << "User::setUserName called. The _UserName is now:  " << this->getUserName() << std::endl;
 }
@@ -241,15 +290,16 @@ void		User::who(std::vector<std::string>& args)
 			std::list<User *> *opList = channelPtr->getListPtrOperators();
 			std::list<User *> *ordinaryList = channelPtr->getListPtrOrdinaryUsers();
 			std::list<User *>::iterator it = opList->begin();
+
 			while (it != opList->end())
 			{
-				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(opList, *it)));
+				sendMsgToOwnClient(RPY_352_whoUser(*it, channel, true));						
 				++it;
 			}
 			it = ordinaryList->begin();
 			while (it != ordinaryList->end())
 			{
-				sendMsgToOwnClient((*it)->RPY_352_whoUser(_nickName, channel, channelPtr->isUserInList(ordinaryList, *it)));
+				sendMsgToOwnClient(RPY_352_whoUser(*it, channel, false));
 				++it;
 			}
 		}
@@ -261,7 +311,7 @@ void		User::who(std::vector<std::string>& args)
 		User *userptr = _server->getUser(user);
 
 		if (userptr)
-			sendMsgToOwnClient(userptr->RPY_352_whoUser(_nickName, "*", false));
+			sendMsgToOwnClient(userptr->RPY_352_whoUser(userptr, "*", false));
 		sendMsgToOwnClient(RPY_315_endWhoList(user));
 	}
 }
@@ -271,17 +321,26 @@ void		User::changeTopic(std::vector<std::string>& args)
 	std::string channel = args[0];
 	Channel *chnptr = _server->getChannel(channel);
 	if (!chnptr)
+	{
 		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(channel));
+		return;
+	}
 	if (args.size() == 1)
 	{
 		sendMsgToOwnClient(RPY_332_channelTopic(channel, chnptr->getTopic()));
+		return;
 	}
-	else
+	if (chnptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive))
 	{
-		std::string newTopic = argsToString(args.begin() + 1, args.end());
-		chnptr->setTopic(newTopic);
-		chnptr->broadcastMsg(RPY_newTopic(channel, newTopic), std::make_pair(false, (User *) NULL));
+		if (!chnptr->isUserInList(chnptr->getListPtrOperators(), this))
+		{
+			sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
+			return;
+		}
 	}
+	std::string newTopic = argsToString(args.begin() + 1, args.end());
+	chnptr->setTopic(newTopic);
+	chnptr->broadcastMsg(RPY_newTopic(channel, newTopic), std::make_pair(false, (User *) NULL));
 }
 
 
@@ -330,34 +389,41 @@ void		User::joinChannel(std::vector<std::string>& args)
 		{
 
 			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
-			_server->createChannel(args[0], "", this);
-			chptr = _server->getChannel(args[0]);									// only necessary because no return of channel			
-			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
+			chptr = _server->createChannel(args[0], "", this);	
+			if (!chptr)
+			{
+				std::cerr << "Error while creating channel"<< std::endl;
+				return;
+			}
+			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, true), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_createChannel(chptr));
+			sendMsgToOwnClient(RPY_joinWho(chptr));
+			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
+			_channelList.push_back(chptr);
 		}
 		else //join channel
 		{
-			// if (boolean ChannelKey == 1)
-			// {
-			// 	if (!args[1] || chptr->password != args[1])
-			// 		throw (cannotJoinChannelPW());
-			// }
-			// if (boolean isInviteOnly == 1)
-			// {
-			// 	if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
-			// 		throw (cannotJoinChannelIn());
-			// 	else
-			// 		chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
-			// }
-			// if (chptr->getChannelCapacity() <= chptr->getUserNum())
-			// 	throw (channelCapacity());
+			if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+			{
+				if (args.size() <= 1 || chptr->checkPassword(args[1]))
+					throw (cannotJoinChannelPW());
+			}
+			if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
+			{
+				if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
+					throw (cannotJoinChannelIn());
+				else
+					chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
+			}
+			if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
+				throw (channelCapacity());
 			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
-			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr), std::make_pair(false, (User *) NULL));
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
+			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, false), std::make_pair(false, (User *) NULL));
+			sendMsgToOwnClient(RPY_joinWho(chptr));	
+			sendMsgToOwnClient(RPY_315_endWhoList(chptr->getChannelName()));
+			_channelList.push_back(chptr);
 		}
-		// std::ostringstream msgadd;
-		// msgadd << ":" << _nickName << "!" << _userName << "@" << _ip << " JOIN " << args[0];
-		// chptr->broadcastMsg(msgadd.str());
 	}
 	catch (badChannelMask &e)
 	{
@@ -390,7 +456,9 @@ void		User::kickUser(std::vector<std::string>& args)
 {
 	std::string channel = args[0];
 	std::string nick = args[1];
-	std::string reason = argsToString(args.begin() + 2, args.end());
+	std::string	reason = "";
+	if (args.size() > 2)
+		reason = argsToString(args.begin() + 2, args.end());
 	Channel *channelPtr;
 	User	*tmpUser;
 	
@@ -402,11 +470,12 @@ void		User::kickUser(std::vector<std::string>& args)
 
 		if ((tmpUser = channelPtr->isUserInChannel(nick)))
 		{
-			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel), std::make_pair(false, (User *) NULL));
+			channelPtr->broadcastMsg(RPY_kickedMessage(nick, channel, reason), std::make_pair(false, (User *) NULL));
 			if (channelPtr->isUserInList(channelPtr->getListPtrOperators(), tmpUser))
 				channelPtr->updateUserList(channelPtr->getListPtrOperators(), tmpUser, USR_REMOVE);
 			if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
 				channelPtr->updateUserList(channelPtr->getListPtrOrdinaryUsers(), tmpUser, USR_REMOVE);
+			this->removeFromChannelList(channelPtr);
 		}
 		else
 			throw (notOnTheChannel());
@@ -442,11 +511,13 @@ void		User::leaveChannel(std::vector<std::string>& args)
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
 			chPtr->updateUserList(chPtr->getListPtrOrdinaryUsers(), this, USR_REMOVE);
+			this->removeFromChannelList(chPtr);
 		}
 		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
 			chPtr->updateUserList(chPtr->getListPtrOperators(), this, USR_REMOVE);
+			this->removeFromChannelList(chPtr);
 		}
 		else
 			throw(notOnTheChannel());
@@ -463,10 +534,6 @@ void		User::leaveChannel(std::vector<std::string>& args)
 	}
 }
 
-// void		User::modifyChannel(std::string channelName, std::string nickName, char mode)
-// {
-
-// }
 void 	User::setInviteOnly(const std::string& channel){
 		std::cout << "set Channel " << channel <<" to invite only, if enough rights."<< std::endl;
 		}
@@ -512,55 +579,225 @@ void	User::mode(std::vector<std::string>& args)
 {
  	modeParser parser(args);
 	std::vector<std::pair<std::string, std::string> > flagArgsPairs = parser.getflagArgsPairs();
-    for (size_t i = 0; i < flagArgsPairs.size(); ++i) {
-        std::string flag = flagArgsPairs[i].first;
-        std::string arguments = flagArgsPairs[i].second;
-        std::string channel = parser.getChannel();
+	std::vector<std::pair<std::string, std::string> > executedArgs;
+	std::string channel = parser.getChannel();
+	Channel *chptr = _server->getChannel(channel);
 
-        switch (flag[1]) {
-            case 'i': //Set/remove Invite-only channel
-                if (flag[0] == '+') {
-                    setInviteOnly(channel);
-                } else {
-                    remoInviteOnly(channel);
-                }
-                break;
+	for (size_t i = 0; i < flagArgsPairs.size(); ++i)
+		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
+
+
+
+	if (!chptr)
+	{
+		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(parser.getChannel()));
+		return;
+	}
+	User *usr = _server->getUser(_nickName);
+	if (!usr)
+		return;
+	if (flagArgsPairs.size() == 0)
+		printMode(channel, chptr);
+	if (!chptr->isUserInList(chptr->getListPtrOperators(), usr))
+	{
+		sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
+		return;
+	}
+
+	for (size_t i = 0; i < flagArgsPairs.size(); ++i) {
+		std::string flag = flagArgsPairs[i].first;
+		std::string arguments = flagArgsPairs[i].second;
+
+		//Test Output:
+		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
+
+		switch (flag[1]) {
+			case 'i': //Set/remove Invite-only channel
+				if (flag[0] == '+') {
+					if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == false)
+					{
+						chptr->setMode(CHN_MODE_Invite);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					setInviteOnly(channel);
+				} else if (flag[0] == '-') {
+					if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == true)
+					{
+						chptr->setMode(CHN_MODE_Invite);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					remoInviteOnly(channel);
+				}
+				break;
+
 			case 't': //Set/remove the restrictions of the TOPIC command to channel operators
-                if (flag[0] == '+') {
-                    setTopicRestrictions(channel);
-                } else {
-                    removeTopicRestrictions(channel);
-                }
-                break;
+				if (flag[0] == '+') {
+					if (chptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive) == false)
+					{
+						chptr->setMode(CHN_MODE_AdminSetTopic);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					setTopicRestrictions(channel);
+				} else if (flag[0] == '-') {
+					if (chptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive) == true)
+					{
+						chptr->setMode(CHN_MODE_AdminSetTopic);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					removeTopicRestrictions(channel);
+				}
+				break;
 			
 			case 'k': //Set/remove the channel key (password)
-                if (flag[0] == '+') {
-                    setChannelKey(channel, arguments);
-                } else {
-                    removeChannelKey(channel);
-                }
-                break;
+				if (flag[0] == '+') {
+					if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive) == true)
+					{
+						sendMsgToOwnClient(RPY_ERR467_keyAlreadySet(channel));
+						break;
+					}
+					else
+					{
+						chptr->setMode(CHN_MODE_Protected);
+						chptr->setPassword(arguments);
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					setChannelKey(channel, arguments);
+				} else if (flag[0] == '-') {
+					if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive) == true)
+					{
+						if (chptr->remPassword(arguments) == false)
+						{
+							sendMsgToOwnClient(RPY_ERR467_keyAlreadySet(channel));
+							break;
+						}
+						executedArgs.push_back(flagArgsPairs[i]);
+					}
+					removeChannelKey(channel);
+				}
+				break;
 			
 			case 'o': //Give/take channel operator privilege
-                if (flag[0] == '+') {
-                    giveChanopPrivileges(channel, arguments);
-                } else {
-                    removeChanopPrivileges(channel, arguments);
-                }
-                break;
-			
+				{
+					User *userptr = _server->getUser(arguments);
+					if (!userptr)
+					{
+						sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(arguments));
+						break;
+					}
+					if (flag[0] == '+') {
+						if (chptr->isUserInList(chptr->getListPtrOperators(), userptr))
+							break;
+						if (!chptr->isUserInList(chptr->getListPtrOrdinaryUsers(), userptr))
+						{
+							sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(arguments, channel));
+							break;
+						}
+						chptr->promoteUser(arguments);
+						executedArgs.push_back(flagArgsPairs[i]);
+						giveChanopPrivileges(channel, arguments);
+					} else if (flag[0] == '-') {
+						if (chptr->isUserInList(chptr->getListPtrOrdinaryUsers(), userptr))
+							break;
+						if (!chptr->isUserInList(chptr->getListPtrOperators(), userptr))
+						{
+							sendMsgToOwnClient(RPY_ERR441_kickNotOnChannel(arguments, channel));
+							break;
+						}
+						chptr->demoteUser(arguments);
+						executedArgs.push_back(flagArgsPairs[i]);
+						removeChanopPrivileges(channel, arguments);
+					}
+				}
+				break;
+
 			case 'l': //Set/remove the user limit to channel
-                if (flag[0] == '+') {
-                    setUserLimit(channel, std::atoi(arguments.c_str()));
-                } else {
-                    removeUserLimit(channel);
-                }
-                break;	
-            
-            default:
-                std::cout << "Unknown mode: " << flag << std::endl;
-        }
-    }
+				if (flag[0] == '+') {
+					if (arguments == "")
+					{
+						sendMsgToOwnClient(RPY_ERR461_notEnoughParameters(flag));
+						break;
+					}
+					if (chptr->setChannelCapacity(std::atoi(arguments.c_str())) != 0)
+					{
+						break;
+					}
+					if (chptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive) == false)
+						chptr->setMode(CHN_MODE_CustomUserLimit);
+					executedArgs.push_back(flagArgsPairs[i]);
+					setUserLimit(channel, std::atoi(arguments.c_str()));
+				} else if (flag[0] == '-') {
+					if (chptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive) == true)
+						chptr->setMode(CHN_MODE_CustomUserLimit);
+					executedArgs.push_back(flagArgsPairs[i]);
+					removeUserLimit(channel);
+				}
+				break;	
+			
+			default:
+
+				std::cout << "Unknown mode: " << flag << std::endl;
+		}
+	}
+	if (!executedArgs.empty()) //Create the broadcast message
+	{
+		std::string createdFlags;
+		std::string createdArgs;
+		int			first = 1;
+
+		for (size_t i = 0; i < executedArgs.size(); ++i)
+		{
+			std::string f = flagArgsPairs[i].first;
+			std::string a = flagArgsPairs[i].second;
+			if (first == 1)
+			{
+				createdFlags = flagArgsPairs[i].first;
+				createdArgs = flagArgsPairs[i].second;
+				first = 0;
+			}
+			else if (flagArgsPairs[i].first[0] == flagArgsPairs[i - 1].first[0])
+			{
+				createdFlags += flagArgsPairs[i].first[1];
+				createdArgs += " " + flagArgsPairs[i].second;
+			}
+			else
+			{
+				createdFlags += flagArgsPairs[i].first;
+				createdArgs += " " + flagArgsPairs[i].second;
+			}
+		}
+		std::string message;
+		message = ":" + _nickName + "!" + _userName + "@" + _ip + " MODE " + channel  + " " + createdFlags + " " + createdArgs;
+		chptr->broadcastMsg(message, std::make_pair(false, (User *) NULL));
+	}
+}
+
+void	User::printMode(std::string channel, Channel *ptr)
+{
+	std::string	combined;
+	std::string flags = "+n";
+	std::string args;
+	if (ptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
+		flags += "i";
+	if (ptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive))
+	{
+		flags += "l";
+		std::ostringstream msgstream;
+		msgstream << ptr->getChannelCapacity();
+		args += msgstream.str() + " ";
+	}
+	if (ptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+	{
+		flags += "k";
+		args += ptr->getPassword() + " ";
+	}
+	if (ptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive))
+	{
+		flags += "t";
+		args += ptr->getTopic();
+	}
+	combined = flags + " " + args;
+	//>> :master.ircgod.com 324 nick2 #test +n
+	sendMsgToOwnClient(RPY_324_printMode(channel, combined));
 }
 
 // //		*!* MESSAGES  *!*
@@ -576,59 +813,26 @@ void	User::sendNotification(std::vector<std::string>& args)
 {
 	if (args[0].at(0) == '#')
 	{
-		std::list<Channel *>::iterator iterChannel;
-		// for (iterChannel = _channelList.begin(); iterChannel != _channelList.end(); iterChannel++)
-		// {
-			// if (args[0] == (*iterChannel)->getChannelName())     // with or without # at beginn ?
-			// {
-					std::ostringstream msgstream;
-					std::vector<std::string>::iterator iterString = args.begin() + 1;
-					msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " NOTICE " << args[0] << " ";
-					for (; iterString != args.end(); ++iterString)
-						msgstream << *iterString << " ";
-					std::string msg = msgstream.str(); 
-					std::cout << msg << std::endl;
-				// (*iterChannel)->broadcastMsg(msg);     // send to all users in this channel but not to this user
-				// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /*(*iterChannel)->getChannelName() << */ "\'." << std::endl;
-			// 	break;
-			// }
-		// }
-		// if (iterChannel == _channelList.end())
-		// {
-		// 	std::ostringstream msgstream;
-		// 	msgstream << args[0] << " : No such Channel";
-		// 	std::string msg = msgstream.str();
-		// 	std::cout << msg << std::endl;
-		// 	this->sendMsgToOwnClient(msg);
-		// }
+		std::cout << "User::sendNotification called with Channel =      " << args[0] << std::endl;
+
+		Channel *chptr = _server->getChannel(args[0]);
+		if (chptr != NULL) 
+			chptr->broadcastMsg(RPY_ChannelNotification(args[1], chptr), std::make_pair(true, (User *) this));
+		// else
+			// execption Channel dont exists
 	}
 	else
 	{
-		std::list<User *>::iterator iterUser;	
-		// for (iterUser = _server.userList.begin(); iterUser != _server.userList.end(); iterUser++)
-		// {
-		// 	if (args[0] == (*iterUser)->getUserName())
-		// 	{
-				std::ostringstream msgstream;
-				std::vector<std::string>::iterator iterString = args.begin() + 1;
-				msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " NOTICE " << args[0] << " ";
-				for (; iterString != args.end(); ++iterString)
-				msgstream << *iterString << " ";
-				std::string msg = msgstream.str();
-				std::cout << msg << std::endl;
-		// 		this->sendMsgToTargetClient(msg, (*iterUser)->getFd());
+		std::cout << std::endl << std::endl << "User::sendNotification called with nickname of target:   <" << args[0] << ">" << std::endl;
 
-		// 		break;
-				// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to User \'" << /* args[2] << */ "\' with fd = " << /*args[3] << */ std::endl;
-		// 	}
-		// }
-		// if (iterUser == _server.userList.end())
+		User *target = _server->getUser(args[0]);
+		if (target != NULL)
+		{
+			sendMsgToTargetClient(RPY_PrivateNotification(args[1], target), target->getFd());
+		}
+		// else
 		// {
-		// 	std::ostringstream msgstream;
-		// 	msgstream << args[0] << " : No such user";
-		// 	std::string msg = msgstream.str();
-		// 	std::cout << msg << std::endl;
-		// 	this->sendMsgToOwnClient(msg);
+		// 		// 	message and exception that User is not found
 		// }
 	}
 }
@@ -644,33 +848,11 @@ int		User::sendChannelMsg(std::vector<std::string>& args)
 	std::cout << "User::sendChannelMsg called with Channel =      " << args[0] << std::endl;
 
 	Channel *chptr = _server->getChannel(args[0]);
-	if (chptr == NULL) 
-		(void) chptr;	// execption Channel dont exists
-	else
+	if (chptr != NULL)
 		chptr->broadcastMsg(RPY_ChannelMsg(args[1], chptr), std::make_pair(true, (User *) this));
-
-
-
-	// std::ostringstream msgstream;
-	// std::vector<std::string>::iterator iterString = args.begin() + 1;
-	// msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " PRIVMSG " << args[0] << " ";
-	// for (; iterString != args.end(); ++iterString)
-	// 	msgstream << *iterString << " ";
-	// std::string msg = msgstream.str(); 
-	// std::cout << msg << std::endl;
-			// (*iterChannel)->broadcastMsg(msg);     // send to all users in this channel but not to this user
-			// std::cout << "User " << this->getUserName() << "with fd = " << this->getFd() << "sends a message to channel \'" << /*(*iterChannel)->getChannelName() << */ "\'." << std::endl;
-		// 	break;
-		// }
-	// }
-	// if (iterChannel == _channelList.end())
-	// {
-	// 	std::ostringstream msgstream;
-	// 	msgstream << args[0] << " : No such Channel";
-	// 	std::string msg = msgstream.str();
-	// 	std::cout << msg << std::endl;
-	// 	this->sendMsgToOwnClient(msg);
-	// }
+	// else
+		// execption and message Channel dont exists
+		
 	return (0);
 }
 
@@ -683,30 +865,15 @@ int		User::sendChannelMsg(std::vector<std::string>& args)
 int		User::sendPrivateMsg(std::vector<std::string>& args)
 {
 	std::cout << std::endl << std::endl << "User::sendPrivateMsg called. The nickname of target is:   <" << args[0] << ">" << std::endl;
-	User *target = _server->getUser(args[0]);
 
+	User *target = _server->getUser(args[0]);
 	if (target != NULL)
 	{
-		std::cout << "User found at server !" << std::endl;
-		std::ostringstream msgstream;
-		std::vector<std::string>::iterator iterString = args.begin() + 1;
-		msgstream << ":" << this->getNickName() << "!" << this->getUserName() << "@" << this->getIP() << " PRIVMSG " << args[0] << " ";
-		for (; iterString != args.end(); ++iterString)
-		msgstream << *iterString << " ";
-		std::string msg = msgstream.str();
-		std::cout << msg << std::endl;
-		this->sendMsgToTargetClient(msg, target->getFd());
-		std::cout << "User " << this->getUserName() << " with fd = " << this->getFd() << " sends a message to User \'" << target->getUserName() <<  "\' with fd = " <<  target->getFd() << std::endl;
-		std::cout << "The message is: 	" << msg << std::endl;
-		// break;
+		sendMsgToTargetClient(RPY_PrivateMsg(args[1], target), target->getFd());
 	}
 	// else
 	// {
-	// 	std::ostringstream msgstream;
-	// 	msgstream << args[0] << " : No such user";
-	// 	std::string msg = msgstream.str();
-	// 	std::cout << msg << std::endl;
-	// 	this->sendMsgToOwnClient(msg);
+	// 		// 	message and exception that User is not found
 	// }
 	return (0);
 }
@@ -733,4 +900,29 @@ std::string	User::argsToString(std::vector<std::string>::iterator iterBegin, std
 			msgstream << " ";
 	}
 	return (msgstream.str());
+}
+
+void	User::removeFromChannelList(Channel *ptr)
+{
+	std::vector<Channel *>::iterator it = _channelList.begin();
+
+	for (;it != _channelList.end(); ++it)
+	{
+		if (ptr == *it)
+		{
+			_channelList.erase(it);
+			break;
+		}
+	}
+}
+
+bool	User::isUserInList(std::vector<User *>::iterator begin, std::vector<User *>::iterator end, User *user)
+{
+	std::vector<User *>::iterator it = begin;
+	for (; it != end; ++it)
+	{
+		if (*it == user)
+			return (true);
+	}
+	return (false);
 }

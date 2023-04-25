@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/23 15:56:57 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/25 16:16:01 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,9 @@ class Server
 		// void			startServer(void);
 		// void			closeServer(void);
 		
-		void					createChannel(const std::string& channel) const;
+		Channel*				createChannel(const std::string& channel) const;
 		void					pingClient(int client_socket);
-		void					createChannel(const std::string& channel_name, const std::string& topic, User* user);
+		Channel*				createChannel(const std::string& channel_name, const std::string& topic, User* user);
 		void					pingClient(void) const;
 		
 		// getters

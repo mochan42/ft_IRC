@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/24 09:31:22 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/25 12:59:22 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ typedef enum e_chn_mode
 	CHN_MODE_Default,
 	CHN_MODE_Invite,            // _mode value = 1
 	CHN_MODE_Protected,         // _mode value = 2
-	CHN_MODE_AdminSetUserLimit, // _mode value = 4
+	CHN_MODE_CustomUserLimit, // _mode value = 4
 	CHN_MODE_AdminSetTopic,     // _mode value = 8
 	CHN_MODE_Max
 }	t_chnMode;
@@ -89,6 +89,7 @@ class Channel
     private:
         std::string			_channelName;
         std::string			_topic;
+		std::string			_password;
         unsigned int		_channelCapacity;
         std::list<User *>	*_invitedUsers;
         std::list<User *>	*_operators;
@@ -132,14 +133,16 @@ class Channel
     	std::list<User *>	*getListPtrOrdinaryUsers(void) const;
 		unsigned int		getNbrofActiveUsers(void) const;
         uint8_t             getMode(void) const;
+		std::string			getPassword(void) const;
     	void				setChannelName(std::string name);
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
 		t_chn_return		setMode(uint8_t mode);
+		void				setPassword(std::string pw);
     
     	/* Methods */
 		
-		bool				 isModeSet(uint8_t mode, t_chnOptionCtrl optCtrl);
+		bool				isModeSet(uint8_t mode, t_chnOptionCtrl optCtrl);
 		
 		/**
 		 * @brief 
@@ -276,6 +279,28 @@ class Channel
 		 */
 		t_chn_return	promoteUser(std::string nickname);
 		
+		/**
+		 * @brief 
+		 * This method is checking if password is equivalent 
+		 * to the channel pw.
+		 * Return 1 if its equivalent.
+		 * Return 0 pw is wrong.
+		 * 
+		 * @param pw 
+		 * @return bool
+		 */
+		bool			checkPassword(std::string pw);
+		
+		/**
+		 * @brief 
+		 * If pw is equivalent to channel pw, delete the password from the channel
+		 * Return 1 if the password is removed
+		 * Return 0 if pw is'nt equivalent with channel pw
+		 * 
+		 * @param pw
+		 * @return bool
+		 */
+		bool			remPassword(std::string pw);
 
 
 		/* Nested class for execeptions */

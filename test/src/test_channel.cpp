@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 18:59:02 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/23 22:31:28 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/24 17:35:14 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,7 +247,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
         Channel club("Bikers", "Trip to Madagascar", &flex);
         
         // adminSetUserLimit is on bit 3(2) : value should be 4 
-        club.setMode(CHN_MODE_AdminSetUserLimit);
+        club.setMode(CHN_MODE_CustomUserLimit);
         REQUIRE(club.getMode() == 4);
     }
     SECTION("set mode to AdminSetTopic : Set channel topic adjustable by operator only" )
@@ -266,7 +266,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
         User flex(1, "127.0.0.1", &server);
         Channel club("Bikers", "Trip to Madagascar", &flex);
          
-        club.setMode(CHN_MODE_Invite); club.setMode(CHN_MODE_Protected); club.setMode(CHN_MODE_AdminSetUserLimit);
+        club.setMode(CHN_MODE_Invite); club.setMode(CHN_MODE_Protected); club.setMode(CHN_MODE_CustomUserLimit);
         club.setMode(CHN_MODE_AdminSetTopic);
         REQUIRE(club.getMode() == 0x0F);
     }
@@ -278,7 +278,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
          
         REQUIRE(club.setMode(CHN_MODE_Invite) == CHN_ERR_SUCCESS);
         REQUIRE(club.setMode(CHN_MODE_Protected) == CHN_ERR_SUCCESS);
-        REQUIRE(club.setMode(CHN_MODE_AdminSetUserLimit) == CHN_ERR_SUCCESS);
+        REQUIRE(club.setMode(CHN_MODE_CustomUserLimit) == CHN_ERR_SUCCESS);
         REQUIRE(club.setMode(CHN_MODE_AdminSetTopic) == CHN_ERR_SUCCESS);
         REQUIRE(club.getMode() == 0x0F);
     }
@@ -331,8 +331,8 @@ TEST_CASE( "Channel : isModeSet", "[Channel][Mode]")
         
         /* Reset mode */
         club.setMode(CHN_MODE_Default); 
-        club.setMode(CHN_MODE_AdminSetUserLimit);
-        REQUIRE(club.isModeSet(CHN_MODE_AdminSetUserLimit, CHN_OPT_CTRL_Exclusive) == true);
+        club.setMode(CHN_MODE_CustomUserLimit);
+        REQUIRE(club.isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_Exclusive) == true);
         
         /* Reset mode */
         club.setMode(CHN_MODE_Default); 
@@ -349,7 +349,7 @@ TEST_CASE( "Channel : isModeSet", "[Channel][Mode]")
         club.setMode(15);   /* set all modes */
         REQUIRE(club.isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == true);
         REQUIRE(club.isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive) == true);
-        REQUIRE(club.isModeSet(CHN_MODE_AdminSetUserLimit, CHN_OPT_CTRL_NotExclusive) == true);
+        REQUIRE(club.isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive) == true);
         REQUIRE(club.isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive) == true);
         
 
@@ -364,7 +364,7 @@ TEST_CASE( "Channel : isModeSet", "[Channel][Mode]")
         club.setMode(15);   /* set all modes */
         REQUIRE(club.isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_Exclusive) != true);
         REQUIRE(club.isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_Exclusive) != true);
-        REQUIRE(club.isModeSet(CHN_MODE_AdminSetUserLimit, CHN_OPT_CTRL_Exclusive) != true);
+        REQUIRE(club.isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_Exclusive) != true);
         REQUIRE(club.isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_Exclusive) != true);
     }
     SECTION("check mode exclusive and non exclusive : Invalid mode inputs ")
