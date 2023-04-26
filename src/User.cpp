@@ -456,16 +456,11 @@ void		User::joinChannel(std::vector<std::string>& args)
 
 void		User::removeChannelFromList(Channel* channel)
 {
-	std::list<Channel *>::iterator iter = _channelList.begin();
-	std::list<Channel *>::iterator iterTemp; 
+	std::vector<Channel *>::iterator iter = _channelList.begin(); 
 	while (iter != _channelList.end())
 	{
 		if (channel->getChannelName() == (*iter)->getChannelName())
-		{
-			iterTemp = iter;
-			++iter;
-			_channelList.erase(iterTemp);
-		}
+			iter = _channelList.erase(iter);
 		else
 			++iter;
 	}
@@ -837,8 +832,8 @@ void		User::quitServer(std::vector<std::string>& args)
 	if (_channelList.size() > 0)
 	{
 		(void) args;
-		std::list<Channel *>::iterator iter = _channelList.begin();
-		std::list<Channel *>::iterator iterTemp;
+		std::vector<Channel *>::iterator iter = _channelList.begin();
+		std::vector<Channel *>::iterator iterTemp;
 
 		while (iter != _channelList.end())
 		{
