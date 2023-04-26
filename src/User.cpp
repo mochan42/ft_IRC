@@ -117,7 +117,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	else if (command == "REAL")
 		setRealName(args);
 	else if (command == "PASS")
-		checkServerPw(args);
+		registerUser(args);
 	else if (command == "JOIN")
 		joinChannel(args);
 	else if (command == "MODE")
@@ -163,13 +163,12 @@ std::string		User::getIP(void)
 	return (this->_ip);
 }
 
-void		User::checkServerPw(const std::vector<std::string>& args)
+void		User::registerUser(const std::vector<std::string>& args)
 {
-	std::cout << "User::checkServerPw called." << std::endl; 
+	std::cout << "User::checkServerPw called." << std::endl;
 	if (args.empty())
 		return;
-	_pw = args[0];
-	if (this->_server->verifyPassword(_pw))
+	if (this->_server->verifyPassword(args[0]))
 	{
 		this->_isRegistered = true;
 		sendMsgToOwnClient(RPY_pass(true));
@@ -178,7 +177,7 @@ void		User::checkServerPw(const std::vector<std::string>& args)
 	else
 	{
 		sendMsgToOwnClient(RPY_pass(false));
-		std::cout << "Wrong Password.\n";
+		std::cout << "PW wrong: The User is not registered" << std::endl;
 	}
 }
 
@@ -190,7 +189,7 @@ void		User::setNickName(const std::vector<std::string>& args)
 	try
 	{
 		if (_server->getUser(newNick))
-			throw (nickInUse()); //>> :master.ircgod.com 433 * Nick5 :Nickname is already in use
+			throw (nickInUse());
 		if (!_welcomeMes)
 		{
 			_nickName = newNick;
@@ -199,7 +198,6 @@ void		User::setNickName(const std::vector<std::string>& args)
 			return;
 		}
 		_nickName = newNick;
-		//Send to all Users who are in the channel with this user!!!
 		//create a list with all users from all channels:
 		if (!_channelList.empty())
 		{
