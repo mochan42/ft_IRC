@@ -50,11 +50,14 @@ class User
 
 		void		who(std::vector<std::string>& args);
 		void		changeTopic(std::vector<std::string>& args);
-		// channel&	createChannel(std::string channelName);
+
 		void 		inviteUser(std::vector<std::string>& args);
 		void		joinChannel(std::vector<std::string>& args);
 		void		kickUser(std::vector<std::string>& args);
 		void		leaveChannel(std::vector<std::string>& args);
+		void		removeChannelFromList(Channel* channel);
+		void		quitServer(std::vector<std::string>& args);
+
 		void		mode(std::vector<std::string>& args);
 		void		printMode(std::string channel, Channel *ptr);
 		void		removeFromChannelList(Channel *ptr);
@@ -91,11 +94,11 @@ class User
 		std::string		RPY_PrivateNotification(std::string message, User* target);
 		std::string		RPY_joinChannelBroadcast(Channel* channel, bool op);
 		std::string 	RPY_createChannel(Channel* channel);
-		std::string 	RPY_joinWho(Channel* channel);
+		std::string 	RPY_353_joinWho(Channel* channel);
 		std::string 	RPY_joinChannel(Channel* channel);
 		std::string		RPY_getModeCreated(Channel *channel);
 		std::string		RPY_getModeJoined(Channel *channel);
-		
+
 		std::string		RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
 		std::string		RPY_inviteMessage(std::string otherNick, std::string channel);
 		std::string		RPY_kickedMessage(std::string otherNick, std::string channel, std::string reason);
@@ -108,6 +111,7 @@ class User
 
 		std::string 	RPY_ERR_commandNotfound(std::string command);
 		std::string		RPY_ERR462_alreadyRegistered();
+		std::string		RPY_ERR451_notRegistered();
 		std::string 	RPY_ERR401_noSuchNickChannel(std::string nickchannel);
 		std::string 	RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string channel);
 		std::string		RPY_ERR476_badChannelMask(std::string channel);
@@ -124,6 +128,27 @@ class User
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
+
+		class notRegistered : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return ("User not registered");
+				}
+		};
+
+		class commandNotFound : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return ("Command not found");
+				}
+		};
+
+		class wrongPassword : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return ("Wrong password. User can not register");
+				}
+		};
 
 		class badChannelMask : public std::exception {
 			public:
@@ -151,6 +176,14 @@ class User
 				virtual const char *what() const throw()
 				{
 					return (":No such channel");
+				}
+		};
+
+		class noSuchNick : public std::exception {
+			public:
+				virtual const char *what() const throw()
+				{
+					return (":No such nick");
 				}
 		};
 

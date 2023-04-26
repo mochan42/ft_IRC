@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 14:18:01 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/26 14:29:56 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ class Server
 		void					handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
 		void					handle_client_data(int client_socket, char *buffer, int buffer_size);
 		void					connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer);
+		void					deleteUser(User *userPtr);
+		void					deleteChannel(Channel *channelPtr);
 		void					setupServer();
 		void					remChannel(const std::string& channel_name);
 
