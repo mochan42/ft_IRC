@@ -165,6 +165,8 @@ std::string		User::getIP(void)
 
 void		User::setServerPw(const std::vector<std::string>& args)
 {
+	if (args.empty())
+		return;
 	_pw = args[0];
 	if (this->_server->verifyPassword(_pw))
 	{

@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 12:34:53 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/26 12:45:39 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void 	Server::setPort(int inputPortNumber)
 
 bool	Server::verifyPassword(const std::string& password) const
 {
-    if (password == this->_password)
+    if (!password.empty() && password == this->_password)
 		return (true);
 	return (false);
 }
@@ -247,16 +247,19 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 }
 
 /* Function to handle data from a client socket */
-void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
+void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
 {
 	std::string input;
-	while (true) {
+	while (true)
+	{
 		int num_bytes = recv(client_socket, buffer, buffer_size, 0);
-		if (num_bytes < 0) {
+		if (num_bytes < 0)
+		{
 			std::cout << RED << "Error receiving data from client" << D  << "\n";
 			return;
 		}
-		else if (num_bytes == 0) {
+		else if (num_bytes == 0)
+		{
 			/* Client has disconnected */
 			std::cout << "Client disconnected\n";
 			// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
@@ -265,14 +268,14 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 			close(client_socket);
 			break;
 		}
-		else {
+		else
+		{
 			buffer[num_bytes] = '\0';
 			input += std::string(buffer, 0, num_bytes);
-			if (input.find("\n") != std::string::npos) {
-				break;}
-			else{
+			if (input.find("\n") != std::string::npos)
+				break;
+			else
 				std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
-			}
 		}
 	}
 	this->_messages[client_socket] = input;
@@ -284,7 +287,8 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	// Extract the command and arguments from the Message instance
 	std::vector<std::string> command = msg.getCommand();
 	std::vector<std::vector<std::string> > args = msg.getArguments();
-	
+	if (args.size() == 0)
+		return;
 	// Print the command and arguments for debugging purposes
 	for (unsigned int i = 0; i < command.size(); i++){
 		std::cout << "Command: " << command[i] << "\n";
@@ -299,7 +303,8 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 
 	/* client_socket execute cmd */
 	std::map<int, User*>::iterator user_it = _users.find(client_socket);
-	if (user_it != _users.end()) {
+	if (user_it != _users.end())
+	{
 		User *user = user_it->second;
 		int i = 0;
 		for (std::vector<std::string>::iterator iter = command.begin(); iter != command.end(); ++iter)
@@ -307,9 +312,9 @@ void Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 			user->executeCommand(command[i], args[i]);
 			i++;
 		}
-			
 	} 
-	else {
+	else
+	{
 	// Handle the case when the user is not found
 	}
 }
