@@ -369,9 +369,8 @@ void		User::changeTopic(std::vector<std::string>& args)
 			return;
 		}
 	}
-	std::string newTopic = argsToString(args.begin() + 1, args.end());
-	chnptr->setTopic(newTopic);
-	chnptr->broadcastMsg(RPY_newTopic(channel, newTopic), std::make_pair(false, (User *) NULL));
+	chnptr->setTopic(args[1]);
+	chnptr->broadcastMsg(RPY_newTopic(channel, args[1]), std::make_pair(false, (User *) NULL));
 }
 
 
@@ -1005,13 +1004,13 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 std::string	User::argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd)
 {
 	std::ostringstream msgstream;
-	if ((*iterBegin)[0] == ':')
-	{
-		msgstream << (*iterBegin).replace((*iterBegin).find(":"), 1, "");
-		++iterBegin;
-		if (iterBegin != iterEnd && iterBegin + 1 != iterEnd)
-			msgstream << " ";
-	}
+	// if ((*iterBegin)[0] == ':')
+	// {
+	// 	msgstream << (*iterBegin).replace((*iterBegin).find(":"), 1, "");
+	// 	++iterBegin;
+	// 	if (iterBegin != iterEnd && iterBegin + 1 != iterEnd)
+	// 		msgstream << " ";
+	// }
 	for (; iterBegin != iterEnd; ++iterBegin)
 	{
 		msgstream << *iterBegin;
