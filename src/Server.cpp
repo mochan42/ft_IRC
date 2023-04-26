@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 12:45:39 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/26 13:35:47 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,6 @@ Server::~Server()
 		for (std::map<std::string, Channel*>::iterator it = begin_it; it != end_it; it++)
 		{
 			delete it->second;
-			this->_channels.erase(it);
-			if (it == end_it)
-				break;
 		}	
 	}
 	if (!this->_users.empty())
