@@ -15,3 +15,6 @@ Feel free to dig in and try out some things.
 
 # Have fun testing!
 If you have any comments or suggestions, please let us know!
+
+# List of tests
+<a href="https://docs.google.com/spreadsheets/d/1a-5auw5K_X2v7DwB-RRTCA27LCHPnBzk_nW-ilOk52Q/edit#gid=0" target="_blank">Click Here</a>
