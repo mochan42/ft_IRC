@@ -184,7 +184,7 @@ void		User::setNickName(const std::vector<std::string>& args)
 	try
 	{
 		if (_server->getUser(newNick))
-			throw (nickInUse()); //>> :master.ircgod.com 433 * Nick5 :Nickname is already in use
+			throw (nickInUse());
 		if (!_welcomeMes)
 		{
 			_nickName = newNick;
@@ -193,7 +193,6 @@ void		User::setNickName(const std::vector<std::string>& args)
 			return;
 		}
 		_nickName = newNick;
-		//Send to all Users who are in the channel with this user!!!
 		//create a list with all users from all channels:
 		if (!_channelList.empty())
 		{
