@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/25 12:59:29 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/26 09:57:40 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -458,7 +458,6 @@ User*	Channel::fetchUserPtrFromList(std::list<User *> *user_list,
 	}
 	return (NULL);
 }
-
 
 
 User	*Channel::isUserInChannel(std::string nickname)
