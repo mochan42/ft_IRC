@@ -130,6 +130,27 @@ class User
 //		*!* EXCEPTIONS  *!*
 //		-------------------
 
+		class notRegistered : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return ("User not registered");
+				}
+		};
+
+		class commandNotFound : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return ("Command not found");
+				}
+		};
+
+		class wrongPassword : public std::exception {
+			public:
+				virtual const char *what() const throw() {
+					return ("Wrong password. User can not register");
+				}
+		};
+
 		class badChannelMask : public std::exception {
 			public:
 				virtual const char *what() const throw() {
@@ -156,6 +177,14 @@ class User
 				virtual const char *what() const throw()
 				{
 					return (":No such channel");
+				}
+		};
+
+		class noSuchNick : public std::exception {
+			public:
+				virtual const char *what() const throw()
+				{
+					return (":No such nick");
 				}
 		};
 

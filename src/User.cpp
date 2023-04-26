@@ -108,53 +108,63 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	for (size_t i = 0; i < command.length(); i++)
 			command[i] = std::toupper(command[i]);
 
-	if (_isRegistered == false && (command == "PRIVMSG" || command == "REAL" || command == "JOIN" || command == "MODE" || command == "WHO" || command == "INVITE" || command == "KICK" || command == "PART" || command == "NOTICE"))
+	try
 	{
-		sendMsgToOwnClient(RPY_ERR451_notRegistered());
-		return ;
-	}
+		if (_isRegistered == false && (command == "PRIVMSG" || command == "REAL" || command == "JOIN" || command == "MODE" || command == "WHO" || command == "INVITE" || command == "KICK" || command == "PART" || command == "NOTICE"))
+			throw (notRegistered());
 
-	std::cout << "User::executeCommand called with command = " << command <<  std::endl;
-	if (command == "CAP")
-	{}
-	else if (command == "NICK")
-		setNickName(args);
-	else if (command == "USER")
-		setUserName(args);
-	else if (command == "REAL")
-		setRealName(args);
-	else if (command == "PASS")
-		setServerPw(args);
-	else if (command == "JOIN")
-		joinChannel(args);
-	else if (command == "MODE")
-	 	mode(args);
-	else if (command == "WHO")
-		who(args);		
-	else if (command == "TOPIC")
-		changeTopic(args);
-	else if (command == "INVITE")
-		inviteUser(args);
-	else if (command == "KICK")
-		kickUser(args);
-	else if (command == "PART")
-		leaveChannel(args);
-	else if (command == "NOTICE")
-		sendNotification(args);
-	else if (command == "PRIVMSG")
-	{
-		if (args[0].at(0) == '#')
-			sendChannelMsg(args);
+		std::cout << "User::executeCommand called with command = " << command <<  std::endl;
+		if (command == "CAP")
+		{}
+		else if (command == "NICK")
+			setNickName(args);
+		else if (command == "USER")
+			setUserName(args);
+		else if (command == "REAL")
+			setRealName(args);
+		else if (command == "PASS")
+			setServerPw(args);
+		else if (command == "JOIN")
+			joinChannel(args);
+		else if (command == "MODE")
+			mode(args);
+		else if (command == "WHO")
+			who(args);		
+		else if (command == "TOPIC")
+			changeTopic(args);
+		else if (command == "INVITE")
+			inviteUser(args);
+		else if (command == "KICK")
+			kickUser(args);
+		else if (command == "PART")
+			leaveChannel(args);
+		else if (command == "NOTICE")
+			sendNotification(args);
+		else if (command == "PRIVMSG")
+		{
+			if (args[0].at(0) == '#')
+				sendChannelMsg(args);
+			else
+				sendPrivateMsg(args);
+		}
+		else if (command == "QUIT")
+			quitServer(args);
 		else
-			sendPrivateMsg(args);
+			throw (commandNotFound());
+
 	}
-	else if (command == "QUIT")
-		quitServer(args);
-	else
+	catch(notRegistered& e)
 	{
-		sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
-		std::cout << _replyMessage << std::endl;
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR451_notRegistered());
 	}
+	catch(commandNotFound& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
+	}
+	
+
 }
 
 //		*!* NAME and ID Handling  *!*
@@ -173,14 +183,22 @@ std::string		User::getIP(void)
 void		User::setServerPw(const std::vector<std::string>& args)
 {
 	_pw = args[0];
-	if (this->_server->verifyPassword(_pw))
+	try
 	{
-		_isRegistered = true;
-		sendMsgToOwnClient(RPY_pass(true));
+		if (this->_server->verifyPassword(_pw))
+			{
+				_isRegistered = true;
+				sendMsgToOwnClient(RPY_pass(true));
+			}
+			else
+				throw (wrongPassword());
+			std::cout << "User::setServerPw called. The _pw is now:  " << _pw << std::endl;
 	}
-	else
+	catch(wrongPassword& e)
+	{
+		(void)e;
 		sendMsgToOwnClient(RPY_pass(false));
-	std::cout << "User::setServerPw called. The _pw is now:  " << _pw << std::endl;
+	}
 }
 
 void		User::setNickName(const std::vector<std::string>& args)
@@ -355,25 +373,37 @@ void 		User::inviteUser(std::vector<std::string>& args)
 {
 	std::string nick = args[0];
 	std::string channel = args[1];
-
-	User *user = _server->getUser(nick);
-	Channel	*chptr = _server->getChannel(channel);
-	if (!user)
-		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(nick));
-	else if (!chptr)
-		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(channel));
-	else
+	try
 	{
-		if (chptr->isUserInChannel(nick) != NULL)
-			sendMsgToOwnClient(RPY_ERR443_alreadyOnChannel(nick, channel));
+		User *user = _server->getUser(nick);
+		Channel	*chptr = _server->getChannel(channel);
+		if (!user)
+			throw (noSuchNick());
+		else if (!chptr)
+			throw (noSuchChannel());
 		else
 		{
-			chptr->updateUserList(chptr->getListPtrInvitedUsers(), user, USR_ADD);
-			sendMsgToOwnClient(RPY_341_userAddedtoInviteList(nick, channel));
-			//!!!     write to other person:   !!!!
-			user->sendMsgToOwnClient(RPY_inviteMessage(nick, channel));
-			//check if that works later
+			if (chptr->isUserInChannel(nick) != NULL)
+				sendMsgToOwnClient(RPY_ERR443_alreadyOnChannel(nick, channel));
+			else
+			{
+				chptr->updateUserList(chptr->getListPtrInvitedUsers(), user, USR_ADD);
+				sendMsgToOwnClient(RPY_341_userAddedtoInviteList(nick, channel));
+				//!!!     write to other person:   !!!!
+				user->sendMsgToOwnClient(RPY_inviteMessage(nick, channel));
+				//check if that works later
+			}
 		}
+	}
+	catch(noSuchChannel& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(channel));
+	}
+	catch(noSuchNick& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(nick));
 	}
 }
 
@@ -828,7 +858,6 @@ void	User::printMode(std::string channel, Channel *ptr)
 
 void		User::quitServer(std::vector<std::string>& args)
 {
-	
 	if (_channelList.size() > 0)
 	{
 		(void) args;
@@ -873,29 +902,38 @@ void		User::quitServer(std::vector<std::string>& args)
  */
 void	User::sendNotification(std::vector<std::string>& args)
 {
-	if (args[0].at(0) == '#')
+	try
 	{
-		std::cout << "User::sendNotification called with Channel =      " << args[0] << std::endl;
-
-		Channel *chptr = _server->getChannel(args[0]);
-		if (chptr != NULL) 
-			chptr->broadcastMsg(RPY_ChannelNotification(args[1], chptr), std::make_pair(true, (User *) this));
-		// else
-			// execption Channel dont exists
-	}
-	else
-	{
-		std::cout << std::endl << std::endl << "User::sendNotification called with nickname of target:   <" << args[0] << ">" << std::endl;
-
-		User *target = _server->getUser(args[0]);
-		if (target != NULL)
+		if (args[0].at(0) == '#')
 		{
-			sendMsgToTargetClient(RPY_PrivateNotification(args[1], target), target->getFd());
+			std::cout << "User::sendNotification called with Channel =      " << args[0] << std::endl;
+
+			Channel *chptr = _server->getChannel(args[0]);
+			if (chptr != NULL) 
+				chptr->broadcastMsg(RPY_ChannelNotification(args[1], chptr), std::make_pair(true, (User *) this));
+			else
+				throw (noSuchChannel());
 		}
-		// else
-		// {
-		// 		// 	message and exception that User is not found
-		// }
+		else
+		{
+			std::cout << std::endl << std::endl << "User::sendNotification called with nickname of target:   <" << args[0] << ">" << std::endl;
+
+			User *target = _server->getUser(args[0]);
+			if (target != NULL)
+				sendMsgToTargetClient(RPY_PrivateNotification(args[1], target), target->getFd());
+			else
+				throw (noSuchNick());
+		}
+	}
+	catch(noSuchChannel& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(args[0]));
+	}
+	catch(noSuchNick& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(args[0]));
 	}
 }
 
@@ -907,14 +945,21 @@ void	User::sendNotification(std::vector<std::string>& args)
  */
 int		User::sendChannelMsg(std::vector<std::string>& args)
 {
+	
 	std::cout << "User::sendChannelMsg called with Channel =      " << args[0] << std::endl;
-
-	Channel *chptr = _server->getChannel(args[0]);
-	if (chptr != NULL)
-		chptr->broadcastMsg(RPY_ChannelMsg(args[1], chptr), std::make_pair(true, (User *) this));
-	// else
-		// execption and message Channel dont exists
-		
+	try
+	{
+		Channel *chptr = _server->getChannel(args[0]);
+		if (chptr != NULL)
+			chptr->broadcastMsg(RPY_ChannelMsg(args[1], chptr), std::make_pair(true, (User *) this));
+		else
+			throw (noSuchChannel());
+	}
+	catch(noSuchChannel& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(args[0]));
+	}		
 	return (0);
 }
 
@@ -928,15 +973,21 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 {
 	std::cout << std::endl << std::endl << "User::sendPrivateMsg called. The nickname of target is:   <" << args[0] << ">" << std::endl;
 
-	User *target = _server->getUser(args[0]);
-	if (target != NULL)
+	try
 	{
-		sendMsgToTargetClient(RPY_PrivateMsg(args[1], target), target->getFd());
+		User *target = _server->getUser(args[0]);
+		if (target != NULL)
+		{
+			sendMsgToTargetClient(RPY_PrivateMsg(args[1], target), target->getFd());
+		}
+		else
+			throw (noSuchNick());
 	}
-	// else
-	// {
-	// 		// 	message and exception that User is not found
-	// }
+	catch(noSuchNick& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(args[0]));
+	}
 	return (0);
 }
 
