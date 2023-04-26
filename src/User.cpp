@@ -392,10 +392,17 @@ void		User::joinChannel(std::vector<std::string>& args)
 void		User::removeChannelFromList(Channel* channel)
 {
 	std::list<Channel *>::iterator iter = _channelList.begin();
+	std::list<Channel *>::iterator iterTemp; 
 	while (iter != _channelList.end())
 	{
 		if (channel->getChannelName() == (*iter)->getChannelName())
-			_channelList.erase(iter);
+		{
+			iterTemp = iter;
+			++iter;
+			_channelList.erase(iterTemp);
+		}
+		else
+			++iter;
 	}
 }
 
@@ -427,6 +434,8 @@ void		User::kickUser(std::vector<std::string>& args)
 			if (channelPtr->isUserInList(channelPtr->getListPtrOrdinaryUsers(), tmpUser))
 				channelPtr->updateUserList(channelPtr->getListPtrOrdinaryUsers(), tmpUser, USR_REMOVE);
 			tmpUser->removeChannelFromList(channelPtr);
+			if (channelPtr->isUserListEmpty(channelPtr->getListPtrOperators()) && channelPtr->isUserListEmpty(channelPtr->getListPtrOrdinaryUsers()))
+				_server->deleteChannel(channelPtr);
 		}
 		else
 			throw (notOnTheChannel());
@@ -462,16 +471,20 @@ void		User::leaveChannel(std::vector<std::string>& args)
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
 			chPtr->updateUserList(chPtr->getListPtrOrdinaryUsers(), this, USR_REMOVE);
-			// removeChannelFromList(chPtr);
+			removeChannelFromList(chPtr);
 		}
 		else if (chPtr->isUserInList(chPtr->getListPtrOperators(), this))
 		{
 			chPtr->broadcastMsg(RPY_leaveChannel(channel), std::make_pair(false, (User *) NULL));
 			chPtr->updateUserList(chPtr->getListPtrOperators(), this, USR_REMOVE);
-			// removeChannelFromList(chPtr);
+			removeChannelFromList(chPtr);
 		}
 		else
 			throw(notOnTheChannel());
+		if (chPtr->isUserListEmpty(chPtr->getListPtrOperators()) && chPtr->isUserListEmpty(chPtr->getListPtrOrdinaryUsers()))
+			_server->deleteChannel(chPtr);
+
+				
 	}
 	catch(noSuchChannel &e)
 	{
@@ -485,10 +498,6 @@ void		User::leaveChannel(std::vector<std::string>& args)
 	}
 }
 
-// void		User::modifyChannel(std::string channelName, std::string nickName, char mode)
-// {
-
-// }
 void 	User::setInviteOnly(const std::string& channel){
 		std::cout << "set Channel " << channel <<" to invite only, if enough rights."<< std::endl;
 		}
@@ -592,6 +601,7 @@ void		User::quitServer(std::vector<std::string>& args)
 	{
 		(void) args;
 		std::list<Channel *>::iterator iter = _channelList.begin();
+		std::list<Channel *>::iterator iterTemp;
 
 		while (iter != _channelList.end())
 		{
@@ -607,7 +617,14 @@ void		User::quitServer(std::vector<std::string>& args)
 				(*iter)->broadcastMsg(RPY_leaveChannel((*iter)->getChannelName()), std::make_pair(false, (User *) NULL));
 				(*iter)->updateUserList((*iter)->getListPtrOrdinaryUsers(), this, USR_REMOVE);
 			}
-			iter++;
+			if ((*iter)->isUserListEmpty((*iter)->getListPtrOperators()) && (*iter)->isUserListEmpty((*iter)->getListPtrOrdinaryUsers()))
+			{
+				iterTemp = iter;
+				++iter;
+				_server->deleteChannel(*iterTemp);
+			}
+			else	
+				++iter;
 		}
 	}
 }

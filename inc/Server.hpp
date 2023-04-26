@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/24 18:59:26 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/26 09:42:42 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,7 @@ class Server
 		void					handle_client_data(int client_socket, char *buffer, int buffer_size);
 		void					connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer);
 		void					deleteUser(User *userPtr);
+		void					deleteChannel(Channel *channelPtr);
 		void					setupServer();
 
 		// exception class

@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/24 19:29:44 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/26 09:50:07 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,6 +209,24 @@ void	Server::listenToClients()
 void	Server::deleteUser(User *userPtr)
 {
 	delete userPtr;
+}
+
+void	Server::deleteChannel(Channel *channelPtr)
+{
+	std::map<std::string, Channel*>::iterator iter = _channels.begin();
+	std::map<std::string, Channel*>::iterator iterTemp; 
+	while (iter != _channels.end())
+	{
+		if (channelPtr->getChannelName() == (*iter).second->getChannelName())
+		{
+			iterTemp = iter;
+			++iter;
+			_channels.erase(iterTemp);
+		}
+		else
+			++iter;
+	}
+	delete channelPtr;
 }
 
 
