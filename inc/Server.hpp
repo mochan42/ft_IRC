@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 11:42:08 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/26 14:18:01 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ class Server
 		void					handle_client_data(int client_socket, char *buffer, int buffer_size);
 		void					connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer);
 		void					setupServer();
+		void					remChannel(const std::string& channel_name);
 
 		// exception class
 		class ErrorInternal : public std::exception
