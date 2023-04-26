@@ -165,16 +165,19 @@ std::string		User::getIP(void)
 
 void		User::registerUser(const std::vector<std::string>& args)
 {
+	std::cout << "User::checkServerPw called." << std::endl;
+	if (args.empty())
+		return;
 	if (this->_server->verifyPassword(args[0]))
 	{
-		_isRegistered = true;
+		this->_isRegistered = true;
 		sendMsgToOwnClient(RPY_pass(true));
-		std::cout << "User::registerUser called. The User is registred" << std::endl;
+		std::cout << "The user is now registered" << std::endl;
 	}
 	else
 	{
 		sendMsgToOwnClient(RPY_pass(false));
-		std::cout << "User::registerUser called. The User is not registred" << std::endl;
+		std::cout << "PW wrong: The User is not registered" << std::endl;
 	}
 }
 
@@ -228,7 +231,7 @@ void		User::setNickName(const std::vector<std::string>& args)
 		}
 		else
 			sendMsgToOwnClient(RPY_newNick(oldNick));
-		std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
+		std::cout << "User::setNickname called. The _nickName of fd " << this->getFd() << " is now:  " << this->getNickName() << std::endl;
 	}
 	catch (nickInUse &e)
 	{
