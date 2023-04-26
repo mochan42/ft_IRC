@@ -7,6 +7,7 @@
 # include <sstream>
 # include <vector>
 # include <poll.h>
+# include <algorithm>
 
 class Server;
 
@@ -22,7 +23,8 @@ class User
 		std::string					_realName;
 		bool						_isRegistered;
 		bool						_usernameSet;
-		std::list<Channel *>		_channelList;
+		bool						_welcomeMes;
+		std::vector<Channel *>		_channelList;
 		std::string					_replyMessage;
 		int							_userPort;
 
@@ -49,15 +51,17 @@ class User
 
 		void		who(std::vector<std::string>& args);
 		void		changeTopic(std::vector<std::string>& args);
-		// channel&	createChannel(std::string channelName);
+
 		void 		inviteUser(std::vector<std::string>& args);
 		void		joinChannel(std::vector<std::string>& args);
 		void		kickUser(std::vector<std::string>& args);
 		void		leaveChannel(std::vector<std::string>& args);
 		void		removeChannelFromList(Channel* channel);
 		void		quitServer(std::vector<std::string>& args);
-		// void		modifyChannel(std::string channelName, std::string nickName, char mode);
+
 		void		mode(std::vector<std::string>& args);
+		void		printMode(std::string channel, Channel *ptr);
+		void		removeFromChannelList(Channel *ptr);
 
 		void		sendNotification(std::vector<std::string>& args);	
 		int			sendChannelMsg(std::vector<std::string>& args);
@@ -73,6 +77,7 @@ class User
 		void 		removeChanopPrivileges(const std::string& channel, const std::string& username);
 		void 		setUserLimit(const std::string& channel, int limit);
 		void 		removeUserLimit(const std::string& channel);
+		bool		isUserInList(std::vector<User *>::iterator begin, std::vector<User *>::iterator end, User *user);
 
 		// bool		isOperator(channel& channel);
 
@@ -97,12 +102,13 @@ class User
 
 		std::string		RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
 		std::string		RPY_inviteMessage(std::string otherNick, std::string channel);
-		std::string		RPY_kickedMessage(std::string otherNick, std::string channel);
+		std::string		RPY_kickedMessage(std::string otherNick, std::string channel, std::string reason);
 		std::string		RPY_leaveChannel(std::string channel);
 		std::string		RPY_332_channelTopic(std::string channel, std::string topic);
 		std::string		RPY_newTopic(std::string channel, std::string newTopic);
 		std::string		RPY_352_whoUser(User *user, std::string channel, bool op);
 		std::string		RPY_315_endWhoList(std::string channel);
+		std::string		RPY_324_printMode(std::string channel, std::string flags);
 
 		std::string 	RPY_ERR_commandNotfound(std::string command);
 		std::string		RPY_ERR462_alreadyRegistered();
@@ -117,6 +123,9 @@ class User
 		std::string		RPY_ERR441_kickNotOnChannel(std::string otherNick, std::string channel);
 		std::string		RPY_ERR403_noSuchChannel(std::string channel);
 		std::string		RPY_ERR442_youreNotOnThatChannel(std::string channel);
+		std::string		RPY_ERR467_keyAlreadySet(std::string channel);
+		std::string		RPY_ERR461_notEnoughParameters(std::string flag);
+		std::string		RPY_ERR433_nickInUse(std::string nick);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
@@ -201,6 +210,33 @@ class User
 				virtual const char *what() const throw()
 				{
 					return ("Cannot join channel (+l)");
+				}
+		};
+
+		class keyAlreadySet : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Channel key already set");
+				}
+		};
+
+		class noSuchNickChannel : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("No such nick");
+				}
+		};
+
+		class nickInUse : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Nickname is already in use");
 				}
 		};
 };

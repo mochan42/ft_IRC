@@ -4,7 +4,7 @@
 NAME				:= ircserv	
 
 CC					:= c++
-CFLAGS				:= -Wall -Wextra -Werror -std=c++98 -lm
+CFLAGS				:= -Wall -Wextra -Werror -std=c++98 -lm -g
 RM					:= rm -rf
 INCS				:= -I ./inc/
 SRC_DIR				:= ./src/

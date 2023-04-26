@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 09:42:42 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/26 09:54:25 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,9 @@ class Server
 		// void			startServer(void);
 		// void			closeServer(void);
 		
-		void					createChannel(const std::string& channel) const;
+		Channel*				createChannel(const std::string& channel) const;
 		void					pingClient(int client_socket);
-		void					createChannel(const std::string& channel_name, const std::string& topic, User* user);
+		Channel*				createChannel(const std::string& channel_name, const std::string& topic, User* user);
 		void					pingClient(void) const;
 		
 		// getters

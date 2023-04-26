@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/24 16:05:23 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/26 09:55:30 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 
 std::string User::RPY_welcomeToServer(void)
 {
-	std::string	replyMessage = "\n\nWelcome to " + _server->getServerName() + "!\n\n" + "The server is still under construction by Triinu, Monine, Philipp, Chiemezie, Florian and Ferenc.\n\n	\
+	std::string	replyMessage = ":" + _server->getServerName() + " 001 " + _nickName.c_str() + " :Welcome to " + _server->getServerName() + " " + _nickName + "\n\n" \
+	+ "The server is still under construction by Triinu, Monine, Philipp, Chiemezie, Florian and Ferenc.\n\n	\
 	The following commands are now integrated:\n" + "/NICK\n/USER\n/PASS\n/JOIN\n/PRIVMSG #Channel\n/PRIVMSG UserNickname\n/NOTICE #Channel\n/NOTICE UserNickname\n/PART\n/INVITE\n/KICK\n" + 	\
 	"\nHave a good time on the server.";
 	return (replyMessage);
@@ -119,9 +120,14 @@ std::string User::RPY_341_userAddedtoInviteList(std::string otherNick, std::stri
 	return (_replyMessage.c_str());
 }
 
-std::string User::RPY_kickedMessage(std::string otherNick, std::string channel)
+std::string User::RPY_kickedMessage(std::string otherNick, std::string channel, std::string reason)
 {
-	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " KICK " + channel + " " + otherNick;
+	//>> :Nick5!otherUser@5.159.29.72 KICK #test2 Nick5
+	//>> :Nick5!otherUser@5.159.29.72 KICK #test1 Nick5 :This is the reason
+	if (reason == "")
+		_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " KICK " + channel + " " + otherNick;
+	else
+		_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " KICK " + channel + " " + otherNick + " :" + reason;
 	return (_replyMessage.c_str());
 }
 
@@ -141,6 +147,12 @@ std::string User::RPY_newTopic(std::string channel, std::string newTopic)
 {
 	//>> :<Nick>!<User@IP> TOPIC <channel> :<new Topic>
 	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " TOPIC " + channel + " :" + newTopic;
+	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_324_printMode(std::string channel, std::string flags)
+{
+	_replyMessage = ":" + _server->getServerName() + " 324 " + _nickName + " " + channel + " " + flags;
 	return (_replyMessage.c_str());
 }
 
@@ -199,6 +211,12 @@ std::string User::RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string
 	return (_replyMessage.c_str());
 }
 
+std::string User::RPY_ERR433_nickInUse(std::string nick)
+{
+	_replyMessage = ":" + _server->getServerName() + " 433 * " + nick + " :Nickname is already in use";
+	return (_replyMessage.c_str());
+}
+
 std::string User::RPY_ERR476_badChannelMask(std::string channel)
 {
 	_replyMessage = ":" + _server->getServerName() + " 476 " + _nickName + " " + channel + " :Bad Channel Mask";
@@ -244,5 +262,17 @@ std::string User::RPY_ERR403_noSuchChannel(std::string channel)
 std::string User::RPY_ERR442_youreNotOnThatChannel(std::string channel)
 {
 	_replyMessage = ":" + _server->getServerName() + " 442 " + _nickName + " " + channel + " :You're not on that channel";
+	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_ERR467_keyAlreadySet(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 467 " + _nickName + " " + channel  + " :Channel key already set";
+	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_ERR461_notEnoughParameters(std::string flag)
+{
+	_replyMessage = ":" + _server->getServerName() + " 461 " + _nickName + " MODE " + flag  + " :Not enough parameters";
 	return (_replyMessage.c_str());
 }

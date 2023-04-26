@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/26 09:45:45 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/26 09:55:19 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,11 @@ uint8_t Channel::getMode(void) const
     return (_mode);
 }
 
+std::string	Channel::getPassword(void) const
+{
+	return (_password);
+}
+
 
 void   Channel::setChannelName(std::string name)
 {
@@ -156,9 +161,9 @@ t_chn_return	Channel::setMode(uint8_t mode)
 			_mode |= (1 << (CHN_MODE_Protected - 1));
 			break;
 		}
-		case CHN_MODE_AdminSetUserLimit:
+		case CHN_MODE_CustomUserLimit:
 		{
-			_mode |= (1 << (CHN_MODE_AdminSetUserLimit - 1));
+			_mode |= (1 << (CHN_MODE_CustomUserLimit - 1));
 			break;
 		}
 		case CHN_MODE_AdminSetTopic:
@@ -214,9 +219,9 @@ bool	Channel::isModeSet(uint8_t	mode, t_chnOptionCtrl optCtrl)
 			{
 				CHN__ISMODESET(CHN_MODE_Protected,optCtrl);
 			}
-			case CHN_MODE_AdminSetUserLimit:
+			case CHN_MODE_CustomUserLimit:
 			{
-				CHN__ISMODESET(CHN_MODE_AdminSetUserLimit,optCtrl);
+				CHN__ISMODESET(CHN_MODE_CustomUserLimit,optCtrl);
 			}
 			case CHN_MODE_AdminSetTopic:
 			{
