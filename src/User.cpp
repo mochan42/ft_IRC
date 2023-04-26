@@ -233,7 +233,7 @@ void		User::setNickName(const std::vector<std::string>& args)
 		}
 		else
 			sendMsgToOwnClient(RPY_newNick(oldNick));
-		std::cout << "User::setNickname called. The _nickName is now:  " << this->getNickName() << std::endl;
+		std::cout << "User::setNickname called. The _nickName of fd " << this->getFd() << " is now:  " << this->getNickName() << std::endl;
 	}
 	catch (nickInUse &e)
 	{
