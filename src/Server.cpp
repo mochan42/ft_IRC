@@ -3,15 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/25 16:15:07 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/26 11:48:59 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.h"
 #include "User.hpp"
+# include "signal.h"
+
+volatile sig_atomic_t prgrm_stop = 0;
+
+void custom_signal_handler(int signal)
+{
+    if (signal == SIGINT) {
+        prgrm_stop = 1;
+    }
+}
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
@@ -421,6 +431,7 @@ void	Server::setupServer()
 	std::cout << "Server Password is\t: " << this->_password << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
 
+	signal(SIGINT, custom_signal_handler);
 	/* Creating server socket... */
 	try
 	{
@@ -491,25 +502,29 @@ void	Server::setupServer()
     this->fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
     char buffer[BUFFER_SIZE]; // to store message from client(s).
 
-    while (true)
+    while (prgrm_stop == 0)
+	// while (true)
 	{
         /* Use poll to wait for activity on any of the sockets */
 		int num_ready_fds = poll(this->fds, num_fds, -1);
 		int *ptrNum_ready_fds = &num_ready_fds;
-        switch (num_ready_fds) // poll returns the number of elements in the fds array. -1 means waiting forever.
+		if (prgrm_stop == 0)
 		{
-			case -1:
-			    std::cout << RED << "Error : polling for events" << D << "\n";
-				break;
-			case 0 :
-				std::cout << "HERE\n"; 
-				this->pingClient(this->fds[*ptrNum_fds].fd);
-				break;
-			default:
-				this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
-				break;
-        }
-    }
+			switch (num_ready_fds) // poll returns the number of elements in the fds array. -1 means waiting forever.
+			{
+				case -1:
+					std::cout << RED << "Error : polling for events" << D << "\n";
+					break;
+				case 0 :
+					std::cout << "HERE\n"; 
+					this->pingClient(this->fds[*ptrNum_fds].fd);
+					break;
+				default:
+					this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
+					break;
+			}
+		}
+	}
     close(this->getListeningSocket());
 }
 
