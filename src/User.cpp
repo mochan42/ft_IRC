@@ -448,7 +448,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 		{
 			if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
 			{
-				if (args.size() <= 1 || chptr->checkPassword(args[1]))
+				if (args.size() <= 1 || !chptr->checkPassword(args[1]))
 					throw (cannotJoinChannelPW());
 			}
 			if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
@@ -652,7 +652,7 @@ void	User::mode(std::vector<std::string>& args)
 
 	if (!chptr)
 	{
-		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(parser.getChannel()));
+		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(channel));
 		return;
 	}
 	User *usr = _server->getUser(_nickName);
