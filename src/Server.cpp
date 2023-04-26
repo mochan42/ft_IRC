@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 11:53:30 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/26 12:04:00 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ User* Server::getUser(std::string nickName)
 			return (*it).second;
 		}
     }
-    std::cout << RED << "User " << nickName << " not found" << D << "\n";
+    std::cout << BLUE << "User " << nickName << " not found" << D << "\n";
     return (NULL);
 }
 
