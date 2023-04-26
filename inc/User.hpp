@@ -17,7 +17,6 @@ class User
 		Server 						*_server;
 		int							_userFd;
 		std::string					_ip;
-		std::string					_pw;
 		std::string					_userName;
 		std::string					_nickName;
 		std::string					_realName;
@@ -37,7 +36,7 @@ class User
 		std::string	getIP(void);
 		int			getPort(void);
 		void		setPort(int setUserPort);
-		void		setServerPw(const std::vector<std::string>& args);
+		void		registerUser(const std::vector<std::string>& args);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
 		void		setUserName(std::vector<std::string>& args);
