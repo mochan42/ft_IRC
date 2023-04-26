@@ -117,7 +117,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 	else if (command == "REAL")
 		setRealName(args);
 	else if (command == "PASS")
-		setServerPw(args);
+		checkServerPw(args);
 	else if (command == "JOIN")
 		joinChannel(args);
 	else if (command == "MODE")
@@ -163,19 +163,23 @@ std::string		User::getIP(void)
 	return (this->_ip);
 }
 
-void		User::setServerPw(const std::vector<std::string>& args)
+void		User::checkServerPw(const std::vector<std::string>& args)
 {
+	std::cout << "User::checkServerPw called." << std::endl; 
 	if (args.empty())
 		return;
 	_pw = args[0];
 	if (this->_server->verifyPassword(_pw))
 	{
-		_isRegistered = true;
+		this->_isRegistered = true;
 		sendMsgToOwnClient(RPY_pass(true));
+		std::cout << "The user is now registered" << std::endl;
 	}
 	else
+	{
 		sendMsgToOwnClient(RPY_pass(false));
-	std::cout << "User::setServerPw called. The _pw is now:  " << _pw << std::endl;
+		std::cout << "Wrong Password.\n";
+	}
 }
 
 void		User::setNickName(const std::vector<std::string>& args)

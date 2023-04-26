@@ -37,7 +37,7 @@ class User
 		std::string	getIP(void);
 		int			getPort(void);
 		void		setPort(int setUserPort);
-		void		setServerPw(const std::vector<std::string>& args);
+		void		checkServerPw(const std::vector<std::string>& args);
 		void		setNickName(const std::vector<std::string>& args);
 		std::string	getNickName(void);
 		void		setUserName(std::vector<std::string>& args);
