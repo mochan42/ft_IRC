@@ -103,6 +103,7 @@ class Server
 		void					deleteUser(User *userPtr);
 		void					deleteChannel(Channel *channelPtr);
 		void					setupServer();
+		void					remChannel(const std::string& channel_name);
 
 		// exception class
 		class ErrorInternal : public std::exception
