@@ -3,13 +3,13 @@
 #include <signal.h>
 #include "../inc/Bot.hpp"
 
-// volatile sig_atomic_t stop = 0;
+volatile sig_atomic_t stop = 0;
 
-// void signal_handler(int signal) {
-//     if (signal == SIGINT) {
-//         stop = 1;
-//     }
-// }
+void signal_handler(int signal) {
+    if (signal == SIGINT) {
+        stop = 1;
+    }
+}
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 	bot.send_line("NICK " + nickname);
 	bot.send_line("JOIN #BotHome1");
 
-	// signal(SIGINT, signal_handler);
+	signal(SIGINT, signal_handler);
 
     while (!stop) {
         Bot::IRCMsg msg;
