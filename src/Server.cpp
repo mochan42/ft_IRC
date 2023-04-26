@@ -6,12 +6,22 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 10:44:17 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/26 14:35:40 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.h"
-#include "User.hpp"
+# include "../inc/Server.h"
+
+volatile sig_atomic_t prgrm_stop = 0;
+
+// #################### SIG HANDLER FUNCTION ######################
+
+void custom_signal_handler(int signal)
+{
+    if (signal == SIGINT) {
+        prgrm_stop = 1;
+    }
+}
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
@@ -38,22 +48,18 @@ Server::~Server()
 		for (std::map<std::string, Channel*>::iterator it = begin_it; it != end_it; it++)
 		{
 			delete it->second;
-			this->_channels.erase(it);
-			if (it == end_it)
-				break;
 		}	
 	}
 	if (!this->_users.empty())
 	{
-		for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++)
+		std::map<int, User*>::iterator	it_begin = this->_users.begin();
+		for (std::map<int, User*>::iterator it = it_begin; it != _users.end(); it++)
 		{
 			if (it->second)
 				delete it->second;
-			this->_users.erase(it);
 		}	
 	}
     _messages.clear();
-	// delete[] _messages;
 }
 
 //======== GETTERS / SETTERS ====================================================================
@@ -69,7 +75,7 @@ void 	Server::setPort(int inputPortNumber)
 
 bool	Server::verifyPassword(const std::string& password) const
 {
-    if (password == this->_password)
+    if (!password.empty() && password == this->_password)
 		return (true);
 	return (false);
 }
@@ -101,7 +107,7 @@ User* Server::getUser(std::string nickName)
 			return (*it).second;
 		}
     }
-    std::cout << RED << "User " << nickName << " not found" << D << "\n";
+    std::cout << BLUE << "User " << nickName << " not found" << D << "\n";
     return (NULL);
 }
 
@@ -261,127 +267,77 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 }
 
 /* Function to handle data from a client socket */
-	void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
+void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
+{
+	std::string input;
+	while (true)
 	{
-	    std::string input;
-	    while (true) {
-	        int num_bytes = recv(client_socket, buffer, buffer_size, 0);
-	        if (num_bytes < 0) {
-	            std::cout << RED << "Error receiving data from client" << D  << "\n";
-	            return;
-	        }
-	        else if (num_bytes == 0) {
-	            /* Client has disconnected */
-	            std::cout << "Client disconnected\n";
-
-	            // Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
-	            delete this->_users.find(client_socket)->second;
-	            this->_users.erase(client_socket);
-	            close(client_socket);
-	            break;
-	        }
-	        else {
-	            buffer[num_bytes] = '\0';
-	            input += std::string(buffer, 0, num_bytes);
-	            if (input.find("\n") != std::string::npos) {
-	                break;}
-				else{
-					std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
-	            }
-	        }
-	    }
-		this->_messages[client_socket] = input;
-    	std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
-		/* parse buffer */
-		// Create a Message instance using the buffer content
-		Message msg(this->_messages[client_socket]);
-		
-		// Extract the command and arguments from the Message instance
-		std::vector<std::string> command = msg.getCommand();
-		std::vector<std::vector<std::string> > args = msg.getArguments();
-		
-		// Print the command and arguments for debugging purposes
-		for (unsigned int i = 0; i < command.size(); i++){
-			std::cout << "Command: " << command[i] << "\n";
-	    	std::cout << "Parsed arguments: ";
-    		for (unsigned int j = 0; j < args[i].size(); j++)
-			{
-					std::cout << j << "- " << args[i][j];
-			}}
-		std::cout << "\n";
-
-		// Print the command and arguments for debugging purposes
-
-		/* client_socket execute cmd */
-		std::map<int, User*>::iterator user_it = _users.find(client_socket);
-		if (user_it != _users.end()) {
-    		User *user = user_it->second;
-			int i = 0;
-			for (std::vector<std::string>::iterator iter = command.begin(); iter != command.end(); ++iter)
-			{
-				user->executeCommand(command[i], args[i]);
-				i++;
-			}
-    			
-		} 
-		else {
-    	// Handle the case when the user is not found
+		int num_bytes = recv(client_socket, buffer, buffer_size, 0);
+		if (num_bytes < 0)
+		{
+			std::cout << RED << "Error receiving data from client" << D  << "\n";
+			return;
 		}
-    }
+		else if (num_bytes == 0)
+		{
+			/* Client has disconnected */
+			std::cout << "Client disconnected\n";
+			// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
+			delete this->_users.find(client_socket)->second;
+			this->_users.erase(client_socket);
+			close(client_socket);
+			break;
+		}
+		else
+		{
+			buffer[num_bytes] = '\0';
+			input += std::string(buffer, 0, num_bytes);
+			if (input.find("\n") != std::string::npos)
+				break;
+			else
+				std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
+		}
+	}
+	this->_messages[client_socket] = input;
+	std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
+	/* parse buffer */
+	// Create a Message instance using the buffer content
+	Message msg(this->_messages[client_socket]);
+	
+	// Extract the command and arguments from the Message instance
+	std::vector<std::string> command = msg.getCommand();
+	std::vector<std::vector<std::string> > args = msg.getArguments();
+	if (args.size() == 0)
+		return;
+	// Print the command and arguments for debugging purposes
+	for (unsigned int i = 0; i < command.size(); i++){
+		std::cout << "Command: " << command[i] << "\n";
+		std::cout << "Parsed arguments: ";
+		for (unsigned int j = 0; j < args[i].size(); j++)
+		{
+				std::cout << j << "- " << args[i][j];
+		}}
+	std::cout << "\n";
 
+	// Print the command and arguments for debugging purposes
 
-// /* Function to handle data from a client socket */
-// void Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
-// {
-//     int num_bytes = recv(client_socket, buffer, buffer_size, 0);
-// 	if (num_bytes < 0)
-// 	{
-//         std::cout << RED << "Error receiving data from client" << D  << "\n";
-//         return;
-//     }
-// 	else if (num_bytes == 0)
-// 	{
-//         /* Client has disconnected */
-//         std::cout << "Client disconnected\n";
-// 		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
-// 		delete this->_users.find(client_socket)->second;
-// 		this->_users.erase(client_socket);
-//         close(client_socket);
-//     }
-// 	else
-// 	{
-//         /* Output the received message */
-// 		// Check if CTRL + D
-//         buffer[num_bytes] = '\0';
-// 		this->_messages[client_socket] = std::string(buffer, 0, num_bytes);
-// 		std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
-// 		/* parse buffer */
-// 		// Create a Message instance using the buffer content
-// 		Message msg(this->_messages[client_socket]);
-		
-// 		// Extract the command and arguments from the Message instance
-// 		std::string command = msg.getCommand();
-// 		std::vector<std::string> args = msg.getArguments();
-		
-// 		// Print the command and arguments for debugging purposes
-// 		std::cout << "Command: " << command << "\n";
-//    		 //for debugging
-//     std::cout << "Parsed arguments: ";
-//     for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
-// 		{
-//         	std::cout << *it << " ";
-// 		}
-// 		/* client_socket execute cmd */
-// 		std::map<int, User*>::iterator user_it = _users.find(client_socket);
-// 		if (user_it != _users.end()) {
-//     		//User *user = user_it->second;
-//     		//user->executeCommand(commands[1], args[1]);
-// 		} 
-// 		else {
-//     	// Handle the case when the user is not found
-// 		}
-//     }
-// }
+	/* client_socket execute cmd */
+	std::map<int, User*>::iterator user_it = _users.find(client_socket);
+	if (user_it != _users.end())
+	{
+		User *user = user_it->second;
+		int i = 0;
+		for (std::vector<std::string>::iterator iter = command.begin(); iter != command.end(); ++iter)
+		{
+			user->executeCommand(command[i], args[i]);
+			i++;
+		}
+	} 
+	else
+	{
+	// Handle the case when the user is not found
+	}
+}
 
 /*
 *	Is called whenever the poll() functions finds that there is a readable Socket available.
@@ -445,6 +401,7 @@ void	Server::setupServer()
 	std::cout << "Server Password is\t: " << this->_password << "\n";
 	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
 
+	signal(SIGINT, custom_signal_handler);
 	/* Creating server socket... */
 	try
 	{
@@ -515,25 +472,29 @@ void	Server::setupServer()
     this->fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
     char buffer[BUFFER_SIZE]; // to store message from client(s).
 
-    while (true)
+    while (prgrm_stop == 0)
+	// while (true)
 	{
         /* Use poll to wait for activity on any of the sockets */
 		int num_ready_fds = poll(this->fds, num_fds, -1);
 		int *ptrNum_ready_fds = &num_ready_fds;
-        switch (num_ready_fds) // poll returns the number of elements in the fds array. -1 means waiting forever.
+		if (prgrm_stop == 0)
 		{
-			case -1:
-			    std::cout << RED << "Error : polling for events" << D << "\n";
-				break;
-			case 0 :
-				std::cout << "HERE\n"; 
-				this->pingClient(this->fds[*ptrNum_fds].fd);
-				break;
-			default:
-				this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
-				break;
-        }
-    }
+			switch (num_ready_fds) // poll returns the number of elements in the fds array. -1 means waiting forever.
+			{
+				case -1:
+					std::cout << RED << "Error : polling for events" << D << "\n";
+					break;
+				case 0 :
+					std::cout << "HERE\n"; 
+					this->pingClient(this->fds[*ptrNum_fds].fd);
+					break;
+				default:
+					this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
+					break;
+			}
+		}
+	}
     close(this->getListeningSocket());
 }
 

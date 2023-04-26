@@ -6,14 +6,15 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 17:20:54 by mochan            #+#    #+#             */
-/*   Updated: 2023/04/19 22:03:06 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/26 12:04:01 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Server.hpp"
+# include "Server.hpp"
+# include "signal.h"
 
 // *** COLORS ***//
 # define BLANK "\e[0m"
@@ -26,7 +27,7 @@
 # define BKLIGRN "\033[30;48;5;82m"
 # define DKGRN "\033[38;5;22m"
 # define YELL "\033[0;33m"
-# define BLU "\033[0;34m"
+# define BLUE "\033[0;34m"
 # define PU "\033[0;35m"
 # define CY "\033[0;36m"
 # define WH "\033[0;37m"
