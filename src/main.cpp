@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 		errPortNumber = checkPort(argv[1]);
 		if (errPortNumber > 0)
 		{
-			std::cout << RED << "Error: port server number invalid, should be between 49152 and 65535" << D << "\n";
+			std::cout << RED << "Error: port server number invalid, should be between " << MIN_PORT_NUMBER << " and " << MAX_PORT_NUMBER << D << "\n";
 			return (0);
 		}
 		Server IrcServer(atoi(argv[1]), argv[2]);

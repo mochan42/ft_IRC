@@ -34,7 +34,7 @@
 # include "Message.hpp"
 
 
-#define MIN_PORT_NUMBER	49152      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
+#define MIN_PORT_NUMBER	1024      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
 #define MAX_PORT_NUMBER	65535
 #define BACKLOG			5
 #define BUFFER_SIZE		1024
