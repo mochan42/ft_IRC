@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 20:01:16 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/27 10:37:27 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/27 10:45:05 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -503,5 +503,8 @@ TEST_CASE( "Server : Channel Creation", "[Server]")
 		User	*user = new User(3, "127.0.0.0", &server);
 		delete user;
 		REQUIRE(server.createChannel("newChannel", "topic", user) == NULL);
+		User user_1(3, "127.0.0.1", &server);
+		REQUIRE(server.createChannel("", "topic", &user_1) == NULL);
+		REQUIRE(server.createChannel("newChannel", "", &user_1) == NULL);
 	}
 }
