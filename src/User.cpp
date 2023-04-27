@@ -644,8 +644,8 @@ void	User::mode(std::vector<std::string>& args)
 	std::string channel = parser.getChannel();
 	Channel *chptr = _server->getChannel(channel);
 
-	//for (size_t i = 0; i < flagArgsPairs.size(); ++i)
-	//	std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
+	for (size_t i = 0; i < flagArgsPairs.size(); ++i)
+		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
 
 
 
@@ -913,8 +913,16 @@ void	User::sendNotification(std::vector<std::string>& args)
 			std::cout << "User::sendNotification called with Channel =      " << args[0] << std::endl;
 
 			Channel *chptr = _server->getChannel(args[0]);
-			if (chptr != NULL) 
-				chptr->broadcastMsg(RPY_ChannelNotification(args[1], chptr), std::make_pair(true, (User *) this));
+			std::string concatenatedArgs = args[1];
+			if (chptr != NULL){
+            	for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
+            		{
+                	if (it != args.begin() + 1)
+                    concatenatedArgs += " ";
+                	concatenatedArgs += *it;
+            	}
+				chptr->broadcastMsg(RPY_ChannelNotification(concatenatedArgs, chptr), std::make_pair(true, (User *) this));
+			}
 			else
 				throw (noSuchChannel());
 		}
@@ -954,8 +962,16 @@ int		User::sendChannelMsg(std::vector<std::string>& args)
 	try
 	{
 		Channel *chptr = _server->getChannel(args[0]);
-		if (chptr != NULL)
-			chptr->broadcastMsg(RPY_ChannelMsg(args[1], chptr), std::make_pair(true, (User *) this));
+		std::string concatenatedArgs = args[1];
+		if (chptr != NULL){
+            for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
+            {
+                if (it != args.begin() + 1)
+                concatenatedArgs += " ";
+                concatenatedArgs += *it;
+            }
+			chptr->broadcastMsg(RPY_ChannelMsg(concatenatedArgs, chptr), std::make_pair(true, (User *) this));
+		}
 		else
 			throw (noSuchChannel());
 	}
@@ -980,9 +996,16 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 	try
 	{
 		User *target = _server->getUser(args[0]);
+		std::string concatenatedArgs = args[1];
 		if (target != NULL)
 		{
-			sendMsgToTargetClient(RPY_PrivateMsg(args[1], target), target->getFd());
+			for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
+            {
+                if (it != args.begin() + 1)
+                concatenatedArgs += " ";
+                concatenatedArgs += *it;
+            }
+			sendMsgToTargetClient(RPY_PrivateMsg(concatenatedArgs, target), target->getFd());
 		}
 		else
 			throw (noSuchNick());
