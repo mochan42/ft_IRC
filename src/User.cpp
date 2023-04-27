@@ -110,20 +110,20 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 
 	try
 	{
-		if (_isRegistered == false && (command == "PRIVMSG" || command == "REAL" || command == "JOIN" || command == "MODE" || command == "WHO" || command == "INVITE" || command == "KICK" || command == "PART" || command == "NOTICE"))
-			throw (notRegistered());
-
+		//if (_isRegistered == false && (command == "PRIVMSG" || command == "REAL" || command == "JOIN" || command == "MODE" || command == "WHO" || command == "INVITE" || command == "KICK" || command == "PART" || command == "NOTICE"))
 		std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 		if (command == "CAP")
 		{}
-		else if (command == "NICK")
-			setNickName(args);
 		else if (command == "USER")
 			setUserName(args);
-		else if (command == "REAL")
-			setRealName(args);
 		else if (command == "PASS")
 			registerUser(args);
+		else if (command == "NICK")
+			setNickName(args);
+		else if (!_isRegistered || !_usernameSet)
+			throw (notRegistered());
+		else if (command == "REAL")
+			setRealName(args);
 		else if (command == "JOIN")
 			joinChannel(args);
 		else if (command == "MODE")
@@ -281,6 +281,11 @@ void		User::setUserName(std::vector<std::string>& args)
 	}
 	else
 	{
+		if (args.size() != 4)
+		{
+			sendMsgToOwnClient("Wrong use of user cmd: <Username> 0 * :<RealName>");
+			return;
+		}
 		_userName = args[0];
 		_realName = argsToString(args.begin() + 3, args.end());
 		_usernameSet = true;
