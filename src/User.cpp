@@ -210,8 +210,8 @@ void		User::registerUser(const std::vector<std::string>& args)
 
 void		User::setNickName(const std::vector<std::string>& args)
 {
-	if (args.size() < 1)
-		return;
+	if (args.empty())
+			return;
 	std::string oldNick = _nickName;
 	std::string newNick = args[0];
 
@@ -317,8 +317,8 @@ std::string		User::getRealName(void)
 
 void		User::who(std::vector<std::string>& args)
 {
-	if (args.size() == 0)
-		return;
+	if (args.empty())
+			return;
 	if (args[0][0] == '#') //handle channel
 	{
 		std::string channel = args[0];
@@ -383,6 +383,8 @@ void		User::changeTopic(std::vector<std::string>& args)
 
 void 		User::inviteUser(std::vector<std::string>& args)
 {
+	if (args.size() < 2)
+		return;
 	std::string nick = args[0];
 	std::string channel = args[1];
 	try
