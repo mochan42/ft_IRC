@@ -22,7 +22,6 @@ private:
     std::vector<std::string> prefix;
     std::vector<std::string> command;
     std::vector<std::vector<std::string> > args;
-
     void parse(const std::string& user_input);
 };
 
@@ -45,8 +44,9 @@ public:
     std::vector<std::pair<std::string, std::string> > getflagArgsPairs() const;
 
 private:
+    bool extractModeArgsPairs(const std::string& modeString, std::vector<std::string>::const_iterator& it,
+        const std::vector<std::string>::const_iterator& end);
     void parseCommand(const std::vector<std::string>& args);
-
     std::string channel;
     std::vector<std::pair<std::string, std::string> > flagArgsPairs;
 };

@@ -61,6 +61,9 @@ void Message::parse(const std::string& user_input) {
 
         // Get the command
         iss >> token;
+        if (token[0] == '/') {
+            token = token.substr(1);
+        }
         command.push_back(token);
 
         // Parse the arguments
@@ -121,9 +124,38 @@ std::vector<std::pair<std::string, std::string> > modeParser::getflagArgsPairs()
     return flagArgsPairs;
 }
 
-//Parses all flags into pairs with username they belong to, in case of multiple commands applied for same user
-// one pair for each flag is used.
-// in case the flag is l the second half of the pair will be std::string with limit stored.
+//Parses all flags into pairs with args
+bool modeParser::extractModeArgsPairs(const std::string& modeString, std::vector<std::string>::const_iterator& it, const std::vector<std::string>::const_iterator& end) {
+    char sign = modeString[0];
+    for (size_t i = 1; i < modeString.size(); ++i) {
+        if (modeString[i] == '+' || modeString[i] == '-') {
+            sign = modeString[i];
+            continue;
+        }
+        
+        std::string flag(1, sign);
+        flag += modeString[i];
+        std::string user = "NULL";
+
+        // Check if the mode requires an argument
+        if ((modeString[i] == 'k' && sign == '+') ||
+            (modeString[i] == 'k' && sign == '-') ||
+            (modeString[i] == 'l' && sign == '+') ||
+            (modeString[i] == 'o' && (sign == '+' || sign == '-'))) {
+
+            if (it + 1 != end && (*(it + 1))[0] != '+' && (*(it + 1))[0] != '-') {
+                user = *(++it);
+            } else {
+                return false;
+            }
+        }
+
+        flagArgsPairs.push_back(std::make_pair(flag, user));
+        std::cout << "Added pair: (" << flag << ", " << user << ")" << std::endl;
+    }
+    return true;
+}
+
 void modeParser::parseCommand(const std::vector<std::string>& args) {
     std::vector<std::string>::const_iterator it = args.begin();
 
@@ -131,17 +163,27 @@ void modeParser::parseCommand(const std::vector<std::string>& args) {
         channel = *it++;
     }
 
+    flagArgsPairs.clear();
+    // Process each mode string
     while (it != args.end()) {
-        std::string modePart = *it++;
-        char sign = modePart[0];
-        std::string user = "";
-        if (it != args.end()) {
-            user = *it++;
+        // Skip non-mode strings
+        while (it != args.end() && ((*it)[0] != '+' && (*it)[0] != '-')) {
+            ++it;
         }
-        for (size_t i = 1; i < modePart.size(); ++i) {
-            std::string flag(1, sign);
-            flag += modePart[i];
-            flagArgsPairs.push_back(std::make_pair(flag, user));
+        
+        if (it != args.end()) {
+            std::vector<std::string>::const_iterator prev_it = it;
+            if (!extractModeArgsPairs(*it, it, args.end())) {
+                std::cout << "Invalid arguments for command /mode" << std::endl;
+                break;
+            }
+            // Increment it only if it wasn't incremented in extractModeArgsPairs
+            if (it == prev_it) {
+                ++it;
+            }
         }
     }
 }
+
+
+
