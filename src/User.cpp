@@ -857,7 +857,6 @@ void	User::printMode(std::string channel, Channel *ptr)
 		args += ptr->getTopic();
 	}
 	combined = flags + " " + args;
-	//>> :master.ircgod.com 324 nick2 #test +n
 	sendMsgToOwnClient(RPY_324_printMode(channel, combined));
 }
 
@@ -876,7 +875,7 @@ void		User::quitServer(std::vector<std::string>& args)
 			if ((*iter)->isUserInList((*iter)->getListPtrOperators(), this))
 			{
 				(*iter)->broadcastMsg(RPY_leaveChannel((*iter)->getChannelName()), std::make_pair(false, (User *) NULL));
-				(*iter)->updateUserList((*iter)->getListPtrOrdinaryUsers(), this, USR_REMOVE);
+				(*iter)->updateUserList((*iter)->getListPtrOperators(), this, USR_REMOVE);
 			}
 			if ((*iter)->isUserInList((*iter)->getListPtrOrdinaryUsers(), this))
 			{
@@ -887,7 +886,7 @@ void		User::quitServer(std::vector<std::string>& args)
 			{
 				iterTemp = iter;
 				++iter;
-				_server->deleteChannel(*iterTemp);
+				_server->remChannel((*iterTemp)->getChannelName());
 			}
 			else	
 				++iter;
