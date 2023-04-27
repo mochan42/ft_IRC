@@ -431,7 +431,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 		{
 
 			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
-			chptr = _server->createChannel(args[0], "", this);	
+			chptr = _server->createChannel(args[0], this);
 			if (!chptr)
 			{
 				std::cerr << "Error while creating channel"<< std::endl;

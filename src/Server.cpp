@@ -6,7 +6,7 @@
 /*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/27 10:43:09 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/27 17:51:02 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,18 +132,16 @@ Channel*	Server::getChannel(const std::string& channel_name) const
 	return (NULL);
 }
 
-Channel*	Server::createChannel(const std::string& channel_name, const std::string& topic, User* user)
+Channel*	Server::createChannel(const std::string& channel_name, User* user)
 {
 	if (user->getFd() < 3 || user->getFd() > 1024)
 		return (NULL);
 	else if (channel_name == "")
 		return (NULL);
-	else if (topic == "")
-		return (NULL);
 	std::map<std::string, Channel*>::iterator	it = this->_channels.find(channel_name);
 	if (it == this->_channels.end())
 	{
-		Channel	*channel = new Channel(channel_name, topic, user);
+		Channel	*channel = new Channel(channel_name, user);
 		this->_channels[channel_name] = channel;
 		return (channel);
 	}

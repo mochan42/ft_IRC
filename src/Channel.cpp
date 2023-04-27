@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/26 09:57:40 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/27 17:56:56 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 
-Channel::Channel(std::string name, std::string topic, User *user)
+Channel::Channel(std::string name, User *user)
 	: _channelName(CHN_DEFAULT_NAME), _topic(CHN_DEFAULT_TOPIC),
 	  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
 	  _operators(NULL), _ordinaryUsers(NULL), _mode(CHN_DEFAULT_MODE)
@@ -20,8 +20,8 @@ Channel::Channel(std::string name, std::string topic, User *user)
 	COUT << "\nCall parametric constructor : Channel" << ENDL;
 	if (name.size() > 0)
 		_channelName = name;
-	if (topic.size() > 0)
-		_topic = topic;
+	// if (topic.size() > 0)
+		_topic = "topic";
 	_invitedUsers = new std::list<User *>;
 	_operators = new std::list<User *>;
 	_ordinaryUsers = new std::list<User *>;
