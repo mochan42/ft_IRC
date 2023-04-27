@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/26 09:54:16 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/27 17:55:23 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ class Channel
 		void	removeUserFromList(std::list<User *> *list_users, User *user);
 
     public:
-    	Channel(std::string name, std::string topic, User *user);	// Parametric constructor
+    	Channel(std::string name, User *user);	// Parametric constructor
     	~Channel(void);									// Destructor
     
     	/* Getters and Setters */
