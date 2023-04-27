@@ -281,6 +281,11 @@ void		User::setUserName(std::vector<std::string>& args)
 	}
 	else
 	{
+		if (args.size() != 4)
+		{
+			sendMsgToOwnClient("Wrong use of user cmd: <Username> 0 * :<RealName>");
+			return;
+		}
 		_userName = args[0];
 		_realName = argsToString(args.begin() + 3, args.end());
 		_usernameSet = true;
