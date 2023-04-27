@@ -532,7 +532,7 @@ void		User::kickUser(std::vector<std::string>& args)
 				channelPtr->updateUserList(channelPtr->getListPtrOrdinaryUsers(), tmpUser, USR_REMOVE);
 			tmpUser->removeChannelFromList(channelPtr);
 			if (channelPtr->isUserListEmpty(channelPtr->getListPtrOperators()) && channelPtr->isUserListEmpty(channelPtr->getListPtrOrdinaryUsers()))
-				_server->deleteChannel(channelPtr);
+				_server->remChannel(channelPtr->getChannelName());
 		}
 		else
 			throw (notOnTheChannel());
@@ -579,7 +579,7 @@ void		User::leaveChannel(std::vector<std::string>& args)
 		else
 			throw(notOnTheChannel());
 		if (chPtr->isUserListEmpty(chPtr->getListPtrOperators()) && chPtr->isUserListEmpty(chPtr->getListPtrOrdinaryUsers()))
-			_server->deleteChannel(chPtr);
+			_server->remChannel(chPtr->getChannelName());
 
 				
 	}

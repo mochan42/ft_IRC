@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 14:29:56 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/27 09:52:27 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,10 +100,12 @@ class Server
 		void					handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
 		void					handle_client_data(int client_socket, char *buffer, int buffer_size);
 		void					connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer);
-		void					deleteUser(User *userPtr);
-		void					deleteChannel(Channel *channelPtr);
 		void					setupServer();
+		void					remUser(const int& user_fd);
 		void					remChannel(const std::string& channel_name);
+		
+		// LEGACY CODE:
+		void					deleteChannel(Channel *channelPtr);
 
 		// exception class
 		class ErrorInternal : public std::exception

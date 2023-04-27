@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/26 14:35:40 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/27 09:47:51 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,8 @@ Server::~Server()
 		std::map<std::string, Channel*>::iterator end_it = _channels.end();
 		for (std::map<std::string, Channel*>::iterator it = begin_it; it != end_it; it++)
 		{
-			delete it->second;
+			if (it->second)
+				delete it->second;
 		}	
 	}
 	if (!this->_users.empty())
@@ -143,6 +144,18 @@ Channel*	Server::createChannel(const std::string& channel_name, const std::strin
 	return (NULL);
 }
 
+void	Server::remChannel(const std::string& channel_name)
+{
+	std::map<std::string, Channel*>::iterator	it = this->_channels.find(channel_name);
+	if (it != this->_channels.end())
+	{
+		Channel	*temp = it->second;
+		this->_channels.erase(it);
+		if (temp)
+			delete temp;
+	}
+}
+
 //======== MEMBER FUNCTIONS =====================================================================
 
 /* Creates a stream socket to receive incoming connections on */
@@ -214,13 +227,21 @@ void	Server::listenToClients()
 		std::cout << GREEN << "Listening Socket started listening to IRC clients..." << D << "\n";
 }
 
-void	Server::deleteUser(User *userPtr)
+void	Server::remUser(const int& user_fd)
 {
-	delete userPtr;
+	std::map<int, User*>::iterator	it = this->_users.find(user_fd);
+	if (it != this->_users.end())
+	{
+		User	*temp = it->second;
+		this->_users.erase(it);
+		if (temp)
+			delete temp;
+	}
 }
 
 void	Server::deleteChannel(Channel *channelPtr)
 {
+	std::cout << RED << "TEST PRINT OUT\n" << D;
 	std::map<std::string, Channel*>::iterator iter = _channels.begin();
 	std::map<std::string, Channel*>::iterator iterTemp;
 	while (iter != _channels.end())
