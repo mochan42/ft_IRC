@@ -644,8 +644,8 @@ void	User::mode(std::vector<std::string>& args)
 	std::string channel = parser.getChannel();
 	Channel *chptr = _server->getChannel(channel);
 
-	for (size_t i = 0; i < flagArgsPairs.size(); ++i)
-		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
+	//for (size_t i = 0; i < flagArgsPairs.size(); ++i)
+	//	std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
 
 
 
