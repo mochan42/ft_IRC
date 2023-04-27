@@ -384,7 +384,10 @@ void		User::changeTopic(std::vector<std::string>& args)
 void 		User::inviteUser(std::vector<std::string>& args)
 {
 	if (args.size() < 2)
+	{
+		sendMsgToOwnClient("Syntax error: INVITE user #channel\n");
 		return;
+	}
 	std::string nick = args[0];
 	std::string channel = args[1];
 	try
