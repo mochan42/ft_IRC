@@ -210,6 +210,8 @@ void		User::registerUser(const std::vector<std::string>& args)
 
 void		User::setNickName(const std::vector<std::string>& args)
 {
+	if (args.size() < 1)
+		return;
 	std::string oldNick = _nickName;
 	std::string newNick = args[0];
 
