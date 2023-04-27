@@ -435,7 +435,7 @@ void		User::joinChannel(std::vector<std::string>& args)
 		if (chptr == NULL) //Create channel
 		{
 
-			std::cout << "Channel don't exists. Server::createChannel called." << std::endl;
+			std::cout << "Channel doesn't exists. Server::createChannel called." << std::endl;
 			chptr = _server->createChannel(args[0], this);
 			if (!chptr)
 			{
@@ -514,9 +514,15 @@ void		User::removeChannelFromList(Channel* channel)
  */
 void		User::kickUser(std::vector<std::string>& args)
 {
+	if (args.size() < 2)
+	{
+		sendMsgToOwnClient("Syntax error: KICK #channel user :msg\n");
+		return;
+	}
 	std::string channel = args[0];
 	std::string nick = args[1];
 	std::string	reason = "";
+	
 	if (args.size() > 2)
 		reason = argsToString(args.begin() + 2, args.end());
 	Channel *channelPtr;
