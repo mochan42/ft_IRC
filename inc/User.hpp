@@ -1,7 +1,7 @@
 #ifndef USER_HPP
 # define USER_HPP
 
-# include "Server.hpp"
+# include "Server.h"
 # include "Channel.hpp"
 # include <string.h>
 # include <sstream>

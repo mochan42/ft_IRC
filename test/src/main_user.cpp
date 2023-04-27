@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_user.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 20:01:16 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/19 13:04:13 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/27 10:12:10 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
  */
 
 # include "../../inc/User.hpp"
-#include <iostream>
 
 TEST_CASE("Test setNick, getNick") {
 	User user(4, 0, NULL);
