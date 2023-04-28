@@ -20,6 +20,7 @@
 # include <cstring> // for strlen
 # include <limits.h> // for INT_MAX and INT_MIN
 # include <iostream>
+# include <sstream> // for pingClient()
 # include <fstream>
 # include <map>
 # include <list>
@@ -32,6 +33,7 @@
 # include "User.hpp"
 # include "Channel.hpp"
 # include "Message.hpp"
+#include <ctime> // for pingClient()
 
 
 #define MIN_PORT_NUMBER	1024      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
@@ -39,6 +41,7 @@
 #define BACKLOG			5
 #define BUFFER_SIZE		1024
 #define MAX_CONNECTIONS	10
+#define TIME_OUT		5000
 
 class User;
 
