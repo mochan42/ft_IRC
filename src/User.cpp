@@ -852,10 +852,11 @@ void	User::mode(std::vector<std::string>& args)
 				}
 				break;	
 			
-			default:
+			default:{
 				#if DEBUG
 				std::cout << "Unknown mode: " << flag << std::endl;
 				#endif
+			}
 		}
 	}
 	if (!executedArgs.empty()) //Create the broadcast message
