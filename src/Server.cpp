@@ -406,17 +406,20 @@ User*	Server::getUserByFd(int client_socket)
 
 void	Server::pingClient(int client_socket)
 {
-    std::string	pingMessage = "PING";
-	
-	if (this->getUserByFd(client_socket))
-	{
-		send(client_socket, pingMessage.c_str(), pingMessage.length(), 0);
-		std::cout << "Server :" << this->getServerIP() << ":" << this->getPort() << "PING to client : " << this->getUserByFd(client_socket)->getIP() << ":" << this->getUserByFd(client_socket)->getPort() << "\n";
-	}
-	else
-		return ;
-}
+	std::string	pingMessage = "PING";
+	send(client_socket, pingMessage.c_str(), pingMessage.length(), 0);
 
+	std::time_t	now = std::time(NULL);
+	char		timeBuffer[80];
+	std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+	std::stringstream ss;
+	ss << "client received PING from IRC server at : " << timeBuffer << "\n";
+	std::string msg = ss.str();
+
+	std::map<int, User*>::iterator it;
+	for (it = this->_users.begin(); it != this->_users.end(); it++)
+		write(it->first, msg.c_str(), msg.length());
+}
 
 /* setup IRC server */
 void	Server::setupServer()
@@ -501,7 +504,7 @@ void	Server::setupServer()
 	// while (true)
 	{
         /* Use poll to wait for activity on any of the sockets */
-		int num_ready_fds = poll(this->fds, num_fds, -1);
+		int num_ready_fds = poll(this->fds, num_fds, TIME_OUT);
 		int *ptrNum_ready_fds = &num_ready_fds;
 		if (prgrm_stop == 0)
 		{
@@ -511,7 +514,6 @@ void	Server::setupServer()
 					std::cout << RED << "Error : polling for events" << D << "\n";
 					break;
 				case 0 :
-					std::cout << "HERE\n"; 
 					this->pingClient(this->fds[*ptrNum_fds].fd);
 					break;
 				default:
