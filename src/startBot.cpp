@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
     bot.connect("localhost", port);
 	bot.send_line("PASS " + password);
 	bot.send_line("NICK " + nickname);
+    bot.send_line("USER Bot");
 	bot.send_line("JOIN #BotHome1");
 
 	signal(SIGINT, signal_handler);
