@@ -109,7 +109,9 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 			command[i] = std::toupper(command[i]);
 	try
 	{
+		#if DEBUG
 		std::cout << "User::executeCommand called with command = " << command <<  std::endl;
+		#endif
 		if (command == "CAP")
 		{}
 		else if (command == "PASS")
@@ -188,7 +190,9 @@ std::string		User::getIP(void)
 
 void		User::registerUser(const std::vector<std::string>& args)
 {
+	#if DEBUG
 	std::cout << "User::checkServerPw called." << std::endl;
+	#endif
 
 	try
 	{
@@ -200,11 +204,15 @@ void		User::registerUser(const std::vector<std::string>& args)
 		{
 			_isRegistered = true;
 			sendMsgToOwnClient(RPY_registeredSucessfully());
+			#if DEBUG
 			std::cout << "The user is now registered" << std::endl;
+			#endif
 		}
 		else
 		{
+			#if DEBUG
 			std::cout << "PW wrong: The User is not registered" << std::endl;
+			#endif
 			throw (wrongPassword());
 		}
 	}

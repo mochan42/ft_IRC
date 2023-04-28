@@ -82,14 +82,15 @@ void Message::parse(const std::string& user_input) {
         }
 
         args.push_back(arg_vec);
-
-       // // Debug output to see the command and arguments as they are parsed
+       #if DEBUG
+       // Debug output to see the command and arguments as they are parsed
        std::cout << "Parsed command: " << command.back() << std::endl;
        std::cout << "Parsed arguments: ";
        for (std::vector<std::string>::const_iterator it = args.back().begin(); it != args.back().end(); ++it) {
            std::cout << *it << " ";
        }
        std::cout << std::endl;
+       #endif
     }
 }
 
@@ -148,14 +149,18 @@ bool modeParser::extractModeArgsPairs(const std::string& modeString, std::vector
             } else {
                 if ((modeString[i] == 'l' && sign == '+') || modeString[i] == 'k') {
                     flagArgsPairs.push_back(std::make_pair("+e", flag));
+                    #if DEBUG
                     std::cout << "Added pair: error, not enough parameters" << std::endl;
+                    #endif
                     return false;
                 }
             }
         }
 
         flagArgsPairs.push_back(std::make_pair(flag, user));
+        #if DEBUG
         std::cout << "Added pair: (" << flag << ", " << user << ")" << std::endl;
+        #endif
     }
     return true;
 }
@@ -180,7 +185,9 @@ void modeParser::parseCommand(const std::vector<std::string>& args) {
         if (it != args.end()) {
             std::vector<std::string>::const_iterator prev_it = it;
             if (!extractModeArgsPairs(*it, it, args.end())) {
+                #if DEBUG
                 std::cout << "Invalid arguments for command /mode" << std::endl;
+                #endif
                 break;
             }
             // Increment it only if it wasn't incremented in extractModeArgsPairs
