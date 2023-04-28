@@ -267,7 +267,7 @@ std::string User::RPY_ERR467_keyAlreadySet(std::string channel)
 	return (_replyMessage.c_str());
 }
 
-std::string User::RPY_ERR461_notEnoughParameters(std::string flag)
+std::string User::RPY_ERR461_notEnoughParametersMode(std::string flag)
 {
 	_replyMessage = ":" + _server->getServerName() + " 461 " + _nickName + " MODE " + flag  + " :Not enough parameters";
 	return (_replyMessage.c_str());
@@ -276,5 +276,11 @@ std::string User::RPY_ERR461_notEnoughParameters(std::string flag)
 std::string User::RPY_ERR464_PASSWDMISMATCH()
 {
 	_replyMessage = ":" + _server->getServerName() + " 464 " + ":Password incorrect";
+	return (_replyMessage);
+}
+
+std::string User::RPY_ERR461_notEnoughParameters()
+{
+	_replyMessage = ":" + _server->getServerName() + " 461 " + ":Not enough parameters";
 	return (_replyMessage);
 }

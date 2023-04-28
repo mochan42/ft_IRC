@@ -125,9 +125,10 @@ class User
 		std::string		RPY_ERR403_noSuchChannel(std::string channel);
 		std::string		RPY_ERR442_youreNotOnThatChannel(std::string channel);
 		std::string		RPY_ERR467_keyAlreadySet(std::string channel);
-		std::string		RPY_ERR461_notEnoughParameters(std::string flag);
+		std::string		RPY_ERR461_notEnoughParametersMode(std::string flag);
 		std::string		RPY_ERR433_nickInUse(std::string nick);
 		std::string		RPY_ERR464_PASSWDMISMATCH();
+		std::string		RPY_ERR461_notEnoughParameters();
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
@@ -295,6 +296,15 @@ class User
 				virtual const char *what() const throw()
 				{
 					return ("Error: Nick is not set");
+				}
+		};
+
+		class notEnoughParameters : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Not enough Parameters");
 				}
 		};
 };
