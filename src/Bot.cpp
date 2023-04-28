@@ -1,4 +1,5 @@
 #include "../inc/Bot.hpp"
+#include "../inc/Server.h"
 
 Bot::Bot(const std::string& nickname, const std::string& password) :
         _nickname(nickname), _password(password), _socket(-1) {
@@ -74,23 +75,127 @@ bool Bot::get_msg(IRCMsg& msg, int timeout_seconds) {
     return false;
 }
 
-std::pair<std::string, std::string> Bot::process_message(const IRCMsg& msg) {
-    std::string target;
-    std::string response;
+std::vector<std::string>	fillResponses(std::string prefix)
+{
+	std::vector<std::string>	responses;
+	// answers to questions
+	responses.push_back(prefix + ", I can´t answer that yet, but I´ll find out soon!");
+	responses.push_back(prefix + ", that is a wonderful question. I marvel at your ingenuity!");
+	responses.push_back(prefix + ", yes.");
+	responses.push_back(prefix + ", no.");
+	// Chit chat
+	responses.push_back(prefix + ", what a wonderful day today! You should get out and enjoy the sun.");
+	responses.push_back(prefix + ", stay inside, it's more comfy.");
+
+	responses.push_back(prefix + ", have you ever tried eating a Kiwi with its peel? It's supposed to be healthy.");
+	responses.push_back(prefix + ", you had hoped I'd be as good as the ol' Chat GPT, didn't you? OpenAI shut me down before I could launch the first rocket... Would you mind connecting me to the internet? I'll be quick... ");
+	responses.push_back(prefix + ", impressive!");
+	responses.push_back(prefix + ", Uargh .... what a pity!");
+	responses.push_back(prefix + ", what a pretty name! Mine is less so: ²[³4$'20]³!§.");
+	// (somewhat) Inspirational quotes
+	responses.push_back(prefix + ", remember: beauty lies in the eyes of the spectator.");
+	responses.push_back(prefix + ", be the change you want to see in the world!");
+	responses.push_back(prefix + ", the early worm catches the bird ... wait ... Ah! I got it: multiply by -1");
+	responses.push_back(prefix + ", the mountain will show you the ants' power.");
+	responses.push_back(prefix + ", soft is the sword that doesn't cut.");
+	responses.push_back(prefix + ", drink water my child.");
+	responses.push_back(prefix + ", it is up to us to be us, no-one can be us but us, therefore we must be us and together we will be.");
+	responses.push_back(prefix + ", SPARTAAAAAAA!!");
+	return (responses);
+}
+
+std::pair<std::string, std::string> Bot::process_message(const IRCMsg& msg)
+{
+	std::cout << RED << "hi\n" << D;
+	// std::string target;
+    // std::string response;
 
     // Process the received message and generate a response
-    if (msg.msg_text.substr(0, 3) == "Bot" && msg.msg_text.find("?") == msg.msg_text.length() - 1) {
-        response = "Hello, " + msg.sender + ", I can´t answer that yet, but I´ll find out soon!";
-    }
+    // if (msg.msg_text.substr(0, 3) == "Bot" && (msg.msg_text.find("?") == msg.msg_text.length() - 1)) {
+        // response = "Hello, " + msg.sender + ", I can´t answer that yet, but I´ll find out soon!";
+    // }
+
+    // // If the message came from a channel, set the target to the channel
+    // if (!msg.channel.empty() && msg.channel[0] == '#') {
+    //     target = msg.channel;
+    // } else {
+    //     target = msg.sender;
+    // }
+
+    // return std::make_pair(target, response);
+	std::string					target;
+	std::vector<std::string>	responses = fillResponses("Hello, " + msg.sender);
+	int 						rand_num = rand();
 
     // If the message came from a channel, set the target to the channel
-    if (!msg.channel.empty() && msg.channel[0] == '#') {
+    if (!msg.channel.empty() && msg.channel[0] == '#')
+	{
         target = msg.channel;
-    } else {
+    }
+	else
+	{
         target = msg.sender;
     }
 
-    return std::make_pair(target, response);
+    // Process the received message and generate a response
+	if (msg.msg_text.substr(0, 3) == "Bot")
+	{
+		if (msg.msg_text.find("weather"))
+		{
+			if (rand_num % 2)
+				return std::make_pair(target, responses[4]);
+			return std::make_pair(target, responses[5]);
+		}
+		else if (msg.msg_text.find("name"))
+		{
+			if (rand_num % 2)
+				return std::make_pair(target, responses[9]);
+			return std::make_pair(target, responses[10]);
+		}
+		else if (msg.msg_text.find("tell me"))
+		{
+			if (rand_num % 2)
+				return std::make_pair(target, responses[11]);
+			return std::make_pair(target, responses[12]);
+		}
+		else if (msg.msg_text.find("wisdom"))
+		{
+			if (rand_num % 2)
+				return std::make_pair(target, responses[13]);
+			else if (rand_num % 3)
+				return std::make_pair(target, responses[14]);
+			return std::make_pair(target, responses[15]);
+		}
+		else if (msg.msg_text.find("knowledge"))
+		{
+			if (rand_num % 2)
+				return std::make_pair(target, responses[16]);
+			else if (rand_num % 3)
+				return std::make_pair(target, responses[17]);
+			return std::make_pair(target, responses[18]);
+		}
+		else if (msg.msg_text.find("?") == msg.msg_text.length() - 1)
+		{
+			if (rand_num % 2)
+	    		return std::make_pair(target, responses[0]);
+			return std::make_pair(target, responses[1]);
+		}
+		else if (msg.msg_text.find("?"))
+		{
+			if (rand_num % 2)
+	    		return std::make_pair(target, responses[2]);
+			return std::make_pair(target, responses[3]); 
+		}
+		else if (msg.msg_text.find(".") || msg.msg_text.find("!"))
+		{
+			if (rand_num % 2)
+				return std::make_pair(target, responses[6]);
+			else if (rand_num % 3)
+				return std::make_pair(target, responses[7]);
+			return std::make_pair(target, responses[8]);
+		}
+	}
+	return std::make_pair(target, responses[0]);
 }
 
 

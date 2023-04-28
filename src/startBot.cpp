@@ -33,16 +33,17 @@ int main(int argc, char* argv[]) {
 
     while (!stop) {
         Bot::IRCMsg msg;
-        if (bot.get_msg(msg, 5)) {
+        if (bot.get_msg(msg, 5) && msg.sender != "ourIRCServer") {
             std::cout << msg.sender << " @ " << msg.channel << ": " << msg.msg_text << std::endl;
 
-            // Call process_message
+            // Call process_message if message is not from Server
             std::pair<std::string, std::string> result = bot.process_message(msg);
             std::string target = result.first;
             std::string response = result.second;
 
             // If the response is not empty, send it to the target (channel or sender)
-            if (!response.empty()) {
+            if (!response.empty() && !msg.sender.find("Server"))
+			{
                 std::string privmsg = "PRIVMSG " + target + " :" + response;
                 bot.send_line(privmsg);
             }
