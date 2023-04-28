@@ -175,7 +175,12 @@ void	Server::createSocket()
 	if (this->getListeningSocket() == -1)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket successfully created : "  << this->getListeningSocket() << D <<"\n";
+	{
+		#ifdef DEBUG
+			std::cout << GREEN << "Listening Socket successfully created : "  << this->getListeningSocket() << D <<"\n";
+		#endif
+	}
+
 }
 
 /* Allow listening socket file description to be reuseable
@@ -190,7 +195,11 @@ void	Server::makeListeningSocketReusable()
 	if (reuse < 0)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket successfully set to reusable" << D << "\n";
+	{
+		#ifdef DEBUG
+			std::cout << GREEN << "Listening Socket successfully set to reusable" << D << "\n";
+		#endif
+	}
 }
 
 /* Set listening socket to be non blocking. All of the sockets for the incoming 
@@ -204,7 +213,11 @@ void	Server::setSocketToNonBlocking()
 	if (nonblock == -1)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket successfully set to non blocking" << D << "\n";
+	{
+		#ifdef DEBUG
+			std::cout << GREEN << "Listening Socket successfully set to non blocking" << D << "\n";
+		#endif
+	}
 }
 
 /* Bind the listening socket to the server port*/
@@ -215,7 +228,12 @@ void	Server::bindListeningSocketToServerPort(sockaddr_in addr)
 	if (rbind == -1)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket sucessfully bound to server port" << D << "\n";
+	{
+		#ifdef DEBUG
+			std::cout << GREEN << "Listening Socket sucessfully bound to server port" << D << "\n";
+		#endif
+	}
+
 }
 
 
@@ -228,7 +246,11 @@ void	Server::listenToClients()
 	if (rlisten == -1)
 		throw ErrorInternal();
 	else
-		std::cout << GREEN << "Listening Socket started listening to IRC clients..." << D << "\n";
+	{
+		#ifdef DEBUG
+			std::cout << GREEN << "Listening Socket started listening to IRC clients..." << D << "\n";
+		#endif
+	}
 }
 
 void	Server::remUser(const int& user_fd)
@@ -424,11 +446,13 @@ void	Server::pingClient(int client_socket)
 /* setup IRC server */
 void	Server::setupServer()
 {
-	std::cout << "Server Name is\t\t: " << this->getServerName() << "\n";
-	std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
-	std::cout << "Server Password is\t: " << this->_password << "\n";
-	std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
-
+	#ifdef DEBUG
+		std::cout << "Server Name is\t\t: " << this->getServerName() << "\n";
+		std::cout << "Server Port Number is\t: " << this->getPort() << "\n";
+		std::cout << "Server Password is\t: " << this->_password << "\n";
+		std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
+	#endif
+	
 	signal(SIGINT, custom_signal_handler);
 	/* Creating server socket... */
 	try
@@ -448,7 +472,9 @@ void	Server::setupServer()
 	hint.sin_addr.s_addr = htonl(INADDR_ANY); //  the server will listen on all available network interfaces, including the loopback interface (127.0.0.1)
 	std::string ourIRCServerIP = inet_ntoa(hint.sin_addr);
 	this->setServerIP(ourIRCServerIP);
-	std::cout << "IRC Server IP and port are <IP:Port> : " << this->getServerIP() << ":" << this->getPort() << "\n";
+	#ifdef DEBUG
+		std::cout << "IRC Server IP and port are <IP:Port> : " << this->getServerIP() << ":" << this->getPort() << "\n";
+	#endif
 
 	/* Making socket reusable... */
 	try

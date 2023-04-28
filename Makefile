@@ -37,6 +37,9 @@ BOT_OBJ				:= $(addprefix $(OBJ_DIR), $(BOT_OBJ_FILES))
 # **************************************************************************** #
 # RULES
 
+debug: CFLAGS += -DDEBUG -g
+debug: fclean all
+
 all : $(NAME)
 
 $(NAME): $(OBJ_DIR) $(OBJ)
@@ -74,4 +77,4 @@ fclean: clean
 re: fclean all
 	@echo "$(GREEN) Cleaned all and rebuild $(NAME)!$(END_COLOR)"
 
-.PHONY: all clean fclean re
+.PHONY: debug all clean fclean re
