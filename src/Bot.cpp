@@ -74,6 +74,25 @@ bool Bot::get_msg(IRCMsg& msg, int timeout_seconds) {
     return false;
 }
 
+std::pair<std::string, std::string> Bot::process_message(const IRCMsg& msg) {
+    std::string target;
+    std::string response;
+
+    // Process the received message and generate a response
+    if (msg.msg_text.substr(0, 3) == "Bot" && msg.msg_text.find("?") == msg.msg_text.length() - 1) {
+        response = "Hello, " + msg.sender + ", I can´t answer that yet, but I´ll find out soon!";
+    }
+
+    // If the message came from a channel, set the target to the channel
+    if (!msg.channel.empty() && msg.channel[0] == '#') {
+        target = msg.channel;
+    } else {
+        target = msg.sender;
+    }
+
+    return std::make_pair(target, response);
+}
+
 
 void Bot::send_line(const std::string& line) {
     std::string data = line + "\r\n";
