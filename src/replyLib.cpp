@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   replyLib.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/26 09:55:30 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/04/28 11:14:44 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 std::string User::RPY_welcomeToServer(void)
 {
 	std::string	replyMessage = ":" + _server->getServerName() + " 001 " + _nickName.c_str() + " :Welcome to " + _server->getServerName() + " " + _nickName + "\n\n" \
-	+ "The server is still under construction by Triinu, Monine, Philipp, Chiemezie, Florian and Ferenc.\n\n	\
-	The following commands are now integrated:\n" + "/NICK\n/USER\n/PASS\n/JOIN\n/PRIVMSG #Channel\n/PRIVMSG UserNickname\n/NOTICE #Channel\n/NOTICE UserNickname\n/PART\n/INVITE\n/KICK\n" + 	\
+	+ "The following commands are integrated into our Server:\n" + \
+	"/NICK\n/USER\n/PASS\n/JOIN\n/MODE\n/WHO\n/TOPIC\n/INVITE\n/KICK\n/PART\n/PRIVMSG #Channel\n/PRIVMSG UserNickname\n/NOTICE #Channel\n/NOTICE UserNickname\n/QUIT\n" + 	\
 	"\nHave a good time on the server.";
 	return (replyMessage);
 }

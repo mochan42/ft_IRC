@@ -107,10 +107,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 {
 	for (size_t i = 0; i < command.length(); i++)
 			command[i] = std::toupper(command[i]);
-
 	try
 	{
-		//if (_isRegistered == false && (command == "PRIVMSG" || command == "REAL" || command == "JOIN" || command == "MODE" || command == "WHO" || command == "INVITE" || command == "KICK" || command == "PART" || command == "NOTICE"))
 		std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 		if (command == "CAP")
 		{}
@@ -122,14 +120,12 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 			setNickName(args);
 		else if (!_isRegistered || !_usernameSet)
 			throw (notRegistered());
-		else if (command == "REAL")
-			setRealName(args);
 		else if (command == "JOIN")
 			joinChannel(args);
 		else if (command == "MODE")
 			mode(args);
 		else if (command == "WHO")
-			who(args);		
+			who(args);
 		else if (command == "TOPIC")
 			changeTopic(args);
 		else if (command == "INVITE")
@@ -163,8 +159,6 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
 	}
-	
-
 }
 
 //		*!* NAME and ID Handling  *!*
