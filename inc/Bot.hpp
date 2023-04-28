@@ -29,6 +29,7 @@ public:
     Bot(const std::string& nickname, const std::string& password);
     void connect(const std::string& server, int port);
     bool get_msg(IRCMsg& msg, int timeout_seconds);
+    std::pair<std::string, std::string> process_message(const IRCMsg& msg);
 	void send_line(const std::string& line);
 	void disconnect();
 
