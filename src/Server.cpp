@@ -418,14 +418,7 @@ void	Server::pingClient(int client_socket)
 
 	std::map<int, User*>::iterator it;
 	for (it = this->_users.begin(); it != this->_users.end(); it++)
-	{
 		write(it->first, msg.c_str(), msg.length());
-		std::time_t	now2 = std::time(NULL);
-		char		timeBuffer2[80];
-		std::strftime(timeBuffer2, sizeof(timeBuffer2), "%Y-%m-%d %H:%M:%S", std::localtime(&now2));
-		usleep(1000);
-		std::cout << "PONG received from client : Fd = "<< it->second->getFd() << " at : " << timeBuffer2 << "\n";
-	}
 }
 
 /* setup IRC server */

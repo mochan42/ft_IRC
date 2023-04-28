@@ -41,7 +41,7 @@
 #define BACKLOG			5
 #define BUFFER_SIZE		1024
 #define MAX_CONNECTIONS	10
-#define TIME_OUT		5000
+#define TIME_OUT		30000
 
 class User;
 
