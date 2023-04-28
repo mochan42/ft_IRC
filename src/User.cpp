@@ -281,7 +281,9 @@ void		User::setNickName(const std::vector<std::string>& args)
 		}
 		else
 			sendMsgToOwnClient(RPY_newNick(oldNick));
+		#if DEBUG
 		std::cout << "User::setNickname called. The _nickName of fd " << this->getFd() << " is now:  " << this->getNickName() << std::endl;
+		#endif
 	}
 	catch (nickInUse &e)
 	{
@@ -324,7 +326,9 @@ void		User::setUserName(std::vector<std::string>& args)
 		sendMsgToOwnClient(RPY_welcomeToServer());
 		_welcomeMes = true;
 	}
+	#if DEBUG
 	std::cout << "User::setUserName called. The _UserName is now:  " << this->getUserName() << std::endl;
+	#endif
 }
 
 std::string		User::getUserName(void)
@@ -465,7 +469,9 @@ void 		User::inviteUser(std::vector<std::string>& args)
  */
 void		User::joinChannel(std::vector<std::string>& args)
 {
+	#if DEBUG
 	std::cout << "USER::joinChannel called." << std::endl;
+	#endif
 	try
 	{
 		if (args[0][0] != '#')
@@ -474,7 +480,9 @@ void		User::joinChannel(std::vector<std::string>& args)
 		if (chptr == NULL) //Create channel
 		{
 
+			#if DEBUG
 			std::cout << "Channel doesn't exists. Server::createChannel called." << std::endl;
+			#endif
 			chptr = _server->createChannel(args[0], this);
 			if (!chptr)
 			{
@@ -695,12 +703,10 @@ void	User::mode(std::vector<std::string>& args)
 	std::vector<std::pair<std::string, std::string> > executedArgs;
 	std::string channel = parser.getChannel();
 	Channel *chptr = _server->getChannel(channel);
-
+	#if DEBUG
 	for (size_t i = 0; i < flagArgsPairs.size(); ++i)
 		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
-
-
-
+	#endif
 	if (!chptr)
 	{
 		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(channel));
@@ -721,9 +727,10 @@ void	User::mode(std::vector<std::string>& args)
 		std::string flag = flagArgsPairs[i].first;
 		std::string arguments = flagArgsPairs[i].second;
 
+		#if DEBUG
 		//Test Output:
 		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
-
+		#endif
 		switch (flag[1]) {
 			case 'e': //Error Handling
 				sendMsgToOwnClient(RPY_ERR461_notEnoughParameters(arguments));
@@ -846,8 +853,9 @@ void	User::mode(std::vector<std::string>& args)
 				break;	
 			
 			default:
-
+				#if DEBUG
 				std::cout << "Unknown mode: " << flag << std::endl;
+				#endif
 		}
 	}
 	if (!executedArgs.empty()) //Create the broadcast message
@@ -961,8 +969,9 @@ void	User::sendNotification(std::vector<std::string>& args)
 	{
 		if (args[0].at(0) == '#')
 		{
+			#if DEBUG
 			std::cout << "User::sendNotification called with Channel =      " << args[0] << std::endl;
-
+			#endif
 			Channel *chptr = _server->getChannel(args[0]);
 			std::string concatenatedArgs = args[1];
 			if (chptr != NULL){
@@ -979,8 +988,9 @@ void	User::sendNotification(std::vector<std::string>& args)
 		}
 		else
 		{
+			#if DEBUG
 			std::cout << std::endl << std::endl << "User::sendNotification called with nickname of target:   <" << args[0] << ">" << std::endl;
-
+			#endif
 			User *target = _server->getUser(args[0]);
 			if (target != NULL)
 				sendMsgToTargetClient(RPY_PrivateNotification(args[1], target), target->getFd());
@@ -1008,8 +1018,9 @@ void	User::sendNotification(std::vector<std::string>& args)
  */
 int		User::sendChannelMsg(std::vector<std::string>& args)
 {
-	
+	#if DEBUG
 	std::cout << "User::sendChannelMsg called with Channel =      " << args[0] << std::endl;
+	#endif
 	try
 	{
 		Channel *chptr = _server->getChannel(args[0]);
@@ -1042,8 +1053,9 @@ int		User::sendChannelMsg(std::vector<std::string>& args)
  */
 int		User::sendPrivateMsg(std::vector<std::string>& args)
 {
+	#if DEBUG
 	std::cout << std::endl << std::endl << "User::sendPrivateMsg called. The nickname of target is:   <" << args[0] << ">" << std::endl;
-
+	#endif
 	try
 	{
 		User *target = _server->getUser(args[0]);
