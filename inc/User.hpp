@@ -87,7 +87,7 @@ class User
 
 		std::string		RPY_welcomeToServer(void);
 		std::string 	RPY_newNick(std::string oldNick);
-		std::string 	RPY_pass(bool registered);
+		std::string 	RPY_registeredSucessfully();
 		std::string		RPY_ChannelMsg(std::string message, Channel* channel);
 		std::string		RPY_PrivateMsg(std::string message, User* target);
 		std::string		RPY_ChannelNotification(std::string message, Channel* channel);
@@ -125,6 +125,7 @@ class User
 		std::string		RPY_ERR467_keyAlreadySet(std::string channel);
 		std::string		RPY_ERR461_notEnoughParameters(std::string flag);
 		std::string		RPY_ERR433_nickInUse(std::string nick);
+		std::string		RPY_ERR464_PASSWDMISMATCH();
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
@@ -265,6 +266,33 @@ class User
 				virtual const char *what() const throw()
 				{
 					return ("Nickname is already in use");
+				}
+		};
+
+		class alreadyRegistered : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("alreadyRegistered");
+				}
+		};
+
+		class userNotSet : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Error: User is not set");
+				}
+		};
+
+		class nickNotSet : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Error: Nick is not set");
 				}
 		};
 };

@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/28 11:14:44 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/28 12:49:27 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,10 @@ std::string User::RPY_newNick(std::string oldNick)
 	return (replyMessage);
 }
 
-std::string User::RPY_pass(bool registered)
+std::string User::RPY_registeredSucessfully()
 {
-	std::string	replyMessage;
-	if (registered == true)
-		replyMessage = "pass :successfully registered";
-	else
-		replyMessage = "pass :wrong password";
-	return (replyMessage);
+	_replyMessage = "pass :successfully registered";
+	return (_replyMessage);
 }
 
 std::string User::RPY_ChannelMsg(std::string message, Channel* channel)
@@ -275,4 +271,10 @@ std::string User::RPY_ERR461_notEnoughParameters(std::string flag)
 {
 	_replyMessage = ":" + _server->getServerName() + " 461 " + _nickName + " MODE " + flag  + " :Not enough parameters";
 	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_ERR464_PASSWDMISMATCH()
+{
+	_replyMessage = ":" + _server->getServerName() + " 464 " + ":Password incorrect";
+	return (_replyMessage);
 }

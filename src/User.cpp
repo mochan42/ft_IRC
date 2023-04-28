@@ -112,14 +112,18 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		std::cout << "User::executeCommand called with command = " << command <<  std::endl;
 		if (command == "CAP")
 		{}
-		else if (command == "USER")
-			setUserName(args);
 		else if (command == "PASS")
 			registerUser(args);
+		else if (!_isRegistered)
+			throw (notRegistered());
+		else if (command == "USER")
+			setUserName(args);
 		else if (command == "NICK")
 			setNickName(args);
-		else if (!_isRegistered || !_usernameSet)
-			throw (notRegistered());
+		else if (_nickName == "")
+			throw (nickNotSet());
+		else if (!_usernameSet)
+			throw (userNotSet());
 		else if (command == "JOIN")
 			joinChannel(args);
 		else if (command == "MODE")
@@ -159,6 +163,14 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
 	}
+	catch(userNotSet& e)
+	{
+		sendMsgToOwnClient(e.what());
+	}
+	catch(nickNotSet& e)
+	{
+		sendMsgToOwnClient(e.what());
+	}
 }
 
 //		*!* NAME and ID Handling  *!*
@@ -180,12 +192,14 @@ void		User::registerUser(const std::vector<std::string>& args)
 
 	try
 	{
+		if (_isRegistered)
+			throw(alreadyRegistered());
 		if (args.empty())
-			return;
+			throw(wrongPassword());
 		if (this->_server->verifyPassword(args[0]))
 		{
 			_isRegistered = true;
-			sendMsgToOwnClient(RPY_pass(true));
+			sendMsgToOwnClient(RPY_registeredSucessfully());
 			std::cout << "The user is now registered" << std::endl;
 		}
 		else
@@ -193,12 +207,17 @@ void		User::registerUser(const std::vector<std::string>& args)
 			std::cout << "PW wrong: The User is not registered" << std::endl;
 			throw (wrongPassword());
 		}
-	
 	}
 	catch(wrongPassword& e)
 	{
 		(void)e;
-		sendMsgToOwnClient(RPY_pass(false));
+		sendMsgToOwnClient(RPY_ERR464_PASSWDMISMATCH());
+		//Delete User
+	}
+	catch(alreadyRegistered& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR462_alreadyRegistered());
 	}
 }
 
@@ -213,7 +232,7 @@ void		User::setNickName(const std::vector<std::string>& args)
 	{
 		if (_server->getUser(newNick))
 			throw (nickInUse());
-		if (!_welcomeMes)
+		if (!_welcomeMes && _usernameSet)
 		{
 			_nickName = newNick;
 			sendMsgToOwnClient(RPY_welcomeToServer());
@@ -291,6 +310,11 @@ void		User::setUserName(std::vector<std::string>& args)
 			sendMsgToOwnClient("Wrong use of user cmd: <Username> 0 * :<RealName>");
 			return;
 		}
+	}
+	if (!_welcomeMes && _nickName != "")
+	{
+		sendMsgToOwnClient(RPY_welcomeToServer());
+		_welcomeMes = true;
 	}
 	std::cout << "User::setUserName called. The _UserName is now:  " << this->getUserName() << std::endl;
 }
@@ -574,6 +598,8 @@ void		User::kickUser(std::vector<std::string>& args)
  */
 void		User::leaveChannel(std::vector<std::string>& args)
 {
+	if (args.size() < 1)
+		return;
 	std::string	channel = args[0];
 	Channel		*chPtr;
 
@@ -691,6 +717,10 @@ void	User::mode(std::vector<std::string>& args)
 		std::cout << "\n\nFirst: " << flagArgsPairs[i].first << "\nSecond: " << flagArgsPairs[i].second << "\n\n";
 
 		switch (flag[1]) {
+			case 'e': //Error Handling
+				sendMsgToOwnClient(RPY_ERR461_notEnoughParameters(arguments));
+				break;
+
 			case 'i': //Set/remove Invite-only channel
 				if (flag[0] == '+') {
 					if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == false)
@@ -791,11 +821,6 @@ void	User::mode(std::vector<std::string>& args)
 
 			case 'l': //Set/remove the user limit to channel
 				if (flag[0] == '+') {
-					if (arguments == "")
-					{
-						sendMsgToOwnClient(RPY_ERR461_notEnoughParameters(flag));
-						break;
-					}
 					if (chptr->setChannelCapacity(std::atoi(arguments.c_str())) != 0)
 					{
 						break;
