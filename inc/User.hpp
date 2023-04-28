@@ -26,6 +26,7 @@ class User
 		std::vector<Channel *>		_channelList;
 		std::string					_replyMessage;
 		int							_userPort;
+		std::string					_input;
 
 	public:
 		User(int fd, std::string ip, Server *ircserver);
@@ -43,6 +44,7 @@ class User
 		std::string	getUserName(void);
 		void		setRealName(const std::vector<std::string>& args);
 		std::string	getRealName(void);
+		std::string *getInput(void);
 
 		int			sendMsgToOwnClient(std::string msg);
 		int			sendMsgToTargetClient(std::string msg, int targetUserFd);

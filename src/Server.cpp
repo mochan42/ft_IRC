@@ -316,9 +316,17 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 /* Function to handle data from a client socket */
 void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
 {
-	std::string input;
-	while (true)
-	{
+	std::string *input = this->getUserByFd(client_socket)->getInput();
+	// std::map<int, User*>::iterator	it = this->_user.find(client_socket);
+	// if (it != this->_user.end())
+	// 	input = it->second._input;
+	// for (std::map<int, User*>::iterator it = this->_users.begin(); it = this->_user.end() ; it++)
+	// {
+		
+	// }
+	
+	// while (true)
+	// {
 		int num_bytes = recv(client_socket, buffer, buffer_size, 0);
 		if (num_bytes < 0)
 		{
@@ -333,19 +341,25 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 			delete this->_users.find(client_socket)->second;
 			this->_users.erase(client_socket);
 			close(client_socket);
-			break;
+			//break;
 		}
 		else
 		{
 			buffer[num_bytes] = '\0';
-			input += std::string(buffer, 0, num_bytes);
-			if (input.find("\n") != std::string::npos)
-				break;
-			else
+			*input += std::string(buffer, 0, num_bytes);
+			// if (input.find("\n") != std::string::npos)
+			// 	break;
+			if (input->find("\n") == std::string::npos)
 				std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
 		}
+	// }
+	if (input->find("\n") != std::string::npos)
+	{
+		this->_messages[client_socket] = *input;
+		input->clear();
 	}
-	this->_messages[client_socket] = input;
+		
+
 	#if DEBUG
 	std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
 	#endif

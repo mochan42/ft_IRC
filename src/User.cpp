@@ -346,6 +346,11 @@ std::string		User::getRealName(void)
 	return (this->_realName);
 }
 
+std::string*	User::getInput(void)
+{
+	return (&_input);
+}
+
 
 //		*!* CHANNEL interacting  *!*
 //		----------------------------
