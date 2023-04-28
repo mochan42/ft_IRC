@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/27 17:51:02 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/28 20:48:33 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -346,7 +346,9 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		}
 	}
 	this->_messages[client_socket] = input;
+	#if DEBUG
 	std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
+	#endif
 	/* parse buffer */
 	// Create a Message instance using the buffer content
 	Message msg(this->_messages[client_socket]);
@@ -356,6 +358,7 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	std::vector<std::vector<std::string> > args = msg.getArguments();
 	if (args.size() == 0)
 		return;
+	#if DEBUG
 	// Print the command and arguments for debugging purposes
 	for (unsigned int i = 0; i < command.size(); i++){
 		std::cout << "Command: " << command[i] << "\n";
@@ -365,6 +368,7 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 				std::cout << j << "- " << args[i][j];
 		}}
 	std::cout << "\n";
+	#endif
 
 	// Print the command and arguments for debugging purposes
 

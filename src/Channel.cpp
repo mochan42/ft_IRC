@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/27 17:56:56 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/28 20:45:11 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@ Channel::Channel(std::string name, User *user)
 	  _channelCapacity(CHN_MAX_USERS), _invitedUsers(NULL),
 	  _operators(NULL), _ordinaryUsers(NULL), _mode(CHN_DEFAULT_MODE)
 {
+	#if DEBUG
 	COUT << "\nCall parametric constructor : Channel" << ENDL;
+	#endif
 	if (name.size() > 0)
 		_channelName = name;
 	// if (topic.size() > 0)
@@ -30,7 +32,9 @@ Channel::Channel(std::string name, User *user)
 
 Channel::~Channel(void)
 {
-    COUT << "\nCall destructor : Channel" << ENDL;
+    #if DEBUG
+	COUT << "\nCall destructor : Channel" << ENDL;
+	#endif
 	deallocPtrs(_invitedUsers);
 	deallocPtrs(_operators);
 	deallocPtrs(_ordinaryUsers);
@@ -304,7 +308,9 @@ void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 		for (it = _operators->begin(); it != _operators->end(); ++it)
 		{
 			fd = (*it)->getFd();
+			#if DEBUG
 			std::cout << "Send message to operator:    " << (*it)->getNickName() << std::endl;
+			#endif
 			if (ownUser.first == false || (ownUser.first == true && (*it)->getNickName() != ownUser.second->getNickName()))
 				send(fd, msg.c_str(), msg.length(), 0);
 
@@ -314,7 +320,9 @@ void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 		for (it = _ordinaryUsers->begin(); it != _ordinaryUsers->end(); ++it)
 		{
 			fd = (*it)->getFd();
+			#if DEBUG
 			std::cout << "Send message to ordinary User:    " << (*it)->getNickName() << std::endl;
+			#endif
 			if (ownUser.first == false || (ownUser.first == true && (*it)->getNickName() != ownUser.second->getNickName()))
 				send(fd, msg.c_str(), msg.length(), 0);
 
