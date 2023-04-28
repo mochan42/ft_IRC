@@ -106,52 +106,57 @@ void	User::setPort(int setUserPort)
 void		User::executeCommand(std::string command, std::vector<std::string>& args)
 {
 	for (size_t i = 0; i < command.length(); i++)
-			command[i] = std::toupper(command[i]);
-
+		command[i] = std::toupper(command[i]);
 	try
 	{
-		//if (_isRegistered == false && (command == "PRIVMSG" || command == "REAL" || command == "JOIN" || command == "MODE" || command == "WHO" || command == "INVITE" || command == "KICK" || command == "PART" || command == "NOTICE"))
-		std::cout << "User::executeCommand called with command = " << command <<  std::endl;
-		if (command == "CAP")
-		{}
-		else if (command == "USER")
-			setUserName(args);
-		else if (command == "PASS")
+		if (!this->_isRegistered && command == "PASS")
 			registerUser(args);
-		else if (command == "NICK")
-			setNickName(args);
-		else if (!_isRegistered || !_usernameSet)
-			throw (notRegistered());
-		else if (command == "REAL")
-			setRealName(args);
-		else if (command == "JOIN")
-			joinChannel(args);
-		else if (command == "MODE")
-			mode(args);
-		else if (command == "WHO")
-			who(args);		
-		else if (command == "TOPIC")
-			changeTopic(args);
-		else if (command == "INVITE")
-			inviteUser(args);
-		else if (command == "KICK")
-			kickUser(args);
-		else if (command == "PART")
-			leaveChannel(args);
-		else if (command == "NOTICE")
-			sendNotification(args);
-		else if (command == "PRIVMSG")
-		{
-			if (args[0].at(0) == '#')
-				sendChannelMsg(args);
-			else
-				sendPrivateMsg(args);
-		}
-		else if (command == "QUIT")
-			quitServer(args);
+		else if (!this->_isRegistered)
+			throw notVerified();
 		else
-			throw (commandNotFound());
-
+		{
+			//if (_isRegistered == false && (command == "PRIVMSG" || command == "REAL" || command == "JOIN" || command == "MODE" || command == "WHO" || command == "INVITE" || command == "KICK" || command == "PART" || command == "NOTICE"))
+			std::cout << "User::executeCommand called with command = " << command <<  std::endl;
+			if (command == "CAP")
+			{}
+			else if (command == "USER")
+				setUserName(args);
+			else if (command == "PASS")
+				registerUser(args);
+			else if (command == "NICK")
+				setNickName(args);
+			else if (!_isRegistered || !_usernameSet)
+				throw (notRegistered());
+			else if (command == "REAL")
+				setRealName(args);
+			else if (command == "JOIN")
+				joinChannel(args);
+			else if (command == "MODE")
+				mode(args);
+			else if (command == "WHO")
+				who(args);		
+			else if (command == "TOPIC")
+				changeTopic(args);
+			else if (command == "INVITE")
+				inviteUser(args);
+			else if (command == "KICK")
+				kickUser(args);
+			else if (command == "PART")
+				leaveChannel(args);
+			else if (command == "NOTICE")
+				sendNotification(args);
+			else if (command == "PRIVMSG")
+			{
+				if (args[0].at(0) == '#')
+					sendChannelMsg(args);
+				else
+					sendPrivateMsg(args);
+			}
+			else if (command == "QUIT")
+				quitServer(args);
+			else
+				throw (commandNotFound());
+		}
 	}
 	catch(notRegistered& e)
 	{
@@ -163,7 +168,10 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR_commandNotfound(command));
 	}
-	
+	catch(notVerified& e)
+	{
+		sendMsgToOwnClient(e.what());
+	}
 
 }
 

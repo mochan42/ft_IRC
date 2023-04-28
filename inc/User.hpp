@@ -267,6 +267,15 @@ class User
 					return ("Nickname is already in use");
 				}
 		};
+
+		class notVerified : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Not yet verified on Server. Use Password.");
+				}
+		};
 };
 
 #endif
