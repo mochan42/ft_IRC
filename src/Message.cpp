@@ -146,7 +146,11 @@ bool modeParser::extractModeArgsPairs(const std::string& modeString, std::vector
             if (it + 1 != end && (*(it + 1))[0] != '+' && (*(it + 1))[0] != '-') {
                 user = *(++it);
             } else {
-                return false;
+                if ((modeString[i] == 'l' && sign == '+') || modeString[i] == 'k') {
+                    flagArgsPairs.push_back(std::make_pair("+e", "not enough parameters"));
+                    std::cout << "Added pair: error, not enough parameters" << std::endl;
+                    return false;
+                }
             }
         }
 
@@ -155,6 +159,8 @@ bool modeParser::extractModeArgsPairs(const std::string& modeString, std::vector
     }
     return true;
 }
+
+
 
 void modeParser::parseCommand(const std::vector<std::string>& args) {
     std::vector<std::string>::const_iterator it = args.begin();

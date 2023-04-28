@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
 	bot.send_line("PASS " + password);
 	bot.send_line("USER bot 0 * :bot");
 	bot.send_line("NICK " + nickname);
+    bot.send_line("USER Bot");
 	bot.send_line("JOIN #BotHome1");
 
 	signal(SIGINT, signal_handler);
@@ -34,6 +35,17 @@ int main(int argc, char* argv[]) {
         Bot::IRCMsg msg;
         if (bot.get_msg(msg, 5)) {
             std::cout << msg.sender << " @ " << msg.channel << ": " << msg.msg_text << std::endl;
+
+            // Call process_message
+            std::pair<std::string, std::string> result = bot.process_message(msg);
+            std::string target = result.first;
+            std::string response = result.second;
+
+            // If the response is not empty, send it to the target (channel or sender)
+            if (!response.empty()) {
+                std::string privmsg = "PRIVMSG " + target + " :" + response;
+                bot.send_line(privmsg);
+            }
         }
     }
 	bot.send_line("QUIT");
