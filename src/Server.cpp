@@ -6,7 +6,7 @@
 /*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/28 20:48:33 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/29 13:00:30 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,7 @@ void	Server::createSocket()
 */
 void	Server::makeListeningSocketReusable()
 {
-	int	reuse, on = 1;
+	int	reuse, on = 0;
 
 	reuse = setsockopt(this->_listeningSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
 	if (reuse < 0)

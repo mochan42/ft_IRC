@@ -24,15 +24,15 @@ int main(int argc, char* argv[]) {
     Bot bot(nickname, password);
     bot.connect("localhost", port);
 	bot.send_line("PASS " + password);
-	bot.send_line("USER bot 0 * :bot");
 	bot.send_line("NICK " + nickname);
-    bot.send_line("USER Bot");
+    bot.send_line("USER  Bot");
 	bot.send_line("JOIN #BotHome1");
+    bot.send_line("mode #BotHome1 +l 10");
 
 	signal(SIGINT, signal_handler);
-
+    Bot::IRCMsg msg;
     while (!stop) {
-        Bot::IRCMsg msg;
+        
         if (bot.get_msg(msg, 5)) {
             std::cout << msg.sender << " @ " << msg.channel << ": " << msg.msg_text << std::endl;
 
