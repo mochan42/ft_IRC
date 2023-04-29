@@ -397,6 +397,11 @@ void		User::who(std::vector<std::string>& args)
 
 void		User::changeTopic(std::vector<std::string>& args)
 {
+	if (args.size() < 2)
+	{
+		sendMsgToOwnClient(RPY_ERR461_notEnoughParameters());
+		return;
+	}
 	std::string channel = args[0];
 	Channel *chnptr = _server->getChannel(channel);
 	if (!chnptr)
@@ -479,6 +484,8 @@ void		User::joinChannel(std::vector<std::string>& args)
 	#endif
 	try
 	{
+		if (args.size() < 1)
+			throw (notEnoughParameters());
 		if (args[0][0] != '#')
 			throw (badChannelMask());
 		Channel *chptr = _server->getChannel(args[0]);
@@ -543,6 +550,11 @@ void		User::joinChannel(std::vector<std::string>& args)
 	{
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR471_canNotJoinL(args[0]));
+	}
+	catch (notEnoughParameters &e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR461_notEnoughParameters());
 	}
 }
 
@@ -973,21 +985,17 @@ void	User::sendNotification(std::vector<std::string>& args)
 {
 	try
 	{
+		if (args.size() < 2)
+			throw (notEnoughParameters());
 		if (args[0].at(0) == '#')
 		{
 			#if DEBUG
 			std::cout << "User::sendNotification called with Channel =      " << args[0] << std::endl;
 			#endif
 			Channel *chptr = _server->getChannel(args[0]);
-			std::string concatenatedArgs = args[1];
 			if (chptr != NULL){
-            	for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
-            		{
-                	if (it != args.begin() + 1)
-                    concatenatedArgs += " ";
-                	concatenatedArgs += *it;
-            	}
-				chptr->broadcastMsg(RPY_ChannelNotification(concatenatedArgs, chptr), std::make_pair(true, (User *) this));
+            	std::string msg = argsToString(args.begin() + 1, args.end());
+				chptr->broadcastMsg(RPY_ChannelNotification(msg, chptr), std::make_pair(true, (User *) this));
 			}
 			else
 				throw (noSuchChannel());
@@ -999,10 +1007,18 @@ void	User::sendNotification(std::vector<std::string>& args)
 			#endif
 			User *target = _server->getUser(args[0]);
 			if (target != NULL)
-				sendMsgToTargetClient(RPY_PrivateNotification(args[1], target), target->getFd());
+			{
+				std::string msg = argsToString(args.begin() + 1, args.end());
+				sendMsgToTargetClient(RPY_PrivateNotification(msg, target), target->getFd());
+			}
 			else
 				throw (noSuchNick());
 		}
+	}
+	catch(notEnoughParameters& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR461_notEnoughParameters());
 	}
 	catch(noSuchChannel& e)
 	{
