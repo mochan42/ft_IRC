@@ -41,7 +41,7 @@
 #define BACKLOG			5
 #define BUFFER_SIZE		1024
 #define MAX_CONNECTIONS	10
-#define TIME_OUT		30000
+#define TIME_OUT		120000    // Server will ping client if no data is received from client after 2 min
 
 class User;
 
