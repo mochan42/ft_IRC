@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/28 20:48:33 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/29 17:49:38 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -449,11 +449,8 @@ void	Server::pingClient(int client_socket)
 	std::string	pingMessage = "PING";
 	send(client_socket, pingMessage.c_str(), pingMessage.length(), 0);
 
-	std::time_t	now = std::time(NULL);
-	char		timeBuffer[80];
-	std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
 	std::stringstream ss;
-	ss << "client received PING from IRC server at : " << timeBuffer << "\n";
+	ss << "PING :" << std::time(NULL) << "\n";
 	std::string msg = ss.str();
 
 	std::map<int, User*>::iterator it;

@@ -126,6 +126,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 			throw (nickNotSet());
 		else if (!_usernameSet)
 			throw (userNotSet());
+		else if (command == "PONG")
+		{}
 		else if (command == "JOIN")
 			joinChannel(args);
 		else if (command == "MODE")
