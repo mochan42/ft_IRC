@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 20:01:16 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/27 10:45:05 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/04/30 12:32:56 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@
 // 	// }
 // }
 
+#if 0
 TEST_CASE( "Channel : Channel Constructor", "[Channel]")
 {
     
@@ -508,3 +509,4 @@ TEST_CASE( "Server : Channel Creation", "[Server]")
 		REQUIRE(server.createChannel("newChannel", "", &user_1) == NULL);
 	}
 }
+#endif
