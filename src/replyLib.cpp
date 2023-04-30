@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/28 12:49:27 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/30 20:23:15 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,4 +283,10 @@ std::string User::RPY_ERR461_notEnoughParameters()
 {
 	_replyMessage = ":" + _server->getServerName() + " 461 " + ":Not enough parameters";
 	return (_replyMessage);
+}
+
+std::string User::RPY_ERR404_cannotSendToChannel(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 404 " + _nickName + " " + channel + " :Cannot send to channel";
+	return (_replyMessage.c_str());
 }

@@ -79,6 +79,7 @@ class User
 		void 		setUserLimit(const std::string& channel, int limit);
 		void 		removeUserLimit(const std::string& channel);
 		bool		isUserInList(std::vector<User *>::iterator begin, std::vector<User *>::iterator end, User *user);
+		bool		isChannelInList(std::vector<Channel *>::iterator begin, std::vector<Channel *>::iterator end, Channel *channel);
 
 		// bool		isOperator(channel& channel);
 
@@ -129,6 +130,7 @@ class User
 		std::string		RPY_ERR433_nickInUse(std::string nick);
 		std::string		RPY_ERR464_PASSWDMISMATCH();
 		std::string		RPY_ERR461_notEnoughParameters();
+		std::string		RPY_ERR404_cannotSendToChannel(std::string channel);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
