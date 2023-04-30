@@ -22,12 +22,15 @@ int main(int argc, char* argv[]) {
     std::string password(argv[3]);
 
     Bot bot(nickname, password);
-    bot.connect("localhost", port);
+    if (!bot.connect("localhost", port)) {
+    std::cerr << "Error connecting to server" << std::endl;
+    return 1;
+    }
+    bot.set_answers("src/botlib.txt");
 	bot.send_line("PASS " + password);
-	bot.send_line("USER bot 0 * :bot");
 	bot.send_line("NICK " + nickname);
     bot.send_line("USER Bot");
-	bot.send_line("JOIN #BotHome1");
+	bot.send_line("JOIN #Bot");
 
 	signal(SIGINT, signal_handler);
 

@@ -9,6 +9,7 @@
 #include <queue>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <cstring>
 #include <cstdlib>
 #include <unistd.h>
@@ -16,6 +17,7 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <cstdio>
+#include <ctime>
 
 class Bot {
 public:
@@ -27,9 +29,12 @@ public:
     };
 
     Bot(const std::string& nickname, const std::string& password);
-    void connect(const std::string& server, int port);
+    bool connect(const std::string& server, int port);
     bool get_msg(IRCMsg& msg, int timeout_seconds);
     std::pair<std::string, std::string> process_message(const IRCMsg& msg);
+    void set_answers(const std::string& file_name);
+    std::string get_answer(size_t index) const;
+    size_t get_answers_size() const;
 	void send_line(const std::string& line);
 	void disconnect();
 
@@ -38,6 +43,7 @@ private:
     std::string 			_password;
     int 					  _socket;
 	std::queue<IRCMsg> _message_queue;
+    std::vector<std::string> _answers;
 };
 
 #endif // BOT_HPP

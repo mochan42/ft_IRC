@@ -4,30 +4,61 @@ Bot::Bot(const std::string& nickname, const std::string& password) :
         _nickname(nickname), _password(password), _socket(-1) {
 }
 
-void Bot::connect(const std::string& server, int port) {
-    _socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (_socket < 0) {
-        perror("socket");
-        exit(EXIT_FAILURE);
+bool Bot::connect(const std::string& server, int port) {
+_socket = socket(AF_INET, SOCK_STREAM, 0);
+if (_socket < 0) {
+perror("socket");
+return false;
+}
+
+struct hostent *he;
+struct sockaddr_in their_addr;
+
+if ((he = gethostbyname(server.c_str())) == NULL) {
+    perror("gethostbyname");
+    return false;
+}
+
+their_addr.sin_family = AF_INET;
+their_addr.sin_port = htons(port);
+their_addr.sin_addr = *((struct in_addr *) he->h_addr);
+memset(&(their_addr.sin_zero), 0, 8);
+
+if (::connect(_socket, (struct sockaddr *) &their_addr, sizeof(struct sockaddr)) == -1) {
+    perror("connect");
+    return false;
+}
+
+return true;
+}
+
+
+void Bot::set_answers(const std::string& file_name) {
+    try {
+        std::ifstream file(file_name.c_str());
+        if (!file.is_open()) {
+            throw std::runtime_error("Error opening file");
+        }
+
+        std::string line;
+        while (std::getline(file, line)) {
+            _answers.push_back(line);
+        }
+        file.close();
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
+}
 
-    struct hostent *he;
-    struct sockaddr_in their_addr;
-
-    if ((he = gethostbyname(server.c_str())) == NULL) {
-        perror("gethostbyname");
-        exit(EXIT_FAILURE);
+std::string Bot::get_answer(size_t index) const {
+    if (index >= _answers.size()) {
+        return "";
     }
+    return _answers[index];
+}
 
-    their_addr.sin_family = AF_INET;
-    their_addr.sin_port = htons(port);
-    their_addr.sin_addr = *((struct in_addr *) he->h_addr);
-    memset(&(their_addr.sin_zero), 0, 8);
-
-    if (::connect(_socket, (struct sockaddr *) &their_addr, sizeof(struct sockaddr)) == -1) {
-        perror("connect");
-        exit(EXIT_FAILURE);
-    }
+size_t Bot::get_answers_size() const {
+    return _answers.size();
 }
 
 bool Bot::get_msg(IRCMsg& msg, int timeout_seconds) {
@@ -74,13 +105,17 @@ bool Bot::get_msg(IRCMsg& msg, int timeout_seconds) {
     return false;
 }
 
+
+
+
 std::pair<std::string, std::string> Bot::process_message(const IRCMsg& msg) {
     std::string target;
     std::string response;
 
     // Process the received message and generate a response
     if (msg.msg_text.substr(0, 3) == "Bot" && msg.msg_text.find("?") == msg.msg_text.length() - 1) {
-        response = "Hello, " + msg.sender + ", I can´t answer that yet, but I´ll find out soon!";
+        int random_index = std::rand() % this->get_answers_size();
+        response = "Hello, " + msg.sender + ", if in need of motivation, remember following: " + get_answer(random_index);
     }
 
     // If the message came from a channel, set the target to the channel
