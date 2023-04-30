@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+         #
+#    By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/16 09:55:57 by cudoh             #+#    #+#              #
-#    Updated: 2023/04/27 10:26:26 by pmeising         ###   ########.fr        #
+#    Updated: 2023/04/30 12:42:13 by cudoh            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,9 +21,9 @@ DIR_INC_PROJ = ./inc
 
 #SRC_FILES	:= $(shell ls ./src | xargs)
 SRC_FILES_TEST	:=	main.cpp			\
-					# test_channel.cpp	\
-					# test_server.cpp		
-#					main_user.cpp 
+					test_channel.cpp	\
+#					test_server.cpp		\
+#					main_user.cpp 		\
 
 # PROJECT FILES TO BE TESTED ARE LISTE HERE 
 SRC_FILES_PROJ	:= Bot.cpp Channel.cpp Message.cpp replyLib.cpp Server.cpp User.cpp Utils.cpp
@@ -94,8 +94,7 @@ execTest: $(NAME)
 
 # remove all object files
 fclean:
-	rm -rf $(DIR_OBJS_TEST)
-	rm -rf $(DIR_OBJS_PROJ)
+	rm -rf $(DIR_OBJS_TEST) $(DIR_OBJS_PROJ)
 	rm -f $(FILE_TEST_LOG)
 #	rm -rf *.o
 

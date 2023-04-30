@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test_channel.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 18:59:02 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/24 17:35:14 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/04/30 12:35:55 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@ TEST_CASE( "Channel : Channel Constructor", "[Channel]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel chnSports("Football", "Bundesliga rocks!", &flex);
+        Channel chnSports("Football", &flex);
         REQUIRE(chnSports.getChannelName() == "Football");
-        REQUIRE(chnSports.getTopic() == "Bundesliga rocks!");
+        REQUIRE(chnSports.getTopic() == CHN_DEFAULT_TOPIC);
         REQUIRE(chnSports.getChannelCapacity() == CHN_MAX_USERS);
         REQUIRE(chnSports.getListPtrInvitedUsers() != NULL);
         REQUIRE(chnSports.getListPtrOperators() != NULL);
@@ -34,7 +34,7 @@ TEST_CASE( "Channel : Channel Constructor", "[Channel]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel chnSports("", "", &flex);
+        Channel chnSports("", &flex);
         REQUIRE(chnSports.getChannelName() == CHN_DEFAULT_NAME);
         REQUIRE(chnSports.getTopic() == CHN_DEFAULT_TOPIC);
         REQUIRE(chnSports.getChannelCapacity() == CHN_MAX_USERS);
@@ -51,7 +51,7 @@ TEST_CASE( "Channel : isUserInChannel", "[Channel]")
         User flex(1, "127.0.0.1", &server);
         std::vector<std::string> namelist;
         namelist.push_back("flex");
-        Channel chnSports("Tennis", "Selena williams wins big", &flex);
+        Channel chnSports("Tennis", &flex);
      
         flex.setNickName(namelist);
         chnSports.updateUserList(chnSports.getListPtrOrdinaryUsers(), &flex, USR_ADD);
@@ -68,7 +68,7 @@ TEST_CASE( "Channel : promoteUser", "[Channel]")
         User flex(1, "127.0.0.1", &server);
         std::vector<std::string> namelist;
         namelist.push_back("flex");
-        Channel chnSports("Tennis", "Selena williams wins big", &flex);
+        Channel chnSports("Tennis", &flex);
      
         flex.setNickName(namelist);
         chnSports.updateUserList(chnSports.getListPtrOperators(), &flex, USR_REMOVE);
@@ -84,7 +84,7 @@ TEST_CASE( "Channel : promoteUser", "[Channel]")
         User flex(1, "127.0.0.1", &server);
         std::vector<std::string> namelist;
         namelist.push_back("flex");
-        Channel chnSports("Tennis", "Selena williams wins big", &flex);
+        Channel chnSports("Tennis", &flex);
      
         flex.setNickName(namelist);
         REQUIRE(chnSports.promoteUser("flex") == CHN_ERR_UserDoesNotExist);
@@ -102,7 +102,7 @@ TEST_CASE( "Channel : demoteUser", "[Channel]")
         User flex(1, "127.0.0.1", &server);
         std::vector<std::string> namelist;
         namelist.push_back("flex");
-        Channel chnSports("Tennis", "Selena williams wins big", &flex);
+        Channel chnSports("Tennis", &flex);
      
         flex.setNickName(namelist);
         
@@ -117,7 +117,7 @@ TEST_CASE( "Channel : demoteUser", "[Channel]")
         User flex(1, "127.0.0.1", &server);
         std::vector<std::string> namelist;
         namelist.push_back("flex");
-        Channel chnSports("Tennis", "Selena williams wins big", &flex);
+        Channel chnSports("Tennis", &flex);
      
         flex.setNickName(namelist);
         chnSports.updateUserList(chnSports.getListPtrOperators(), &flex, USR_REMOVE);
@@ -135,7 +135,7 @@ TEST_CASE( "Channel : ChannelCapacity", "[Channel][ChannelCapacity]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         REQUIRE(club.getChannelCapacity() == CHN_MAX_USERS);
         club.setChannelCapacity(3);
@@ -149,7 +149,7 @@ TEST_CASE( "Channel : ChannelCapacity", "[Channel][ChannelCapacity]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         REQUIRE(club.getChannelCapacity() == CHN_MAX_USERS);
         club.setChannelCapacity(1025);
@@ -168,7 +168,7 @@ TEST_CASE( "Channel : getNbrOfActiveUser", "[Channel][getNbrOfActiveUser]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         
         club.updateUserList(club.getListPtrOperators(), &flex, USR_REMOVE);
@@ -178,7 +178,7 @@ TEST_CASE( "Channel : getNbrOfActiveUser", "[Channel][getNbrOfActiveUser]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         
         REQUIRE(club.getNbrofActiveUsers() == 1);
@@ -187,7 +187,7 @@ TEST_CASE( "Channel : getNbrOfActiveUser", "[Channel][getNbrOfActiveUser]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         club.demoteUser(flex.getNickName());
         REQUIRE(club.getNbrofActiveUsers() == 1);
@@ -197,7 +197,7 @@ TEST_CASE( "Channel : getNbrOfActiveUser", "[Channel][getNbrOfActiveUser]")
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
         User speeder(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         club.updateUserList(club.getListPtrOrdinaryUsers(), &speeder, USR_ADD);
         
@@ -213,7 +213,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         club.setMode(CHN_MODE_Invite);
         REQUIRE(club.getMode() == CHN_MODE_Invite);
@@ -224,7 +224,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         // Invite is on bit 1(0) : value should be 1
         club.setMode(CHN_MODE_Invite);
@@ -234,7 +234,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         // Invite is on bit 2(1) : value should be 2
         club.setMode(CHN_MODE_Protected);
@@ -244,7 +244,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         // adminSetUserLimit is on bit 3(2) : value should be 4 
         club.setMode(CHN_MODE_CustomUserLimit);
@@ -254,7 +254,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         // adminSetTopic is on bit 4(3) : value should be 8 
         club.setMode(CHN_MODE_AdminSetTopic);
@@ -264,7 +264,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
          
         club.setMode(CHN_MODE_Invite); club.setMode(CHN_MODE_Protected); club.setMode(CHN_MODE_CustomUserLimit);
         club.setMode(CHN_MODE_AdminSetTopic);
@@ -274,7 +274,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
          
         REQUIRE(club.setMode(CHN_MODE_Invite) == CHN_ERR_SUCCESS);
         REQUIRE(club.setMode(CHN_MODE_Protected) == CHN_ERR_SUCCESS);
@@ -286,7 +286,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
          
         REQUIRE(club.setMode(15) == CHN_ERR_SUCCESS);
         REQUIRE(club.getMode() == 0x0F);
@@ -303,7 +303,7 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
 
         club.setMode(CHN_MODE_Default);
         REQUIRE(club.setMode(16) == CHN_ERR_InvalidMode);
@@ -317,7 +317,7 @@ TEST_CASE( "Channel : isModeSet", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         club.setMode(CHN_MODE_Default);
         REQUIRE(club.isModeSet(CHN_MODE_Default, CHN_OPT_CTRL_Exclusive) == true);
@@ -344,7 +344,7 @@ TEST_CASE( "Channel : isModeSet", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
         
         club.setMode(15);   /* set all modes */
         REQUIRE(club.isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == true);
@@ -358,7 +358,7 @@ TEST_CASE( "Channel : isModeSet", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
 
         /* check that they fail if option control is set to exclusive*/
         club.setMode(15);   /* set all modes */
@@ -371,7 +371,7 @@ TEST_CASE( "Channel : isModeSet", "[Channel][Mode]")
     {
         Server server(5566, "default");
         User flex(1, "127.0.0.1", &server);
-        Channel club("Bikers", "Trip to Madagascar", &flex);
+        Channel club("Bikers", &flex);
 
         /* check that they fail if option control is set to exclusive*/
         club.setMode(15);   /* set all modes */

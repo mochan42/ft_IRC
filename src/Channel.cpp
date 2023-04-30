@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/28 20:45:11 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/04/30 10:20:32 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,7 @@ Channel::Channel(std::string name, User *user)
 	#if DEBUG
 	COUT << "\nCall parametric constructor : Channel" << ENDL;
 	#endif
-	if (name.size() > 0)
-		_channelName = name;
-	// if (topic.size() > 0)
-		_topic = "topic";
+    setChannelName(name);
 	_invitedUsers = new std::list<User *>;
 	_operators = new std::list<User *>;
 	_ordinaryUsers = new std::list<User *>;
@@ -105,21 +102,48 @@ std::string	Channel::getPassword(void) const
 	return (_password);
 }
 
-
-void   Channel::setChannelName(std::string name)
+void Channel::setChannelName(std::string name)
 {
-    _channelName = name;
+    try
+    {
+        if (name.size() > 0)
+            _channelName = name;
+        else
+        {
+            _channelName = CHN_DEFAULT_NAME;
+            throw EmptyContentException();
+        }
+    }
+    CHN_EXCEPTION_HANDLER();
 }
-
 
 void   Channel::setTopic(std::string topic)
 {
-    _topic = topic;
+    try
+    {
+        if (topic.size() > 0)
+            _topic = topic;
+        else
+        {
+            _topic = CHN_DEFAULT_TOPIC;
+            throw EmptyContentException();
+        }
+    }
+    CHN_EXCEPTION_HANDLER();
 }
 
 void	Channel::setPassword(std::string pw)
 {
-	_password = pw;
+    try
+    {
+        if (pw.size() > 0)
+            _password = pw;
+        else
+        {
+            throw EmptyContentException();
+        }
+    }
+    CHN_EXCEPTION_HANDLER();
 }
 
 
@@ -248,47 +272,6 @@ bool	Channel::isModeSet(uint8_t	mode, t_chnOptionCtrl optCtrl)
 	return (returnCode);
 }
 
-// void Channel::broadcastMsg(std::string msg)
-
-// void Channel::broadcastMsg(std::string msg_org)
-// {
-// 	std::string msg = msg_org + "\r\n";
-// 	int msgLen = msg.size();
-// 	int fd = 0;
-// 	std::list<User *>::iterator it;
-// 	std::cout << "Channel::broadcastMsg called" << std::endl;
-// 	try
-// 	{
-// 		if (msgLen <= 2)
-// 			throw EmptyContentException();
-// 		if (_operators == NULL || _ordinaryUsers == NULL)
-// 			throw NullPointerException();
-		
-// 		/* iterate over operators and ordinary user lists to send msg */
-// 		for (it = _operators->begin(); it != _operators->end(); ++it)
-// 		{
-// 			fd = (*it)->getFd();
-// 			std::cout << "Send message to operator:    " << (*it)->getNickName() << std::endl;
-// 			send(fd, msg.c_str(), msg.length(), 0);
-
-// 			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
-// 			// 	throw SendToTargetCLientException();
-// 		}
-// 		for (it = _ordinaryUsers->begin(); it != _ordinaryUsers->end(); ++it)
-// 		{
-// 			fd = (*it)->getFd();
-// 			std::cout << "Send message to ordinary User:    " << (*it)->getNickName() << std::endl;
-// 			send(fd, msg.c_str(), msg.length(), 0);
-
-// 			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
-// 			// 	throw SendToTargetCLientException();
-// 		}
-// 	}	
-// 	catch(const std::exception & e)
-// 	{
-// 		std::cerr << e.what() << '\n';
-// 	}
-// }
 
 void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 {
