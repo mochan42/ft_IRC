@@ -146,7 +146,9 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 			sendNotification(args);
 		else if (command == "PRIVMSG")
 		{
-			if (args[0].at(0) == '#')
+			if (args.size() < 2)
+				sendMsgToOwnClient(RPY_ERR461_notEnoughParameters());
+			else if (args[0].at(0) == '#')
 				sendChannelMsg(args);
 			else
 				sendPrivateMsg(args);
@@ -1052,40 +1054,30 @@ int		User::sendChannelMsg(std::vector<std::string>& args)
 	#endif
 	try
 	{
-		if (args.size() > 1)
+		Channel *chptr = _server->getChannel(args[0]);
+		std::string concatenatedArgs = args[1];
+		if (chptr != NULL)
 		{
-			Channel *chptr = _server->getChannel(args[0]);
-			std::string concatenatedArgs = args[1];
-			if (chptr != NULL)
+			if (!isChannelInList(_channelList.begin(), _channelList.end(), chptr))
 			{
-				if (!isChannelInList(_channelList.begin(), _channelList.end(), chptr))
-				{
-					sendMsgToOwnClient(RPY_ERR404_cannotSendToChannel(args[0]));
-					return (-1);
-				}
-				for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
-				{
-					if (it != args.begin() + 1)
-					concatenatedArgs += " ";
-					concatenatedArgs += *it;
-				}
-				chptr->broadcastMsg(RPY_ChannelMsg(concatenatedArgs, chptr), std::make_pair(true, (User *) this));
+				sendMsgToOwnClient(RPY_ERR404_cannotSendToChannel(args[0]));
+				return (-1);
 			}
-			else
-				throw (noSuchChannel());
+			for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
+			{
+				if (it != args.begin() + 1)
+				concatenatedArgs += " ";
+				concatenatedArgs += *it;
+			}
+			chptr->broadcastMsg(RPY_ChannelMsg(concatenatedArgs, chptr), std::make_pair(true, (User *) this));
 		}
 		else
-			throw (notEnoughParameters());
+			throw (noSuchChannel());
 	}
 	catch(noSuchChannel& e)
 	{
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(args[0]));
-	}
-	catch(notEnoughParameters& e)
-	{
-		(void)e;
-		sendMsgToOwnClient(RPY_ERR461_notEnoughParameters());
 	}
 	return (0);
 }
@@ -1103,36 +1095,25 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 	#endif
 	try
 	{
-		if (args.size() > 1)
+		User *target = _server->getUser(args[0]);
+		std::string concatenatedArgs = args[1];
+		if (target != NULL)
 		{
-			User *target = _server->getUser(args[0]);
-			std::string concatenatedArgs = args[1];
-			if (target != NULL)
+			for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
 			{
-				for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
-				{
-					if (it != args.begin() + 1)
-					concatenatedArgs += " ";
-					concatenatedArgs += *it;
-				}
-				sendMsgToTargetClient(RPY_PrivateMsg(concatenatedArgs, target), target->getFd());
+				if (it != args.begin() + 1)
+				concatenatedArgs += " ";
+				concatenatedArgs += *it;
 			}
-			else
-				throw (noSuchNick());
+			sendMsgToTargetClient(RPY_PrivateMsg(concatenatedArgs, target), target->getFd());
 		}
 		else
-			throw (notEnoughParameters());
-
+			throw (noSuchNick());
 	}
 	catch(noSuchNick& e)
 	{
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(args[0]));
-	}
-	catch(notEnoughParameters& e)
-	{
-		(void)e;
-		sendMsgToOwnClient(RPY_ERR461_notEnoughParameters());
 	}
 	return (0);
 }
