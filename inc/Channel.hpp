@@ -6,7 +6,7 @@
 /*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/30 09:59:57 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/04/30 20:38:28 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # include "User.hpp"
 
 # define CHN_MAX_USERS (1024)
-# define CHN_MIN_USERS (3)
+# define CHN_MIN_USERS (1)
 # define COUT std::cout
 # define ENDL std::endl
 # define CHN_TRUE (1)
