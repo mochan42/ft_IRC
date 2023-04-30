@@ -327,31 +327,31 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	
 	// while (true)
 	// {
-		int num_bytes = recv(client_socket, buffer, buffer_size, 0);
-		if (num_bytes < 0)
-		{
-			std::cout << RED << "Error receiving data from client" << D  << "\n";
-			return;
-		}
-		else if (num_bytes == 0)
-		{
-			/* Client has disconnected */
-			std::cout << "Client disconnected\n";
-			// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
-			delete this->_users.find(client_socket)->second;
-			this->_users.erase(client_socket);
-			close(client_socket);
-			//break;
-		}
-		else
-		{
-			buffer[num_bytes] = '\0';
-			*input += std::string(buffer, 0, num_bytes);
-			// if (input.find("\n") != std::string::npos)
-			// 	break;
-			if (input->find("\n") == std::string::npos)
-				std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
-		}
+	int num_bytes = recv(client_socket, buffer, buffer_size, 0);
+	if (num_bytes < 0)
+	{
+		std::cout << RED << "Error receiving data from client" << D  << "\n";
+		return;
+	}
+	else if (num_bytes == 0)
+	{
+		/* Client has disconnected */
+		std::cout << "Client disconnected\n";
+		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
+		delete this->_users.find(client_socket)->second;
+		this->_users.erase(client_socket);
+		close(client_socket);
+		//break;
+	}
+	else
+	{
+		buffer[num_bytes] = '\0';
+		*input += std::string(buffer, 0, num_bytes);
+		// if (input.find("\n") != std::string::npos)
+		// 	break;
+		if (input->find("\n") == std::string::npos)
+			std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
+	}
 	// }
 	if (input->find("\n") != std::string::npos)
 	{
