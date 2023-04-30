@@ -996,6 +996,11 @@ void	User::sendNotification(std::vector<std::string>& args)
 			#endif
 			Channel *chptr = _server->getChannel(args[0]);
 			if (chptr != NULL){
+				if (!isChannelInList(_channelList.begin(), _channelList.end(), chptr))
+				{
+					sendMsgToOwnClient(RPY_ERR404_cannotSendToChannel(args[0]));
+					return;
+				}
             	std::string msg = argsToString(args.begin() + 1, args.end());
 				chptr->broadcastMsg(RPY_ChannelNotification(msg, chptr), std::make_pair(true, (User *) this));
 			}
@@ -1053,6 +1058,11 @@ int		User::sendChannelMsg(std::vector<std::string>& args)
 			std::string concatenatedArgs = args[1];
 			if (chptr != NULL)
 			{
+				if (!isChannelInList(_channelList.begin(), _channelList.end(), chptr))
+				{
+					sendMsgToOwnClient(RPY_ERR404_cannotSendToChannel(args[0]));
+					return (-1);
+				}
 				for (std::vector<std::string>::const_iterator it = args.begin() + 2; it != args.end(); ++it)
 				{
 					if (it != args.begin() + 1)
@@ -1173,5 +1183,13 @@ bool	User::isUserInList(std::vector<User *>::iterator begin, std::vector<User *>
 		if (*it == user)
 			return (true);
 	}
+	return (false);
+}
+
+bool	User::isChannelInList(std::vector<Channel *>::iterator begin, std::vector<Channel *>::iterator end, Channel *channel)
+{
+	for (; begin != end; ++begin)
+		if (channel == *begin)	
+			return (true);
 	return (false);
 }
