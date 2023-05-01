@@ -189,7 +189,7 @@ void	Server::createSocket()
 */
 void	Server::makeListeningSocketReusable()
 {
-	int	reuse, on = 0;
+	int	reuse, on = 1;
 
 	reuse = setsockopt(this->_listeningSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
 	if (reuse < 0)
