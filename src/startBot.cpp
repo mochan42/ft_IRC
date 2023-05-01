@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     std::cerr << "Error connecting to server" << std::endl;
     return 1;
     }
-    bot.set_answers("src/botlib.txt");
+    bot.set_answers("src/botlib");
 	bot.send_line("PASS " + password);
 	bot.send_line("NICK " + nickname);
     bot.send_line("USER Bot");
