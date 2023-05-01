@@ -5,5 +5,5 @@ obj
 a.out
 ircserv
 ircbot
-./test/test
+test/test
 .vscode

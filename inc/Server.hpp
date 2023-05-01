@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/27 17:54:50 by pmeising         ###   ########.fr       */
+/*   Updated: 2023/05/01 13:40:24 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@
 #define BACKLOG			5
 #define BUFFER_SIZE		1024
 #define MAX_CONNECTIONS	10
-#define TIME_OUT		120000    // Server will ping client if no data is received from client after 2 min
+#define TIME_OUT		2500    // Server will ping client if no data is received from client after 2 min
 
 class User;
 

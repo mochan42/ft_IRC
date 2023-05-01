@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/04/30 13:08:29 by tjairus          ###   ########lyon.fr   */
+/*   Updated: 2023/05/01 13:41:56 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,10 +258,10 @@ void	Server::remUser(const int& user_fd)
 	std::map<int, User*>::iterator	it = this->_users.find(user_fd);
 	if (it != this->_users.end())
 	{
-		User	*temp = it->second;
-		this->_users.erase(it);
-		if (temp)
-			delete temp;
+		// User	*temp = it->second;
+		this->_users.erase(user_fd);
+		// if (temp) 
+		// 	delete temp;
 	}
 }
 
@@ -338,8 +338,17 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		/* Client has disconnected */
 		std::cout << "Client disconnected\n";
 		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
-		delete this->_users.find(client_socket)->second;
-		this->_users.erase(client_socket);
+		//delete this->_users.find(client_socket)->second;
+		
+		// When the user is deleted, then we should not find them here in the _users
+		std::_Rb_tree_iterator<std::pair<const int, User *> > test = this->_users.find(client_socket);
+		(void)test;
+		if (test->first == client_socket)
+		{
+			User *user = this->_users.find(client_socket)->second;
+			user->quitServer();
+			//this->_users.erase(client_socket); //Already did in remUser ?
+		}
 		close(client_socket);
 		//break;
 	}
@@ -397,7 +406,7 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 			user->executeCommand(command[i], args[i]);
 			i++;
 		}
-	} 
+	}
 	else
 	{
 	// Handle the case when the user is not found

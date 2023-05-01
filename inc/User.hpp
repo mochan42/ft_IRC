@@ -58,7 +58,7 @@ class User
 		void		kickUser(std::vector<std::string>& args);
 		void		leaveChannel(std::vector<std::string>& args);
 		void		removeChannelFromList(Channel* channel);
-		void		quitServer(std::vector<std::string>& args);
+		void		quitServer();
 
 		void		mode(std::vector<std::string>& args);
 		void		printMode(std::string channel, Channel *ptr);

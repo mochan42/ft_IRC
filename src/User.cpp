@@ -154,7 +154,7 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 				sendPrivateMsg(args);
 		}
 		else if (command == "QUIT")
-			quitServer(args);
+			quitServer();
 		else
 			throw (commandNotFound());
 
@@ -941,11 +941,10 @@ void	User::printMode(std::string channel, Channel *ptr)
 	sendMsgToOwnClient(RPY_324_printMode(channel, combined));
 }
 
-void		User::quitServer(std::vector<std::string>& args)
+void		User::quitServer()
 {
 	if (_channelList.size() > 0)
 	{
-		(void) args;
 		std::vector<Channel *>::iterator iter = _channelList.begin();
 		std::vector<Channel *>::iterator iterTemp;
 
@@ -973,6 +972,9 @@ void		User::quitServer(std::vector<std::string>& args)
 				++iter;
 		}
 	}
+	_server->remUser(this->_userFd);
+	close(this->_userFd);
+	this->~User();
 }
 
 
