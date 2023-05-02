@@ -40,7 +40,7 @@
 #define MAX_PORT_NUMBER	65535
 #define BACKLOG			5
 #define BUFFER_SIZE		1024
-#define MAX_CONNECTIONS	10
+#define MAX_CONNECTIONS	4
 #define TIME_OUT		30000    // Server will ping client if no data is received from client after 2 min
 
 class User;
@@ -70,6 +70,7 @@ class Server
 
 	public:
 		struct pollfd					fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listening socket for the server.
+		int								num_fds;
 		Server(unsigned int port, const std::string& password);
 		~Server();
 		// void			startServer(void);
