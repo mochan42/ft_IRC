@@ -260,7 +260,7 @@ void	Server::remUser(const int& user_fd)
 	{
 		// User	*temp = it->second;
 		#ifdef DEBUG
-		std::cout << "========= List of fds BEFORE removing fd : " << user_fd <<  "from fds =========\n";
+		std::cout << "========= List of fds BEFORE removing fd : " << user_fd <<  " from fds =========\n";
 		for (int i = 0; i < (MAX_CONNECTIONS + 1); i++)
 		{
 			std::cout << "client socket fd is : " << this->fds[i].fd << "\n";
