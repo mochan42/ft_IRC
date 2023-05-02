@@ -127,6 +127,7 @@ class User
 		std::string		RPY_ERR442_youreNotOnThatChannel(std::string channel);
 		std::string		RPY_ERR467_keyAlreadySet(std::string channel);
 		std::string		RPY_ERR461_notEnoughParametersMode(std::string flag);
+		std::string 	RPY_ERR432_errorneusNickname(std::string nick);
 		std::string		RPY_ERR433_nickInUse(std::string nick);
 		std::string		RPY_ERR464_PASSWDMISMATCH();
 		std::string		RPY_ERR461_notEnoughParameters();
@@ -182,14 +183,6 @@ class User
 				virtual const char *what() const throw()
 				{
 					return (":No such channel");
-				}
-		};
-
-		class noSuchNick : public std::exception {
-			public:
-				virtual const char *what() const throw()
-				{
-					return (":No such nick");
 				}
 		};
 
@@ -265,12 +258,55 @@ class User
 				}
 		};
 
+		class noSuchNick : public std::exception {
+			public:
+				virtual const char *what() const throw()
+				{
+					return (":No such nick");
+				}
+		};
+
 		class nickInUse : public std::exception
 		{
 			public:
 				virtual const char *what() const throw()
 				{
 					return ("Nickname is already in use");
+				}
+		};
+
+		class nickNoInput : public std::exception {
+			public:
+				virtual const char *what() const throw()
+				{
+					return (":Nickname command with no Input");
+				}
+		};
+
+		class nickToShort : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Nickname is to short");
+				}
+		};
+
+		class nickInvalidCharacter : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Nickname contains invalid characters");
+				}
+		};
+
+		class nickInvalidFirstCharacter : public std::exception
+		{
+			public:
+				virtual const char *what() const throw()
+				{
+					return ("Nickname begins with an invalid character");
 				}
 		};
 
