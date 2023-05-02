@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/02 22:32:09 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/05/02 22:36:17 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -573,14 +573,9 @@ void	Server::setupServer()
 		return ;
 	}
  
-<<<<<<< HEAD
     //int num_fds = 1; // The first element of the array is the Listening socket so there the number of sockets is 1.
     num_fds = 1;
 	int *ptrNum_fds = &num_fds;
-=======
-    num_fds = 1; // The first element of the array is the Listening socket so there the number of sockets is 1.
-    int *ptrNum_fds = &num_fds;
->>>>>>> solved fd-problem ??
 	this->fds[0].fd = this->getListeningSocket();
     this->fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
     char buffer[BUFFER_SIZE]; // to store message from client(s).
