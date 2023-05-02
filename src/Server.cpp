@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/01 13:41:56 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/05/02 15:40:54 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,16 @@ void	Server::remUser(const int& user_fd)
 	if (it != this->_users.end())
 	{
 		// User	*temp = it->second;
+
+		for (int i = 0; i <= num_fds; i++)
+		{
+			if (this->fds[i].fd == (*it).first)
+			{
+				for(int j = i; j <= num_fds; j++)
+					this->fds[j] = this->fds[j + 1];
+				num_fds--;
+			}
+		}
 		this->_users.erase(user_fd);
 		// if (temp) 
 		// 	delete temp;
@@ -544,7 +554,7 @@ void	Server::setupServer()
 		return ;
 	}
  
-    int num_fds = 1; // The first element of the array is the Listening socket so there the number of sockets is 1.
+    num_fds = 1; // The first element of the array is the Listening socket so there the number of sockets is 1.
     int *ptrNum_fds = &num_fds;
 	this->fds[0].fd = this->getListeningSocket();
     this->fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
@@ -553,6 +563,10 @@ void	Server::setupServer()
     while (prgrm_stop == 0)
 	// while (true)
 	{
+		// create list of fds
+		
+		
+
         /* Use poll to wait for activity on any of the sockets */
 		int num_ready_fds = poll(this->fds, num_fds, TIME_OUT);
 		int *ptrNum_ready_fds = &num_ready_fds;

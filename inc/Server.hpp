@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/01 13:40:24 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/05/02 15:35:26 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,10 +66,12 @@ class Server
 		std::string						_serverName;
 		std::string						_serverIP;
 
+
 		//void			readErrorCodes(std::map<t_err, std::string>& errors);
 
 	public:
 		struct pollfd					fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listening socket for the server.
+		int								num_fds;
 		Server(unsigned int port, const std::string& password);
 		~Server();
 		// void			startServer(void);
