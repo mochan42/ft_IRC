@@ -321,7 +321,7 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
     socklen_t 			addr_len = sizeof(client_addr);
 	int 	client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &addr_len);
 
-    if (client_socket < 0)
+    if (client_socket < 0 || (client_socket >= 0 && *num_fds > MAX_CONNECTIONS))
 	{
         std::cout << RED << "Error accepting new connection" << D << "\n";
         return;
@@ -455,16 +455,9 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 	/* Check for new connections on the server socket */
 	if (this->fds[0].revents & POLLIN) // & : bitwise AND operator.
 	{
-		if (*ptrNum_fds > MAX_CONNECTIONS)
-		{
-			std::cout << "Error : max number of connections reached, cannot connect client to server\n";	
-			return ;
-		}
-		else
-		{
-			this->handle_new_connection(this->getListeningSocket(), this->fds, ptrNum_fds);
-			(*ptrNum_ready_fds)--;
-		}
+
+		this->handle_new_connection(this->getListeningSocket(), this->fds, ptrNum_fds);
+		(*ptrNum_ready_fds)--;
 	}
 	
 	/* Check for activity on any of the client sockets */
