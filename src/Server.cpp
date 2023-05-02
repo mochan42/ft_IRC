@@ -578,9 +578,7 @@ void	Server::setupServer()
 		return ;
 	}
  
-    //int num_fds = 1; // The first element of the array is the Listening socket so there the number of sockets is 1.
-    this->num_fds = 1;
-	int *ptrNum_fds = &num_fds;
+	this->num_fds = 1;
 	this->fds[0].fd = this->getListeningSocket();
     this->fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
     char buffer[BUFFER_SIZE]; // to store message from client(s).
@@ -593,7 +591,7 @@ void	Server::setupServer()
 		
 
         /* Use poll to wait for activity on any of the sockets */
-		int num_ready_fds = poll(this->fds, num_fds, TIME_OUT);
+		int num_ready_fds = poll(this->fds, this->num_fds, TIME_OUT);
 		int *ptrNum_ready_fds = &num_ready_fds;
 		if (prgrm_stop == 0)
 		{
@@ -603,10 +601,10 @@ void	Server::setupServer()
 					std::cout << RED << "Error : polling for events" << D << "\n";
 					break;
 				case 0 :
-					this->pingClient(this->fds[*ptrNum_fds].fd);
+					this->pingClient(this->fds[this->num_fds].fd);
 					break;
 				default:
-					this->connectUser(ptrNum_fds, ptrNum_ready_fds, buffer);
+					this->connectUser(&(this->num_fds), ptrNum_ready_fds, buffer);
 					break;
 			}
 		}
