@@ -39,11 +39,11 @@ public:
 	void disconnect();
 
 private:
-    std::string 			_nickname;
-    std::string 			_password;
-    int 					  _socket;
-	std::queue<IRCMsg> _message_queue;
-    std::vector<std::string> _answers;
+    std::string 				_nickname;
+    std::string					_password;
+    int							_socket;
+	std::queue<IRCMsg>			_message_queue;
+    std::vector<std::string>	_answers;
 };
 
 #endif // BOT_HPP
