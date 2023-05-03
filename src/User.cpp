@@ -224,7 +224,6 @@ void		User::registerUser(const std::vector<std::string>& args)
 	{
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR464_PASSWDMISMATCH());
-		//Delete User
 	}
 	catch(alreadyRegistered& e)
 	{
@@ -235,7 +234,6 @@ void		User::registerUser(const std::vector<std::string>& args)
 
 
 // valid charackters:	 A to Z (Lowercase and uppercase)		0 to 9			`|^_-{}[] and Backslash
-
 void		User::setNickName(const std::vector<std::string>& args)
 {
 	try
@@ -327,94 +325,6 @@ void		User::setNickName(const std::vector<std::string>& args)
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR432_errorneusNickname(""));
 	}
-
-
-
-	// if (args.empty())
-	// {
-	// 	sendMsgToOwnClient(RPY_ERR432_errorneusNickname(""));
-	// 	return;		
-	// }	
-
-	// std::string oldNick = _nickName;
-	// std::string newNick = args[0];
-	// if (newNick.length() > 30)
-	// 	newNick.resize(30);
-	// try
-	// {
-	// 	if (newNick.length() < 1)
-	// 		throw(nickToShort());
-	// 	if (newNick.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]\\'_^{}|") != std::string::npos)
-	// 		throw(nickInvalidCharacter());
-	// 	if (newNick.substr(0, 1).find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") != std::string::npos)
-	// 		throw(nickInvalidFirstCharacter());
-	// 	if (_server->getUser(newNick))
-	// 		throw (nickInUse());
-	// 	if (!_welcomeMes && _usernameSet)
-	// 	{
-	// 		_nickName = newNick;
-	// 		sendMsgToOwnClient(RPY_welcomeToServer());
-	// 		_welcomeMes = true;
-	// 		return;
-	// 	}
-	// 	_nickName = newNick;
-	// 	//create a list with all users from all channels:
-	// 	if (!_channelList.empty())
-	// 	{
-	// 		std::vector<User *> newUserList;
-	// 		std::vector<Channel *>::iterator channelIt = _channelList.begin();
-	// 		std::list<User *> *userList;
-	// 		for (; channelIt != _channelList.end(); ++channelIt)
-	// 		{
-	// 			userList = (*channelIt)->getListPtrOperators();
-	// 			for(std::list<User *>::iterator it = userList->begin(); it != userList->end(); ++it)
-	// 			{
-	// 				if (isUserInList(newUserList.begin(), newUserList.end(), *it) == false)
-	// 				{
-	// 					newUserList.push_back(*it);
-	// 				}
-	// 			}
-	// 			userList = (*channelIt)->getListPtrOrdinaryUsers();
-	// 			for(std::list<User *>::iterator it = userList->begin(); it != userList->end(); ++it)
-	// 			{
-	// 				if (isUserInList(newUserList.begin(), newUserList.end(), *it) == false)
-	// 				{
-	// 					newUserList.push_back(*it);
-	// 				}
-	// 			}
-	// 		}
-	// 		//Send all Users the message
-	// 		for (std::vector<User *>::iterator it = newUserList.begin(); it != newUserList.end(); ++it)
-	// 		{
-	// 			(*it)->sendMsgToOwnClient(RPY_newNick(oldNick));
-	// 		}
-	// 	}
-	// 	else
-	// 		sendMsgToOwnClient(RPY_newNick(oldNick));
-	// 	#if DEBUG
-	// 	std::cout << "User::setNickname called. The _nickName of fd " << this->getFd() << " is now:  " << this->getNickName() << std::endl;
-	// 	#endif
-	// }
-	// catch (nickInUse &e)
-	// {
-	// 	(void)e;
-	// 	sendMsgToOwnClient(RPY_ERR433_nickInUse(newNick));
-	// }
-	// catch(nickToShort& e)
-	// {
-	// 	(void) e;
-	// 	sendMsgToOwnClient(RPY_ERR432_errorneusNickname(newNick));
-	// }
-	// catch(nickInvalidCharacter& e)
-	// {
-	// 	(void) e;
-	// 	sendMsgToOwnClient(RPY_ERR432_errorneusNickname(newNick));
-	// }
-	// catch(nickInvalidFirstCharacter& e)
-	// {
-	// 	(void) e;
-	// 	sendMsgToOwnClient(RPY_ERR432_errorneusNickname(newNick));
-	// }
 }
 
 std::string	User::getNickName(void)
@@ -424,7 +334,6 @@ std::string	User::getNickName(void)
 
 void		User::setUserName(std::vector<std::string>& args)
 {
-
 	if (_usernameSet == true)
 	{
 		sendMsgToOwnClient(RPY_ERR462_alreadyRegistered());
@@ -1263,13 +1172,6 @@ int		User::sendPrivateMsg(std::vector<std::string>& args)
 std::string	User::argsToString(std::vector<std::string>::iterator iterBegin, std::vector<std::string>::iterator iterEnd)
 {
 	std::ostringstream msgstream;
-	// if ((*iterBegin)[0] == ':')
-	// {
-	// 	msgstream << (*iterBegin).replace((*iterBegin).find(":"), 1, "");
-	// 	++iterBegin;
-	// 	if (iterBegin != iterEnd && iterBegin + 1 != iterEnd)
-	// 		msgstream << " ";
-	// }
 	for (; iterBegin != iterEnd; ++iterBegin)
 	{
 		msgstream << *iterBegin;
