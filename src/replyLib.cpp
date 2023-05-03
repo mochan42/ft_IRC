@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   replyLib.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/05/02 10:19:47 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/05/03 15:04:06 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,12 @@ std::string User::RPY_kickedMessage(std::string otherNick, std::string channel, 
 std::string User::RPY_leaveChannel(std::string channel)
 {
 	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " PART " + channel + " :Leaving";
+	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_331_channelTopic(std::string channel)
+{
+	_replyMessage = ":" + _server->getServerName() + " 331 " + _nickName + " " + channel + " :No topic is set.";
 	return (_replyMessage.c_str());
 }
 

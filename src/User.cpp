@@ -536,7 +536,10 @@ void		User::changeTopic(std::vector<std::string>& args)
 	}
 	if (args.size() == 1)
 	{
-		sendMsgToOwnClient(RPY_332_channelTopic(channel, chnptr->getTopic()));
+		if (chnptr->getTopic() == "No topic is set")
+			sendMsgToOwnClient(RPY_331_channelTopic(channel));
+		else
+			sendMsgToOwnClient(RPY_332_channelTopic(channel, chnptr->getTopic()));
 		return;
 	}
 	if (chnptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive))

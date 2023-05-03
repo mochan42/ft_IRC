@@ -106,6 +106,7 @@ class User
 		std::string		RPY_inviteMessage(std::string otherNick, std::string channel);
 		std::string		RPY_kickedMessage(std::string otherNick, std::string channel, std::string reason);
 		std::string		RPY_leaveChannel(std::string channel);
+		std::string		RPY_331_channelTopic(std::string channel);
 		std::string		RPY_332_channelTopic(std::string channel, std::string topic);
 		std::string		RPY_newTopic(std::string channel, std::string newTopic);
 		std::string		RPY_352_whoUser(User *user, std::string channel, bool op);
