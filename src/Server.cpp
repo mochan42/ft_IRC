@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/03 11:59:48 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/05/03 21:50:31 by pmeising         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -371,7 +371,7 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		/* Client has disconnected */
 		std::cout << "Client disconnected\n";
 		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
-		//delete this->_users.find(client_socket)->second;
+		// delete this->_users.find(client_socket)->second;
 		
 		// When the user is deleted, then we should not find them here in the _users
 		std::_Rb_tree_iterator<std::pair<const int, User *> > test = this->_users.find(client_socket);
@@ -380,6 +380,8 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		{
 			User *user = this->_users.find(client_socket)->second;
 			user->quitServer();
+			return;
+			// delete user;
 			//this->_users.erase(client_socket); //Already did in remUser ?
 		}
 		close(client_socket);

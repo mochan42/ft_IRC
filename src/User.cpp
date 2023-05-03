@@ -1109,7 +1109,7 @@ void		User::quitServer()
 	}
 	_server->remUser(this->_userFd);
 	close(this->_userFd);
-	this->~User();
+	delete this;
 }
 
 
