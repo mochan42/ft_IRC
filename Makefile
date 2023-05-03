@@ -37,9 +37,6 @@ BOT_OBJ				:= $(addprefix $(OBJ_DIR), $(BOT_OBJ_FILES))
 # **************************************************************************** #
 # RULES
 
-debug: CFLAGS += -DDEBUG -g
-debug: fclean all
-
 all : $(NAME)
 
 $(NAME): $(OBJ_DIR) $(OBJ)
@@ -47,6 +44,9 @@ $(NAME): $(OBJ_DIR) $(OBJ)
 	@echo "$(GREEN)$(NAME) compiled :)$(END_COLOR)"
 # -C	:	make option that tells make to change directory before execution.
 # only the program here is checked against the flags
+
+debug: CFLAGS += -DDEBUG -g
+debug: fclean all
 
 $(OBJ_DIR)%.o : $(SRC_DIR)%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@ $(INCS)
