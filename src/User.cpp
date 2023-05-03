@@ -565,6 +565,8 @@ void 		User::inviteUser(std::vector<std::string>& args)
 	{
 		User *user = _server->getUser(nick);
 		Channel	*chptr = _server->getChannel(channel);
+		if (!chptr->isUserInList(chptr->getListPtrOperators(), this))
+			throw (notAnOperator());
 		if (!user)
 			throw (noSuchNick());
 		else if (!chptr)
@@ -577,9 +579,7 @@ void 		User::inviteUser(std::vector<std::string>& args)
 			{
 				chptr->updateUserList(chptr->getListPtrInvitedUsers(), user, USR_ADD);
 				sendMsgToOwnClient(RPY_341_userAddedtoInviteList(nick, channel));
-				//!!!     write to other person:   !!!!
 				user->sendMsgToOwnClient(RPY_inviteMessage(nick, channel));
-				//check if that works later
 			}
 		}
 	}
@@ -592,6 +592,11 @@ void 		User::inviteUser(std::vector<std::string>& args)
 	{
 		(void)e;
 		sendMsgToOwnClient(RPY_ERR401_noSuchNickChannel(nick));
+	}
+	catch (notAnOperator& e)
+	{
+		(void)e;
+		sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
 	}
 }
 
