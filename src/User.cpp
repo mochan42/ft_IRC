@@ -114,6 +114,8 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 		#endif
 		if (command == "CAP")
 		{}
+		else if (command == "QUIT")
+			quitServer();
 		else if (command == "PASS")
 			registerUser(args);
 		else if (!_isRegistered)
@@ -153,8 +155,6 @@ void		User::executeCommand(std::string command, std::vector<std::string>& args)
 			else
 				sendPrivateMsg(args);
 		}
-		else if (command == "QUIT")
-			quitServer();
 		else
 			throw (commandNotFound());
 
@@ -244,8 +244,8 @@ void		User::setNickName(const std::vector<std::string>& args)
 			throw(nickNoInput());
 		std::string oldNick = _nickName;
 		std::string newNick = args[0];
-		if (newNick.length() > 30)
-			newNick.resize(30);
+		if (newNick.length() > 9)
+			newNick.resize(9);
 		try
 		{
 			if (newNick.length() < 1)
