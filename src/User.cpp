@@ -522,7 +522,7 @@ void		User::who(std::vector<std::string>& args)
 
 void		User::changeTopic(std::vector<std::string>& args)
 {
-	if (args.size() < 2)
+	if (args.size() < 1)
 	{
 		sendMsgToOwnClient(RPY_ERR461_notEnoughParameters());
 		return;
