@@ -114,8 +114,13 @@ std::pair<std::string, std::string> Bot::process_message(const IRCMsg& msg) {
 
     // Process the received message and generate a response
     if (msg.msg_text.substr(0, 3) == "Bot" && msg.msg_text.find("?") == msg.msg_text.length() - 1) {
+        if(this->get_answers_size()){
         int random_index = std::rand() % this->get_answers_size();
         response = "Hello, " + msg.sender + ", if in need of motivation, remember following: " + get_answer(random_index);
+        }
+        else{
+        response = "Hello, " + msg.sender + ", I can´t answer that yet, but I´ll find out soon.";
+        }
     }
 
     // If the message came from a channel, set the target to the channel
