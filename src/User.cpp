@@ -628,6 +628,8 @@ void		User::joinChannel(std::vector<std::string>& args)
 			#if DEBUG
 			std::cout << "Channel doesn't exists. Server::createChannel called." << std::endl;
 			#endif
+			if (!isValidChannelName(args[0]))
+				throw (badChannelMask());
 			chptr = _server->createChannel(args[0], this);
 			if (!chptr)
 			{

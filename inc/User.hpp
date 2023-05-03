@@ -3,6 +3,7 @@
 
 # include "Server.h"
 # include "Channel.hpp"
+# include "Utils.hpp"
 # include <string.h>
 # include <sstream>
 # include <vector>
