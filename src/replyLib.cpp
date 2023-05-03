@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   replyLib.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/04/30 20:23:15 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/05/02 10:19:47 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,6 +204,12 @@ std::string User::RPY_ERR401_noSuchNickChannel(std::string nickchannel)
 std::string User::RPY_ERR443_alreadyOnChannel(std::string otherNick, std::string channel)
 {
 	_replyMessage = ":" + _server->getServerName() + " 443 " + _nickName + " " + otherNick + " " + channel + " :User is already on that channel";
+	return (_replyMessage.c_str());
+}
+
+std::string User::RPY_ERR432_errorneusNickname(std::string nick)
+{
+	_replyMessage = ":" + _server->getServerName() + " 432 * " + nick + " :Erroneous nickname";
 	return (_replyMessage.c_str());
 }
 

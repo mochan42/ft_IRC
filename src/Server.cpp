@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/01 13:41:56 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/05/03 11:59:48 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,8 +273,12 @@ void	Server::remUser(const int& user_fd)
                 for(int j = i; j <= num_fds && j <= MAX_CONNECTIONS; j++)
                 {
                     if (j == MAX_CONNECTIONS)
-                        this->fds[j].fd = 0;
-                    else
+					{
+						this->fds[j].fd = 0;
+						this->fds[i].events = 0;
+						this->fds[i].revents = 0;
+					}
+					else
                         this->fds[j] = this->fds[j + 1];
                 }
                 num_fds--;
@@ -453,7 +457,7 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 {
 	/* Check for new connections on the server socket */
-	if (this->fds[0].revents & POLLIN) // & : bitwise AND operator.
+	if (num_fds <= MAX_CONNECTIONS && (this->fds[0].revents & POLLIN)) // & : bitwise AND operator.
 	{
 
 		this->handle_new_connection(this->getListeningSocket(), this->fds, ptrNum_fds);
@@ -584,6 +588,10 @@ void	Server::setupServer()
     while (prgrm_stop == 0)
 	// while (true)
 	{
+		// create list of fds
+		
+		
+
         /* Use poll to wait for activity on any of the sockets */
 		int num_ready_fds = poll(this->fds, num_fds, TIME_OUT);
 		int *ptrNum_ready_fds = &num_ready_fds;
