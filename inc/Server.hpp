@@ -6,7 +6,7 @@
 /*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/02 15:35:26 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/05/03 12:00:21 by fmollenh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@
 #define MAX_PORT_NUMBER	65535
 #define BACKLOG			5
 #define BUFFER_SIZE		1024
-#define MAX_CONNECTIONS	4
+#define MAX_CONNECTIONS	3
 #define TIME_OUT		30000    // Server will ping client if no data is received from client after 2 min
 
 class User;
