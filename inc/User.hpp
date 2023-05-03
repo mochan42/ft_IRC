@@ -100,8 +100,6 @@ class User
 		std::string 	RPY_createChannel(Channel* channel);
 		std::string 	RPY_353_joinWho(Channel* channel);
 		std::string 	RPY_joinChannel(Channel* channel);
-		std::string		RPY_getModeCreated(Channel *channel);
-		std::string		RPY_getModeJoined(Channel *channel);
 
 		std::string		RPY_341_userAddedtoInviteList(std::string otherNick, std::string channel);
 		std::string		RPY_inviteMessage(std::string otherNick, std::string channel);

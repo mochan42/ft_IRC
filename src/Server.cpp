@@ -13,7 +13,7 @@ void custom_signal_handler(int signal)
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _listeningSocket(0), _password(password), _errorFile("ErrorCodes.txt"), _serverName("ourIRCServer")
+    _port(port), _listeningSocket(0), _password(password), _serverName("ourIRCServer")
 {
 	for (int i = 0; i <= MAX_CONNECTIONS; i++)
 	{
