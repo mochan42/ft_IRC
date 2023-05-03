@@ -858,7 +858,10 @@ void	User::mode(std::vector<std::string>& args)
 	if (!usr)
 		return;
 	if (flagArgsPairs.size() == 0)
+	{
 		printMode(channel, chptr);
+		return;
+	}
 	if (!chptr->isUserInList(chptr->getListPtrOperators(), usr))
 	{
 		sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
