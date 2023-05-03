@@ -1004,28 +1004,29 @@ void	User::mode(std::vector<std::string>& args)
 	if (!executedArgs.empty()) //Create the broadcast message
 	{
 		std::string createdFlags;
-		std::string createdArgs;
+		std::string createdArgs = "";
 		int			first = 1;
 
 		for (size_t i = 0; i < executedArgs.size(); ++i)
 		{
-			std::string f = flagArgsPairs[i].first;
-			std::string a = flagArgsPairs[i].second;
 			if (first == 1)
 			{
 				createdFlags = flagArgsPairs[i].first;
-				createdArgs = flagArgsPairs[i].second;
+				if (flagArgsPairs[i].second != "NULL")
+					createdArgs = flagArgsPairs[i].second;
 				first = 0;
 			}
 			else if (flagArgsPairs[i].first[0] == flagArgsPairs[i - 1].first[0])
 			{
 				createdFlags += flagArgsPairs[i].first[1];
-				createdArgs += " " + flagArgsPairs[i].second;
+				if (flagArgsPairs[i].second != "NULL")
+					createdArgs += " " + flagArgsPairs[i].second;
 			}
 			else
 			{
 				createdFlags += flagArgsPairs[i].first;
-				createdArgs += " " + flagArgsPairs[i].second;
+				if (flagArgsPairs[i].second != "NULL")
+					createdArgs += " " + flagArgsPairs[i].second;
 			}
 		}
 		std::string message;
