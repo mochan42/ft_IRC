@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: pmeising <pmeising@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/03 21:50:31 by pmeising         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 # include "../inc/Server.h"
 
 volatile sig_atomic_t prgrm_stop = 0;
@@ -25,7 +13,7 @@ void custom_signal_handler(int signal)
 
 //======== CONSTRUCTORS =========================================================================
 Server::Server(unsigned int port, const std::string& password) :
-    _port(port), _listeningSocket(0), _password(password), _errorFile("ErrorCodes.txt"), _serverName("ourIRCServer")
+    _port(port), _listeningSocket(0), _password(password), _serverName("ourIRCServer")
 {
 	for (int i = 0; i <= MAX_CONNECTIONS; i++)
 	{
@@ -34,9 +22,6 @@ Server::Server(unsigned int port, const std::string& password) :
 		this->fds[i].revents = 0;
 	}
 }
-
-//======== OVERLOAD OPERATORS ===================================================================
-
 
 //======== DESTRUCTOR ===========================================================================
 Server::~Server()
@@ -96,7 +81,6 @@ std::string		Server::getServerName()
 	return(this->_serverName);
 }
 
-
 User* Server::getUser(std::string nickName)
 {
     std::map<int, User*>::iterator it;
@@ -127,8 +111,6 @@ Channel*	Server::getChannel(const std::string& channel_name) const
 	std::map<std::string, Channel*>::const_iterator	it = this->_channels.find(channel_name);
 	if (it != this->_channels.end())
 		return (it->second);
-	// else
-	// 	throw ErrorInternal();
 	return (NULL);
 }
 
@@ -258,7 +240,6 @@ void	Server::remUser(const int& user_fd)
 	std::map<int, User*>::iterator	it = this->_users.find(user_fd);
 	if (it != this->_users.end())
 	{
-		// User	*temp = it->second;
 		#ifdef DEBUG
 		std::cout << "========= List of fds BEFORE removing fd : " << user_fd <<  " from fds =========\n";
 		for (int i = 0; i < (MAX_CONNECTIONS + 1); i++)
@@ -293,8 +274,6 @@ void	Server::remUser(const int& user_fd)
 		}
 		#endif
 		this->_users.erase(user_fd);
-		// if (temp) 
-		// 	delete temp;
 	}
 }
 
@@ -339,9 +318,7 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 	std::string ipAddress = inet_ntoa(client_addr.sin_addr);
 	User* new_user = new User(client_socket, ipAddress, this);
 	this->_users[client_socket] = new_user;
-    // this->_users.insert(std::make_pair(client_socket, new_user));
 	(*num_fds)++;
-    // Respond with welcome message to user RPLY Code 001
 	std::cout << "New client connected from :" << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << "\n";
 	std::cout << "IP Address (long) :" << new_user->getIP() << "\n";
 }
@@ -350,16 +327,6 @@ void	Server::handle_new_connection(int server_socket, struct pollfd *fds, int *n
 void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size)
 {
 	std::string *input = this->getUserByFd(client_socket)->getInput();
-	// std::map<int, User*>::iterator	it = this->_user.find(client_socket);
-	// if (it != this->_user.end())
-	// 	input = it->second._input;
-	// for (std::map<int, User*>::iterator it = this->_users.begin(); it = this->_user.end() ; it++)
-	// {
-		
-	// }
-	
-	// while (true)
-	// {
 	int num_bytes = recv(client_socket, buffer, buffer_size, 0);
 	if (num_bytes < 0)
 	{
@@ -370,47 +337,32 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 	{
 		/* Client has disconnected */
 		std::cout << "Client disconnected\n";
-		// Freeing allocated memory of User object in std::map<> _user and erasing the entrance from the map.
-		// delete this->_users.find(client_socket)->second;
-		
-		// When the user is deleted, then we should not find them here in the _users
-		std::_Rb_tree_iterator<std::pair<const int, User *> > test = this->_users.find(client_socket);
-		(void)test;
-		if (test->first == client_socket)
+		std::_Rb_tree_iterator<std::pair<const int, User *> > it = this->_users.find(client_socket);
+		if (it->first == client_socket)
 		{
 			User *user = this->_users.find(client_socket)->second;
 			user->quitServer();
 			return;
-			// delete user;
-			//this->_users.erase(client_socket); //Already did in remUser ?
 		}
 		close(client_socket);
-		//break;
 	}
 	else
 	{
 		buffer[num_bytes] = '\0';
 		*input += std::string(buffer, 0, num_bytes);
-		// if (input.find("\n") != std::string::npos)
-		// 	break;
 		if (input->find("\n") == std::string::npos)
 			std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
 	}
-	// }
 	if (input->find("\n") != std::string::npos)
 	{
 		this->_messages[client_socket] = *input;
 		input->clear();
 	}
-		
-
 	#if DEBUG
 	std::cout << "Stored message from client: " << this->_messages[client_socket] << "\n";
 	#endif
-	/* parse buffer */
 	// Create a Message instance using the buffer content
 	Message msg(this->_messages[client_socket]);
-	
 	// Extract the command and arguments from the Message instance
 	std::vector<std::string> command = msg.getCommand();
 	std::vector<std::vector<std::string> > args = msg.getArguments();
@@ -427,10 +379,6 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		}}
 	std::cout << "\n";
 	#endif
-
-	// Print the command and arguments for debugging purposes
-
-	/* client_socket execute cmd */
 	std::map<int, User*>::iterator user_it = _users.find(client_socket);
 	if (user_it != _users.end())
 	{
@@ -441,10 +389,6 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 			user->executeCommand(command[i], args[i]);
 			i++;
 		}
-	}
-	else
-	{
-	// Handle the case when the user is not found
 	}
 }
 
@@ -512,7 +456,6 @@ void	Server::setupServer()
 		std::cout << "Server Password is\t: " << this->_password << "\n";
 		std::cout << "listening socket\t: " <<  this->getListeningSocket()<< "\n";
 	#endif
-	
 	signal(SIGINT, custom_signal_handler);
 	/* Creating server socket... */
 	try
@@ -524,7 +467,6 @@ void	Server::setupServer()
 		std::cerr << e.what() << RED << "Error: server listening socket failed" << D "\n";
 		return ;
 	}
-
 	/* setup a server that listens to the host IP address 's_addr' with port 'sin_port' */
 	struct sockaddr_in hint;
 	hint.sin_family = AF_INET;
@@ -535,7 +477,6 @@ void	Server::setupServer()
 	#ifdef DEBUG
 		std::cout << "IRC Server IP and port are <IP:Port> : " << this->getServerIP() << ":" << this->getPort() << "\n";
 	#endif
-
 	/* Making socket reusable... */
 	try
 	{
@@ -546,7 +487,6 @@ void	Server::setupServer()
 		std::cerr << e.what() << RED << "Error: could not make listening socket re-usable." << D << "\n";
 		return ;
 	}
-
 	/* Setting the listening socket to none blocking */
 	try
 	{
@@ -557,7 +497,6 @@ void	Server::setupServer()
 		std::cerr << e.what() << RED << "Error: could not make the listening socket non blocking." << D << "\n";
 		return ;
 	}
-
 	/* Binding socket to sockaddr... */
 	try
 	{
@@ -568,7 +507,6 @@ void	Server::setupServer()
 		std::cerr << e.what() << RED << "Error: Listening Socket could not bind to Server port." << D << "\n";
 		return ;
 	}
-
 	/* Mark the socket for listening... */
 	try
 	{
@@ -579,19 +517,13 @@ void	Server::setupServer()
 		std::cerr << e.what() << RED << "Error: Listening Socket could not listen to clients." << D << "\n";
 		return ;
 	}
- 
 	this->num_fds = 1;
 	this->fds[0].fd = this->getListeningSocket();
     this->fds[0].events = POLLIN; // instructs poll() to monitor Listening socket 'fds[0]' for incoming connection or data.
     char buffer[BUFFER_SIZE]; // to store message from client(s).
 
     while (prgrm_stop == 0)
-	// while (true)
 	{
-		// create list of fds
-		
-		
-
         /* Use poll to wait for activity on any of the sockets */
 		int num_ready_fds = poll(this->fds, this->num_fds, TIME_OUT);
 		int *ptrNum_ready_fds = &num_ready_fds;

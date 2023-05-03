@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Channel.cpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/15 10:03:39 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/30 10:20:32 by cudoh            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../inc/Channel.hpp"
 
 Channel::Channel(std::string name, User *user)
@@ -296,9 +284,6 @@ void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 			#endif
 			if (ownUser.first == false || (ownUser.first == true && (*it)->getNickName() != ownUser.second->getNickName()))
 				send(fd, msg.c_str(), msg.length(), 0);
-
-			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
-			// 	throw SendToTargetCLientException();
 		}
 		for (it = _ordinaryUsers->begin(); it != _ordinaryUsers->end(); ++it)
 		{
@@ -308,9 +293,6 @@ void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 			#endif
 			if (ownUser.first == false || (ownUser.first == true && (*it)->getNickName() != ownUser.second->getNickName()))
 				send(fd, msg.c_str(), msg.length(), 0);
-
-			// if (send(targetUserFd, msg.c_str(), msg.length(), 0) < 0)			// would be better to test if message is send
-			// 	throw SendToTargetCLientException();
 		}
 	}
 	CHN_EXCEPTION_HANDLER();

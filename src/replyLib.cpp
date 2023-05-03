@@ -1,20 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   replyLib.cpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/20 11:28:57 by fmollenh          #+#    #+#             */
-/*   Updated: 2023/05/03 15:04:06 by fsemke           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../inc/User.hpp"
-
-
-//		*!* VERITY MESSAGES  *!*
-//		-----------------------
 
 std::string User::RPY_welcomeToServer(void)
 {
@@ -118,8 +102,6 @@ std::string User::RPY_341_userAddedtoInviteList(std::string otherNick, std::stri
 
 std::string User::RPY_kickedMessage(std::string otherNick, std::string channel, std::string reason)
 {
-	//>> :Nick5!otherUser@5.159.29.72 KICK #test2 Nick5
-	//>> :Nick5!otherUser@5.159.29.72 KICK #test1 Nick5 :This is the reason
 	if (reason == "")
 		_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " KICK " + channel + " " + otherNick;
 	else
@@ -147,7 +129,6 @@ std::string User::RPY_332_channelTopic(std::string channel, std::string topic)
 
 std::string User::RPY_newTopic(std::string channel, std::string newTopic)
 {
-	//>> :<Nick>!<User@IP> TOPIC <channel> :<new Topic>
 	_replyMessage = ":" + _nickName + "!" + _userName + "@" + _ip + " TOPIC " + channel + " :" + newTopic;
 	return (_replyMessage.c_str());
 }
@@ -157,8 +138,6 @@ std::string User::RPY_324_printMode(std::string channel, std::string flags)
 	_replyMessage = ":" + _server->getServerName() + " 324 " + _nickName + " " + channel + " " + flags;
 	return (_replyMessage.c_str());
 }
-
-
 
 std::string User::RPY_352_whoUser(User *user, std::string channel, bool op)
 {
@@ -178,9 +157,6 @@ std::string User::RPY_315_endWhoList(std::string channel)
 	_replyMessage = ":" + _server->getServerName() + " 315 " + _nickName + " " + channel + " :End of WHO list";
 	return (_replyMessage.c_str());
 }
-
-//		*!* ERROR MESSAGES  *!*
-//		-----------------------
 
 std::string	User::RPY_ERR_commandNotfound(std::string command)
 {

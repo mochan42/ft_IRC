@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/14 21:10:11 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/03 12:00:21 by fmollenh         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef SERVER_HPP
 # define SERVER_HPP
 # include <unistd.h> 
@@ -25,7 +13,7 @@
 # include <map>
 # include <list>
 # include <sys/socket.h>  // to create socket
-#include <netdb.h> // for getnameinfo()
+# include <netdb.h> // for getnameinfo()
 # include <netinet/in.h> // to use struct addr_in which is used to represnt an IP address and port number.
 # include <fcntl.h>
 # include <poll.h>
@@ -33,10 +21,10 @@
 # include "User.hpp"
 # include "Channel.hpp"
 # include "Message.hpp"
-#include <ctime> // for pingClient()
+# include <ctime> // for pingClient()
 
 
-#define MIN_PORT_NUMBER	1024      //1025 Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
+#define MIN_PORT_NUMBER	1024      // Registered Ports (1.024 - 49.151) -----   Dynamically Allocated Ports (49.152 - 65.535):
 #define MAX_PORT_NUMBER	65535
 #define BACKLOG			5
 #define BUFFER_SIZE		1024
@@ -51,66 +39,56 @@ class Server
 {
 	private:
 		Server();
-		std::map<int, User*>			_users;
-		std::map<std::string, Channel*>	_channels;
-		//std::map<t_err, std::string>	_errors;
 		Server(const Server& obj);
 		Server&	operator=(const Server& rhs);
 
 		unsigned int					_port;
 		int								_listeningSocket;
 		const std::string				_password;
-		const std::string				_errorFile;
-		std::list<std::string>			_operators;
-		std::map<int, std::string>		_messages;
 		std::string						_serverName;
 		std::string						_serverIP;
-
-
-		//void			readErrorCodes(std::map<t_err, std::string>& errors);
+		std::map<int, User*>			_users;
+		std::list<std::string>			_operators;
+		std::map<int, std::string>		_messages;
+		std::map<std::string, Channel*>	_channels;
 
 	public:
-		struct pollfd					fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listening socket for the server.
 		int								num_fds;
+		struct pollfd					fds[MAX_CONNECTIONS + 1]; // +1 is to acommodate the Listening socket for the server.
 		Server(unsigned int port, const std::string& password);
 		~Server();
-		// void			startServer(void);
-		// void			closeServer(void);
 
-		void					pingClient(int client_socket);
-		Channel*				createChannel(const std::string& channel_name, User* user);
-		void					pingClient(void) const;
 		
 		// getters
-		Channel*				getChannel(const std::string& channel) const;
-		unsigned int			getPort(void) const;
-		bool					verifyPassword(const std::string& password) const;
-		int						getListeningSocket(void) const;
-		User*					getUser(std::string nickName);
-		User*					getUserByFd(int client_socket);
-		std::string				getServerName();
-		std::string				getServerIP();
+		Channel*						getChannel(const std::string& channel) const;
+		unsigned int					getPort(void) const;
+		int								getListeningSocket(void) const;
+		User*							getUser(std::string nickName);
+		User*							getUserByFd(int client_socket);
+		std::string						getServerName();
+		std::string						getServerIP();
 
 		// setters
-		void					setListeningSocket (int n);
-		void					setPort(int inputPortNumber);
-		void					setServerIP(std::string setServerIP);
+		void							setListeningSocket (int n);
+		void							setPort(int inputPortNumber);
+		void							setServerIP(std::string setServerIP);
 
 		// member functions
-		void					createSocket();
-		void					makeListeningSocketReusable();
-		void					setSocketToNonBlocking();
-		void					bindListeningSocketToServerPort(sockaddr_in addr);
-		void					listenToClients();
-		void					handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
-		void					handle_client_data(int client_socket, char *buffer, int buffer_size);
-		void					connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer);
-		void					setupServer();
-		void					remUser(const int& user_fd);
-		void					remChannel(const std::string& channel_name);
-		
-		// LEGACY CODE:
-		void					deleteChannel(Channel *channelPtr);
+		bool							verifyPassword(const std::string& password) const;
+		void							pingClient(int client_socket);
+		Channel*						createChannel(const std::string& channel_name, User* user);
+		void							createSocket();
+		void							makeListeningSocketReusable();
+		void							setSocketToNonBlocking();
+		void							bindListeningSocketToServerPort(sockaddr_in addr);
+		void							listenToClients();
+		void							handle_new_connection(int server_socket, struct pollfd *fds, int *num_fds);
+		void							handle_client_data(int client_socket, char *buffer, int buffer_size);
+		void							connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer);
+		void							setupServer();
+		void							remUser(const int& user_fd);
+		void							remChannel(const std::string& channel_name);
+		void							deleteChannel(Channel *channelPtr);
 
 		// exception class
 		class ErrorInternal : public std::exception
