@@ -351,7 +351,10 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		buffer[num_bytes] = '\0';
 		*input += std::string(buffer, 0, num_bytes);
 		if (input->find("\n") == std::string::npos)
+		{
 			std::cout << "received partial input: \"" << input << "\", nothing to execute yet" <<std::endl;
+			return;
+		}
 	}
 	if (input->find("\n") != std::string::npos)
 	{

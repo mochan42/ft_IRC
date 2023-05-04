@@ -263,7 +263,7 @@ bool	Channel::isModeSet(uint8_t	mode, t_chnOptionCtrl optCtrl)
 
 void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 {
-	std::string msg = msg_org + "\n";
+	std::string msg = msg_org + "\r\n";
 	int msgLen = msg.size();
 	int fd = 0;
 	std::list<User *>::iterator it;
