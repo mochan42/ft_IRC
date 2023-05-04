@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   replyLib.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moninechan <moninechan@student.42.fr>      +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 21:21:15 by moninechan        #+#    #+#             */
-/*   Updated: 2023/05/04 21:21:17 by moninechan       ###   ########.fr       */
+/*   Updated: 2023/05/04 21:25:24 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
