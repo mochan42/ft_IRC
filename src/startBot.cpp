@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   startBot.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/05/03 23:20:23 by tjairus           #+#    #+#             */
+/*   Updated: 2023/05/04 09:52:06 by tjairus          ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <iostream>
 #include <string>
 #include <signal.h>
@@ -34,7 +46,7 @@ int main(int argc, char* argv[]) {
 
 	signal(SIGINT, signal_handler);
 
-    while (!stop) {
+    while (!stop && !bot.get_nickname_in_use()) {
         Bot::IRCMsg msg;
         if (bot.get_msg(msg, 5)) {
             std::cout << msg.sender << " @ " << msg.channel << ": " << msg.msg_text << std::endl;
@@ -51,6 +63,10 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+    if (bot.get_nickname_in_use()) {
+        bot.disconnect();
+    }
+    return 1;
 	bot.send_line("QUIT");
     bot.disconnect();
 
