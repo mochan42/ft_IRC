@@ -3,12 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moninechan <moninechan@student.42.fr>      +#+  +:+       +#+        */
+/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/04 21:19:13 by moninechan        #+#    #+#             */
-/*   Updated: 2023/05/04 21:19:16 by moninechan       ###   ########.fr       */
+/*   Created: 2023/05/04 21:33:46 by cudoh             #+#    #+#             */
+/*   Updated: 2023/05/04 21:33:49 by cudoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
