@@ -1,9 +1,0 @@
-*.txt
-*.swp
-obj
-*.o
-a.out
-ircserv
-ircbot
-test/test
-.vscode
