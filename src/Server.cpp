@@ -408,7 +408,6 @@ void	Server::connectUser(int* ptrNum_fds, int* ptrNum_ready_fds, char* buffer)
 	/* Check for new connections on the server socket */
 	if (num_fds <= MAX_CONNECTIONS && (this->fds[0].revents & POLLIN)) // & : bitwise AND operator.
 	{
-
 		this->handle_new_connection(this->getListeningSocket(), this->fds, ptrNum_fds);
 		(*ptrNum_ready_fds)--;
 	}
