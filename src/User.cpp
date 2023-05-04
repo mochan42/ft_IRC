@@ -46,7 +46,7 @@ User::~User()
  */
 int			User::sendMsgToOwnClient(std::string msg)
 {
-	std::string str = msg + "\n";
+	std::string str = msg + "\r\n";
 	try
 	{
 		if (send(this->_userFd, str.c_str(), str.length(), 0) < 0)
@@ -69,7 +69,7 @@ int			User::sendMsgToOwnClient(std::string msg)
  */
 int			User::sendMsgToTargetClient(std::string msg, int targetUserFd)
 {
-	std::string str = msg + "\n";
+	std::string str = msg + "\r\n";
 	try
 	{
 		if (send(targetUserFd, str.c_str(), str.length(), 0) < 0)
