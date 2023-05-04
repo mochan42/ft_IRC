@@ -917,6 +917,7 @@ void	User::mode(std::vector<std::string>& args)
 				break;	
 			
 			default:{
+				sendMsgToOwnClient(RPY_ERR472_unknownMode(flag.substr(1)));
 				#if DEBUG
 				std::cout << "Unknown mode: " << flag << std::endl;
 				#endif
@@ -933,7 +934,7 @@ void	User::mode(std::vector<std::string>& args)
 		{
 			if (first == 1)
 			{
-				createdFlags = executedArgs[i].first; //HERE
+				createdFlags = executedArgs[i].first;
 				if (executedArgs[i].second != "NULL")
 					createdArgs = executedArgs[i].second;
 				first = 0;

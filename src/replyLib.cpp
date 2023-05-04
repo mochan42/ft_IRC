@@ -225,6 +225,12 @@ std::string User::RPY_ERR471_canNotJoinL(std::string channel)
 	return (_replyMessage.c_str());
 }
 
+std::string User::RPY_ERR472_unknownMode(std::string flag)
+{
+	_replyMessage = ":" + _server->getServerName() + " 472 " + _nickName + " " + flag + " :is unknown mode char to me";
+	return (_replyMessage.c_str());
+}
+
 std::string User::RPY_ERR482_notChannelOp(std::string channel)
 {
 	_replyMessage = ":" + _server->getServerName() + " 482 " + _nickName + " " + channel + " :You're not channel operator";

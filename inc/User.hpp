@@ -132,6 +132,7 @@ class User
 		std::string		RPY_ERR464_PASSWDMISMATCH();
 		std::string		RPY_ERR461_notEnoughParameters();
 		std::string		RPY_ERR404_cannotSendToChannel(std::string channel);
+		std::string		RPY_ERR472_unknownMode(std::string flag);
 
 //		*!* EXCEPTIONS  *!*
 //		-------------------
