@@ -933,22 +933,22 @@ void	User::mode(std::vector<std::string>& args)
 		{
 			if (first == 1)
 			{
-				createdFlags = flagArgsPairs[i].first;
-				if (flagArgsPairs[i].second != "NULL")
-					createdArgs = flagArgsPairs[i].second;
+				createdFlags = executedArgs[i].first; //HERE
+				if (executedArgs[i].second != "NULL")
+					createdArgs = executedArgs[i].second;
 				first = 0;
 			}
-			else if (flagArgsPairs[i].first[0] == flagArgsPairs[i - 1].first[0])
+			else if (executedArgs[i].first[0] == executedArgs[i - 1].first[0])
 			{
-				createdFlags += flagArgsPairs[i].first[1];
-				if (flagArgsPairs[i].second != "NULL")
-					createdArgs += " " + flagArgsPairs[i].second;
+				createdFlags += executedArgs[i].first[1];
+				if (executedArgs[i].second != "NULL")
+					createdArgs += " " + executedArgs[i].second;
 			}
 			else
 			{
-				createdFlags += flagArgsPairs[i].first;
-				if (flagArgsPairs[i].second != "NULL")
-					createdArgs += " " + flagArgsPairs[i].second;
+				createdFlags += executedArgs[i].first;
+				if (executedArgs[i].second != "NULL")
+					createdArgs += " " + executedArgs[i].second;
 			}
 		}
 		std::string message;
