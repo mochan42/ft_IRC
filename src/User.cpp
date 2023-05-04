@@ -476,13 +476,13 @@ void 		User::inviteUser(std::vector<std::string>& args)
 	try
 	{
 		User *user = _server->getUser(nick);
-		Channel	*chptr = _server->getChannel(channel);
-		if (!chptr->isUserInList(chptr->getListPtrOperators(), this))
-			throw (notAnOperator());
+		Channel    *chptr = _server->getChannel(channel);
+		if (!chptr)
+			throw (noSuchChannel());
 		if (!user)
 			throw (noSuchNick());
-		else if (!chptr)
-			throw (noSuchChannel());
+		if (!chptr->isUserInList(chptr->getListPtrOperators(), this))
+       		throw (notAnOperator());
 		else
 		{
 			if (chptr->isUserInChannel(nick) != NULL)
