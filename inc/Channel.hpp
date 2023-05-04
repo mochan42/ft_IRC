@@ -1,16 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Channel.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/15 10:03:27 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/30 20:38:28 by cudoh            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
@@ -77,7 +64,7 @@ typedef enum e_chn_mode
 	CHN_MODE_Default,
 	CHN_MODE_Invite,            // _mode value = 1
 	CHN_MODE_Protected,         // _mode value = 2
-	CHN_MODE_CustomUserLimit, // _mode value = 4
+	CHN_MODE_CustomUserLimit, 	// _mode value = 4
 	CHN_MODE_AdminSetTopic,     // _mode value = 8
 	CHN_MODE_Max
 }	t_chnMode;
@@ -93,7 +80,7 @@ class Channel
         unsigned int		_channelCapacity;
         std::list<User *>	*_invitedUsers;
         std::list<User *>	*_operators;
-        std::list<User *>	*_ordinaryUsers;			// without operators
+        std::list<User *>	*_ordinaryUsers;
 		uint8_t				_mode;
 		
 		/**	
@@ -122,7 +109,7 @@ class Channel
 
     public:
     	Channel(std::string name, User *user);	// Parametric constructor
-    	~Channel(void);									// Destructor
+    	~Channel(void);
     
     	/* Getters and Setters */
     	std::string			getChannelName(void) const;
@@ -361,5 +348,4 @@ class Channel
 		};
 };
 
-
-#endif // CHANNEL_HPP
+#endif
