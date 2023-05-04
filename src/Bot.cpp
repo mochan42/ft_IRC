@@ -1,7 +1,7 @@
 #include "../inc/Bot.hpp"
 
 Bot::Bot(const std::string& nickname, const std::string& password) :
-        _nickname(nickname), _password(password), _socket(-1) {
+        _nickname(nickname), _password(password), _socket(-1),  _nickname_in_use(false) {
 }
 
 bool Bot::connect(const std::string& server, int port) {
@@ -48,6 +48,10 @@ void Bot::set_answers(const std::string& file_name) {
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
+}
+
+bool Bot::get_nickname_in_use() const {
+    return _nickname_in_use;
 }
 
 std::string Bot::get_answer(size_t index) const {
@@ -121,6 +125,11 @@ std::pair<std::string, std::string> Bot::process_message(const IRCMsg& msg) {
         else{
         response = "Hello, " + msg.sender + ", I can´t answer that yet, but I´ll find out soon.";
         }
+    }
+    if (msg.msg_text.find(":Nickname is already in use") != std::string::npos) {
+        std::cerr << "Error: nickname is already in use" << std::endl;
+        _nickname_in_use = true;
+        return std::make_pair("", "");
     }
 
     // If the message came from a channel, set the target to the channel

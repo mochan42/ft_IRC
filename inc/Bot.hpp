@@ -29,21 +29,24 @@ public:
     };
 
     Bot(const std::string& nickname, const std::string& password);
-    bool connect(const std::string& server, int port);
-    bool get_msg(IRCMsg& msg, int timeout_seconds);
+    bool                                connect(const std::string& server, int port);
+    bool                                get_nickname_in_use() const;
+    bool                                get_msg(IRCMsg& msg, int timeout_seconds);
     std::pair<std::string, std::string> process_message(const IRCMsg& msg);
-    void set_answers(const std::string& file_name);
-    std::string get_answer(size_t index) const;
-    size_t get_answers_size() const;
-	void send_line(const std::string& line);
-	void disconnect();
+    void                                set_answers(const std::string& file_name);
+    std::string                         get_answer(size_t index) const;
+    size_t                              get_answers_size() const;
+	void                                send_line(const std::string& line);
+    bool                                checkConnected();
+	void                                disconnect();
 
 private:
-    std::string 			_nickname;
-    std::string 			_password;
-    int 					  _socket;
-	std::queue<IRCMsg> _message_queue;
-    std::vector<std::string> _answers;
+    std::string 			    _nickname;
+    std::string 			    _password;
+    int 					    _socket;
+	std::queue<IRCMsg>          _message_queue;
+    std::vector<std::string>    _answers;
+    bool                        _nickname_in_use;
 };
 
 #endif // BOT_HPP

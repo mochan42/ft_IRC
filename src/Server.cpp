@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmollenh <fmollenh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 21:10:05 by pmeising          #+#    #+#             */
-/*   Updated: 2023/05/03 11:59:48 by fmollenh         ###   ########.fr       */
+/*   Updated: 2023/05/03 22:53:49 by tjairus          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -380,6 +380,7 @@ void	Server::handle_client_data(int client_socket, char *buffer, int buffer_size
 		{
 			User *user = this->_users.find(client_socket)->second;
 			user->quitServer();
+			return;
 			//this->_users.erase(client_socket); //Already did in remUser ?
 		}
 		close(client_socket);
