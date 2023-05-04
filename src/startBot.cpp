@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   startBot.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tjairus <tjairus@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: moninechan <moninechan@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/03 23:20:23 by tjairus           #+#    #+#             */
-/*   Updated: 2023/05/04 13:48:07 by tjairus          ###   ########lyon.fr   */
+/*   Created: 2023/05/04 21:21:40 by moninechan        #+#    #+#             */
+/*   Updated: 2023/05/04 21:21:43 by moninechan       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
