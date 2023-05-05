@@ -6,7 +6,7 @@
 /*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 21:21:51 by moninechan        #+#    #+#             */
-/*   Updated: 2023/05/04 22:19:11 by fsemke           ###   ########.fr       */
+/*   Updated: 2023/05/05 11:39:48 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -565,20 +565,20 @@ void		User::joinChannel(std::vector<std::string>& args)
 		}
 		else //join channel
 		{
-			if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+			if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
 			{
-				if (args.size() <= 1 || !chptr->checkPassword(args[1]))
-					throw (cannotJoinChannelPW());
-			}
-			if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
-			{
-				if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
+				if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+				{
+					if (args.size() <= 1 || !chptr->checkPassword(args[1]))
+						throw (cannotJoinChannelPW());
+				}
+				if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
 					throw (cannotJoinChannelIn());
-				else
-					chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
+				if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
+					throw (channelCapacity());
 			}
-			if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
-				throw (channelCapacity());
+			if (chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
+				chptr->updateUserList(chptr->getListPtrInvitedUsers(), this, USR_REMOVE);
 			chptr->updateUserList(chptr->getListPtrOrdinaryUsers(), this, USR_ADD);
 			sendMsgToOwnClient(RPY_joinChannel(chptr));
 			chptr->broadcastMsg(RPY_joinChannelBroadcast(chptr, false), std::make_pair(false, (User *) NULL));
