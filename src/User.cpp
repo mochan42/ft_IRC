@@ -451,7 +451,7 @@ void		User::changeTopic(std::vector<std::string>& args)
 			sendMsgToOwnClient(RPY_332_channelTopic(channel, chnptr->getTopic()));
 		return;
 	}
-	if (chnptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive))
+	if (chnptr->getBoolTopic())
 	{
 		if (!chnptr->isUserInList(chnptr->getListPtrOperators(), this))
 		{
@@ -555,12 +555,12 @@ void		User::joinChannel(std::vector<std::string>& args)
 		{
 			if (!chptr->isUserInList(chptr->getListPtrInvitedUsers(), this))
 			{
-				if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+				if (chptr->getBoolKey())
 				{
 					if (args.size() <= 1 || !chptr->checkPassword(args[1]))
 						throw (cannotJoinChannelPW());
 				}
-				if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
+				if (chptr->getBoolInvite())
 					throw (cannotJoinChannelIn());
 				if (chptr->getChannelCapacity() <= chptr->getNbrofActiveUsers())
 					throw (channelCapacity());
@@ -799,16 +799,16 @@ void	User::mode(std::vector<std::string>& args)
 
 			case 'i': //Set/remove Invite-only channel
 				if (flag[0] == '+') {
-					if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == false)
+					if (chptr->getBoolInvite() == false)
 					{
-						chptr->setMode(CHN_MODE_Invite);
+						chptr->setBoolInvite(true);
 						executedArgs.push_back(flagArgsPairs[i]);
 					}
 					setInviteOnly(channel);
 				} else if (flag[0] == '-') {
-					if (chptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive) == true)
+					if (chptr->getBoolInvite() == true)
 					{
-						chptr->setMode(CHN_MODE_Invite);
+						chptr->setBoolInvite(false);
 						executedArgs.push_back(flagArgsPairs[i]);
 					}
 					remoInviteOnly(channel);
@@ -817,16 +817,16 @@ void	User::mode(std::vector<std::string>& args)
 
 			case 't': //Set/remove the restrictions of the TOPIC command to channel operators
 				if (flag[0] == '+') {
-					if (chptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive) == false)
+					if (chptr->getBoolTopic() == false)
 					{
-						chptr->setMode(CHN_MODE_AdminSetTopic);
+						chptr->setBoolTopic(true);
 						executedArgs.push_back(flagArgsPairs[i]);
 					}
 					setTopicRestrictions(channel);
 				} else if (flag[0] == '-') {
-					if (chptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive) == true)
+					if (chptr->getBoolTopic() == true)
 					{
-						chptr->setMode(CHN_MODE_AdminSetTopic);
+						chptr->setBoolTopic(false);
 						executedArgs.push_back(flagArgsPairs[i]);
 					}
 					removeTopicRestrictions(channel);
@@ -835,20 +835,20 @@ void	User::mode(std::vector<std::string>& args)
 			
 			case 'k': //Set/remove the channel key (password)
 				if (flag[0] == '+') {
-					if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive) == true)
+					if (chptr->getBoolKey() == true)
 					{
 						sendMsgToOwnClient(RPY_ERR467_keyAlreadySet(channel));
 						break;
 					}
 					else
 					{
-						chptr->setMode(CHN_MODE_Protected);
+						chptr->setBoolKey(true);
 						chptr->setPassword(arguments);
 						executedArgs.push_back(flagArgsPairs[i]);
 					}
 					setChannelKey(channel, arguments);
 				} else if (flag[0] == '-') {
-					if (chptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive) == true)
+					if (chptr->getBoolKey())
 					{
 						if (chptr->remPassword(arguments) == false)
 						{
@@ -901,13 +901,11 @@ void	User::mode(std::vector<std::string>& args)
 					{
 						break;
 					}
-					if (chptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive) == false)
-						chptr->setMode(CHN_MODE_CustomUserLimit);
+					chptr->setBoolLimit(true);
 					executedArgs.push_back(flagArgsPairs[i]);
 					setUserLimit(channel, std::atoi(arguments.c_str()));
 				} else if (flag[0] == '-') {
-					if (chptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive) == true)
-						chptr->setMode(CHN_MODE_CustomUserLimit);
+					chptr->setBoolLimit(false);
 					executedArgs.push_back(flagArgsPairs[i]);
 					removeUserLimit(channel);
 				}
@@ -960,21 +958,21 @@ void	User::printMode(std::string channel, Channel *ptr)
 	std::string	combined;
 	std::string flags = "+n";
 	std::string args;
-	if (ptr->isModeSet(CHN_MODE_Invite, CHN_OPT_CTRL_NotExclusive))
+	if (ptr->getBoolInvite())
 		flags += "i";
-	if (ptr->isModeSet(CHN_MODE_CustomUserLimit, CHN_OPT_CTRL_NotExclusive))
+	if (ptr->getBoolLimit())
 	{
 		flags += "l";
 		std::ostringstream msgstream;
 		msgstream << ptr->getChannelCapacity();
 		args += msgstream.str() + " ";
 	}
-	if (ptr->isModeSet(CHN_MODE_Protected, CHN_OPT_CTRL_NotExclusive))
+	if (ptr->getBoolKey())
 	{
 		flags += "k";
 		args += ptr->getPassword() + " ";
 	}
-	if (ptr->isModeSet(CHN_MODE_AdminSetTopic, CHN_OPT_CTRL_NotExclusive))
+	if (ptr->getBoolTopic())
 	{
 		flags += "t";
 		args += ptr->getTopic();

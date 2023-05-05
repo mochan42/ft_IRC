@@ -24,16 +24,6 @@
 		std::cerr << e.what() << '\n'; \
 	}\
 
-# define CHN__ISMODESET(mode,optCtrl) ({						\
-	if ((optCtrl)) 												\
-	{															\
-		returnCode = (_mode == (1 << ((mode) - (1)))) ? 1 : 0;	\
-		break ;													\
-	}															\
-	returnCode = _mode &(1 << ((mode) - (1)));					\
-	break;														\
-	})															\
-
 typedef enum e_chn_action
 {
 	USR_ADD = 0,
@@ -41,14 +31,6 @@ typedef enum e_chn_action
 	/*Max*/
 	MAX_ACTION
 }	t_chn_action;
-
-
-typedef enum e_chnOptionCtrl
-{
-	CHN_OPT_CTRL_NotExclusive,
-	CHN_OPT_CTRL_Exclusive
-}	t_chnOptionCtrl;
-
 
 typedef enum e_chn_return
 {
@@ -58,16 +40,6 @@ typedef enum e_chn_return
 	CHN_ERR_InvalidMode,
 	CHN_ERR_SUCCESS = 0,
 }	t_chn_return;
-
-typedef enum e_chn_mode
-{
-	CHN_MODE_Default,
-	CHN_MODE_Invite,            // _mode value = 1
-	CHN_MODE_Protected,         // _mode value = 2
-	CHN_MODE_CustomUserLimit, 	// _mode value = 4
-	CHN_MODE_AdminSetTopic,     // _mode value = 8
-	CHN_MODE_Max
-}	t_chnMode;
 
 class User;
 
@@ -81,7 +53,10 @@ class Channel
         std::list<User *>	*_invitedUsers;
         std::list<User *>	*_operators;
         std::list<User *>	*_ordinaryUsers;
-		uint8_t				_mode;
+		bool				_boolInvite;
+		bool				_boolKey;
+		bool				_boolLimit;
+		bool				_boolTopic;
 		
 		/**	
 		 * ! This method call must be wrapped within try/catch. 
@@ -121,16 +96,23 @@ class Channel
 		unsigned int		getNbrofActiveUsers(void) const;
         uint8_t             getMode(void) const;
 		std::string			getPassword(void) const;
+		
+		bool				getBoolInvite(void) const;
+		bool				getBoolTopic(void) const;
+		bool				getBoolKey(void) const;
+		bool				getBoolLimit(void) const;
+		void				setBoolInvite(bool input);
+		void				setBoolTopic(bool input);
+		void				setBoolKey(bool input);
+		void				setBoolLimit(bool input);
+
     	void				setChannelName(std::string name);
     	t_chn_return		setChannelCapacity(unsigned int);
     	void				setTopic(std::string topic);
-		t_chn_return		setMode(uint8_t mode);
 		void				setPassword(std::string pw);
     
     	/* Methods */
-		
-		bool				isModeSet(uint8_t mode, t_chnOptionCtrl optCtrl);
-		
+				
 		/**
 		 * @brief 
 		 * This method sends messages passed to users in the a channel by
@@ -140,7 +122,6 @@ class Channel
 		 *
 		 * @param msg std::string
 		 */
-    	// void	broadcastMsg(std::string msg_org);
 		void 	broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser);
 
 
