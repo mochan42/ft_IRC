@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test_channel.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cudoh <cudoh@student.42wolfsburg.de>       +#+  +:+       +#+        */
+/*   By: fsemke <fsemke@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 18:59:02 by cudoh             #+#    #+#             */
-/*   Updated: 2023/04/30 12:35:55 by cudoh            ###   ########.fr       */
+/*   Updated: 2023/05/05 12:56:17 by fsemke           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,10 +155,9 @@ TEST_CASE( "Channel : ChannelCapacity", "[Channel][ChannelCapacity]")
         club.setChannelCapacity(1025);
         REQUIRE(club.getChannelCapacity() != 1025);
         club.setChannelCapacity(2);
-        REQUIRE(club.getChannelCapacity() != 2);
+        REQUIRE(club.getChannelCapacity() == 2);
         club.setChannelCapacity(0);
         REQUIRE(club.getChannelCapacity() != 0);
-        REQUIRE(club.getChannelCapacity() == CHN_MAX_USERS);
     }
 }
 
@@ -307,7 +306,19 @@ TEST_CASE( "Channel : setMode", "[Channel][Mode]")
 
         club.setMode(CHN_MODE_Default);
         REQUIRE(club.setMode(16) == CHN_ERR_InvalidMode);
-    } 
+    }
+    // SECTION("set mode to invite : and delete again")
+    // {
+    //     Server server(5566, "default");
+    //     User flex(1, "127.0.0.1", &server);
+    //     Channel club("Bikers", &flex);
+        
+    //     // Invite is on bit 1(0) : value should be 1
+    //     club.setMode(CHN_MODE_Invite);
+    //     REQUIRE(club.getMode() == CHN_MODE_Invite);
+    //     club.setMode(CHN_MODE_Invite);
+    //     REQUIRE(club.getMode() != CHN_MODE_Invite);
+    // }
 }
 
 

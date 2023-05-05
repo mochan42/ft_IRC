@@ -773,15 +773,12 @@ void	User::mode(std::vector<std::string>& args)
 		sendMsgToOwnClient(RPY_ERR403_noSuchChannel(channel));
 		return;
 	}
-	User *usr = _server->getUser(_nickName);
-	if (!usr)
-		return;
 	if (flagArgsPairs.size() == 0)
 	{
 		printMode(channel, chptr);
 		return;
 	}
-	if (!chptr->isUserInList(chptr->getListPtrOperators(), usr))
+	if (!chptr->isUserInList(chptr->getListPtrOperators(), this))
 	{
 		sendMsgToOwnClient(RPY_ERR482_notChannelOp(channel));
 		return;
