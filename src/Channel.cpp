@@ -81,11 +81,6 @@ unsigned int	Channel::getNbrofActiveUsers(void) const
 	return (nbrOfUsers);
 }
 
-// uint8_t Channel::getMode(void) const
-// {
-//     return (_mode);
-// }
-
 std::string	Channel::getPassword(void) const
 {
 	return (_password);
@@ -194,113 +189,7 @@ t_chn_return Channel::setChannelCapacity(unsigned int NbrOfUsers)
 	return (returnCode);
 }
 
-
-// t_chn_return	Channel::setMode(uint8_t mode)
-// {
-// 	t_chn_return returnCode = CHN_ERR_InvalidMode;
-
-// 	try
-// 	{
-// 		switch (mode)
-// 		{
-// 		case CHN_MODE_Default:
-// 		{
-// 			_mode = CHN_MODE_Default;
-// 			break;
-// 		}
-// 		case CHN_MODE_Invite:
-// 		{
-// 			_mode |= (1 << (CHN_MODE_Invite - 1));
-// 			break;
-// 		}
-// 		case CHN_MODE_Protected:
-// 		{
-// 			_mode |= (1 << (CHN_MODE_Protected - 1));
-// 			break;
-// 		}
-// 		case CHN_MODE_CustomUserLimit:
-// 		{
-// 			_mode |= (1 << (CHN_MODE_CustomUserLimit - 1));
-// 			break;
-// 		}
-// 		case CHN_MODE_AdminSetTopic:
-// 		{
-// 			_mode |= (1 << (CHN_MODE_AdminSetTopic - 1));
-// 			break;
-// 		}
-// 		default:
-// 		{
-// 			if (mode < (pow(2, (CHN_MODE_Max - 1))))
-// 			{
-// 				_mode = mode;
-// 			}
-// 			else
-// 				throw InvalidChannelModeException();
-// 			break ;
-// 		}
-// 		}
-// 		returnCode = CHN_ERR_SUCCESS;
-// 	}
-// 	CHN_EXCEPTION_HANDLER();
-// 	return (returnCode);
-// }
-
-
 /*----------- Methods -------------------------------------*/
-
-// bool	Channel::isModeSet(uint8_t	mode, t_chnOptionCtrl optCtrl)
-// {
-// 	bool	returnCode = false;
-// 	try
-// 	{
-// 		switch (mode)
-// 		{
-// 			case CHN_MODE_Invite:
-// 			{
-// 				CHN__ISMODESET(CHN_MODE_Invite,optCtrl);
-// 	#if 0
-// 				/* This code has been replaced with a macro CHN__ISMODESET
-// 				* This approach has been adopted to perform code repetition
-// 				* in an unclumsy way.
-// 				*/
-// 				if (optCtrl)
-// 				{
-// 					returnCode = (_mode == (1 << (CHN_MODE_Invite - 1))) ? true : false;
-// 					break ;
-// 				}
-// 				returnCode = _mode &(1 << (CHN_MODE_Invite -1));
-// 				break;
-// 	#endif
-// 			}
-// 			case CHN_MODE_Protected:
-// 			{
-// 				CHN__ISMODESET(CHN_MODE_Protected,optCtrl);
-// 			}
-// 			case CHN_MODE_CustomUserLimit:
-// 			{
-// 				CHN__ISMODESET(CHN_MODE_CustomUserLimit,optCtrl);
-// 			}
-// 			case CHN_MODE_AdminSetTopic:
-// 			{
-// 				CHN__ISMODESET(CHN_MODE_AdminSetTopic,optCtrl);
-// 			}
-// 			default:
-// 			{
-// 				/* for default case: control option is Exclusive */
-// 				if (mode < (pow(2, (CHN_MODE_Max - 1))))
-// 				{
-// 					returnCode = (_mode == mode) ? true : false;
-// 				}
-// 				else
-// 					throw InvalidChannelModeException();
-// 				break ;
-// 			}
-// 		}
-// 	}
-// 	CHN_EXCEPTION_HANDLER();	
-// 	return (returnCode);
-// }
-
 
 void Channel::broadcastMsg(std::string msg_org, std::pair<bool, User*> ownUser)
 {
@@ -455,7 +344,6 @@ void	Channel::deallocPtrs(std::list<User *> *list_users)
 		list_users = NULL;
 	}
 }
-
 
 
 User*	Channel::fetchUserPtrFromList(std::list<User *> *user_list, 
